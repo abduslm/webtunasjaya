@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Profil_perusahaan extends Model
 {
+    use HasFactory;
     protected $primaryKey = 'id_profilPerusahaan';
     protected $fillable = [
         'nama_perusahaan', 

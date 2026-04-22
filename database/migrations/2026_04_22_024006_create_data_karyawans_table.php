@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('no_hp');
             $table->string('foto')->nullable();
-            $table->foreignId('id_lokasi')->constrained('lokasis')->onDelete('cascade');
+            $table->foreignId('id_lokasi')->constrained('lokasis','id_lokasi')->onDelete('cascade');
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

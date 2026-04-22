@@ -17,11 +17,10 @@ class User extends Authenticatable
 
     protected $fillable = [
         'email',    
-        'password',      // Pastikan tetap 'nama'
+        'password',
         'role',
         'status',
-        'device_id',
-        'id_karyawan'
+        'device_id'
     ];
 
     protected $hidden = [
@@ -32,7 +31,6 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // Nilai default untuk kolom tertentu
     protected $attributes = [
         'role' => 'karyawan',
         'status' => 'non-aktif'

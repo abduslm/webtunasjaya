@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('media_pendukung')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
-            $table->foreignId('id_absensi')->constrained('absensis')->onDelete('cascade');
+            $table->foreignId('id_absensi')->constrained('absensis','id_absensi')->onDelete('cascade');
         });
     }
 

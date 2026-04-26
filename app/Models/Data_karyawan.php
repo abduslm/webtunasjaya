@@ -16,7 +16,6 @@ class Data_karyawan extends Model
         'tanggal_lahir',
         'jenis_kelamin',
         'alamat',
-        'email',
         'no_hp',
         'foto',
         'id_lokasi',

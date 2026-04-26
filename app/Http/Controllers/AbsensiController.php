@@ -12,7 +12,8 @@ class AbsensiController
      */
     public function index()
     {
-        //
+        $absensi = Absensi::all();
+        return view('admin.absensi.daftarAbsensi', compact('absensi'));
     }
 
     /**
@@ -36,7 +37,8 @@ class AbsensiController
      */
     public function show(Absensi $absensi)
     {
-        //
+        $absensi = Absensi::findOrFail($absensi->id);
+        return view('admin.absensi.daftarAbsensi', compact('absensi'));
     }
 
     /**
@@ -52,7 +54,25 @@ class AbsensiController
      */
     public function update(Request $request, Absensi $absensi)
     {
-        //
+        $validated = $request->validate([
+            'absen_masuk' => 'required|date_format:H:i:s',
+            'absen_keluar' => 'required|date_format:H:i:s|after:absen_masuk',
+            'total_waktu' => 'required|integer',
+            'tanggal' => 'required|date',
+            'status' => 'nullable|string',
+            'id_user' => 'required|integer|exists:users,id',
+        ]);
+        $absensi->update(
+            [
+                'absen_masuk' => $validated['absen_masuk'],
+                'absen_keluar' => $validated['absen_keluar'],
+                'total_waktu' => $validated['total_waktu'],
+                'tanggal' => $validated['tanggal'],
+                'status' => $validated['status'] ?? 'hadir',
+                'id_user' => $validated['id_user'],
+            ]
+        );
+        return redirect()->route('admin.absensi.daftarAbsensi')->with('success', 'Absensi berhasil diperbarui');
     }
 
     /**
@@ -60,6 +80,7 @@ class AbsensiController
      */
     public function destroy(Absensi $absensi)
     {
-        //
+        $absensi->delete();
+        return redirect()->route('admin.absensi.daftarAbsensi')->with('success', 'Absensi berhasil dihapus');
     }
 }

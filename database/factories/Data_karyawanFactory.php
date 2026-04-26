@@ -23,7 +23,6 @@ class Data_karyawanFactory extends Factory
             'tanggal_lahir'  => $this->faker->date(),
             'jenis_kelamin'  => $this->faker->randomElement(['L', 'P']),
             'alamat'         => $this->faker->address(),
-            'email'          => $this->faker->unique()->safeEmail(),
             'no_hp'          => $this->faker->phoneNumber(),
             'foto'           => null, // default sesuai model
             'id_lokasi'      => $this->faker->numberBetween(1, 10), // asumsi ada lokasi dengan id 1–10

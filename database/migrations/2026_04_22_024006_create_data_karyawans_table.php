@@ -17,7 +17,6 @@ return new class extends Migration
             $table->date('tanggal_lahir');
             $table->string('jenis_kelamin');
             $table->text('alamat');
-            $table->string('email')->unique();
             $table->string('no_hp');
             $table->string('foto')->nullable();
             $table->foreignId('id_lokasi')->constrained('lokasis','id_lokasi')->onDelete('cascade');

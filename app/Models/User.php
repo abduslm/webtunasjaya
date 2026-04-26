@@ -38,7 +38,7 @@ class User extends Authenticatable
 
     // Relasi
     public function pengajuanIzin() {
-        return $this->hasMany(PengajuanIzin::class, 'id_user');
+        return $this->hasMany(Pengajuan_izin::class, 'id_user');
     }
     public function absensi() {
         return $this->hasMany(Absensi::class, 'id_user');

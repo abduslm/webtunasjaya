@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\kelola_halaman;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request;  
+use Illuminate\Support\Facades\Storage;
 
 class KelolaHalamanController
 {
@@ -15,7 +16,9 @@ class KelolaHalamanController
         //
     }
 
-    /**
+
+
+    /** 
      * Show the form for creating a new resource.
      */
     public function create()

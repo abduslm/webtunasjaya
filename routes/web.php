@@ -34,3 +34,5 @@ Route::get('/admin/daftar-absensi', function () {
 Route::get('/admin/logout', function () {
     return view('logout');})->name('admin.logout');
 
+Route::get('/login', function () {
+    return view('admin.absensi.login');})->name('login');

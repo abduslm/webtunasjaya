@@ -55,76 +55,90 @@
 
 
 {{-- welcome --}}
+@php
+    // Ambil data dari database untuk bagian beranda
+    $beranda = \App\Models\kelola_halaman::where('section', 'beranda_hero')->first();
+@endphp
+
 <section id="beranda" class="min-h-screen flex items-center justify-center p-6 md:p-12">
-        <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+    <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        
+        <div class="order-2 lg:order-1 space-y-8">
+            <div>
+                <span class="bg-[#E8EFFF] text-[#4285F4] px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
+                    Cleaning Solution Partner
+                </span>
+            </div>
             
-            <div class="order-2 lg:order-1 space-y-8">
+            {{-- JUDUL DINAMIS --}}
+            <h1 class="text-5xl md:text-7xl font-extrabold text-[#0B3C5D] leading-[1.1]">
+                {!! nl2br(e($beranda->judul ?? 'Profesional Outsourcing & Cleaning Service')) !!}
+            </h1>
+            
+            <div class="w-20 h-1.5 bg-[#4285F4] rounded-full"></div>
+            
+            {{-- DESKRIPSI DINAMIS --}}
+            <p class="text-gray-500 text-lg md:text-xl leading-relaxed max-w-lg">
+                {{ $beranda->desk_singkat ?? 'Solusi Terpadu Layanan Profesional untuk Bisnis Anda. Kami menghadirkan standar kebersihan kelas dunia untuk menunjang produktivitas Anda.' }}
+            </p>
+            
+            <div class="flex flex-wrap gap-4 pt-4">
+                <a href="#hubungi-kami" class="bg-[#4285F4] hover:bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all duration-300 shadow-xl shadow-blue-200 transform hover:-translate-y-1">
+                    <i class="bi bi-envelope-fill w-5 h-5"></i>    
+                    Hubungi Kami
+                </a>
+                <a href="#layanan" class="bg-white border border-gray-100 text-[#4285F4] hover:bg-gray-50 px-10 py-4 rounded-2xl font-bold transition-all duration-300 shadow-sm transform hover:-translate-y-1">
+                    Lihat Layanan
+                </a>
+            </div>
+            
+            <div class="flex gap-12 pt-10 border-t border-gray-200">
                 <div>
-                    <span class="bg-[#E8EFFF] text-[#4285F4] px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
-                        Cleaning Solution Partner
-                    </span>
+                    <h3 class="text-3xl font-extrabold text-[#0B3C5D]">100%</h3>
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Terpercaya</p>
                 </div>
-                
-                <h1 class="text-5xl md:text-7xl font-extrabold text-[#0B3C5D] leading-[1.1]">
-                    Profesional <br>
-                    <span class="text-[#4285F4]">Outsourcing &</span> <br>
-                    Cleaning Service
-                </h1>
-                
-                <div class="w-20 h-1.5 bg-[#4285F4] rounded-full"></div>
-                
-                <p class="text-gray-500 text-lg md:text-xl leading-relaxed max-w-lg">
-                    Solusi Terpadu Layanan Profesional untuk Bisnis Anda. Kami menghadirkan standar kebersihan kelas dunia untuk menunjang produktivitas Anda.
-                </p>
-                
-                <div class="flex flex-wrap gap-4 pt-4">
-                    <a href="#hubungi-kami" class="bg-[#4285F4] hover:bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all duration-300 shadow-xl shadow-blue-200 transform hover:-translate-y-1">
-                        <i class="bi bi-envelope-fill w-5 h-5"></i>    
-                        Hubungi Kami
-                    </a>
-                    <a href="#layanan" class="bg-white border border-gray-100 text-[#4285F4] hover:bg-gray-50 px-10 py-4 rounded-2xl font-bold transition-all duration-300 shadow-sm transform hover:-translate-y-1">
-                        Lihat Layanan
-                    </a>
-                </div>
-                
-                <div class="flex gap-12 pt-10 border-t border-gray-200">
-                    <div>
-                        <h3 class="text-3xl font-extrabold text-[#0B3C5D]">100%</h3>
-                        <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Terpercaya</p>
-                    </div>
-                    <div>
-                        <h3 class="text-3xl font-extrabold text-[#0B3C5D]">Bersertifikasi</h3>
-                        <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Tim Profesional</p>
-                    </div>
+                <div>
+                    <h3 class="text-3xl font-extrabold text-[#0B3C5D]">Bersertifikasi</h3>
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Tim Profesional</p>
                 </div>
             </div>
+        </div>
 
-            <div class="order-1 lg:order-2 relative group">
-                <div class="absolute inset-0 bg-blue-200 rounded-[50px] rotate-3 scale-95 blur-xl opacity-50 group-hover:rotate-0 transition-transform duration-700"></div>
-                
-                <div class="relative rounded-[50px] overflow-hidden shadow-2xl transition-transform duration-700 group-hover:scale-[1.02]">
+        <div class="order-1 lg:order-2 relative group">
+            <div class="absolute inset-0 bg-blue-200 rounded-[50px] rotate-3 scale-95 blur-xl opacity-50 group-hover:rotate-0 transition-transform duration-700"></div>
+            
+            <div class="relative rounded-[50px] overflow-hidden shadow-2xl transition-transform duration-700 group-hover:scale-[1.02] bg-gray-200">
+                {{-- GAMBAR DINAMIS --}}
+                @if($beranda && $beranda->gambar)
                     <img 
-                        src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000" 
-                        alt="Modern Glass Building Architecture" 
+                        src="{{ Storage::url($beranda->gambar) }}" 
+                        alt="Hero Image" 
                         class="w-full h-[450px] md:h-[600px] object-cover"
                     >
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#0B3C5D]/30 to-transparent"></div>
-                </div>
-
-                <div class="absolute bottom-8 left-8 right-8 md:right-auto md:w-72 bg-white/90 backdrop-blur-xl p-5 rounded-[30px] shadow-2xl flex items-center gap-5 border border-white transform transition-all duration-500 hover:-translate-y-2">
-                    <div class="bg-[#4285F4] p-4 rounded-2xl text-white shadow-lg shadow-blue-200">
-                        <i class="bi bi-shield-check w-8 h-8"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black mb-1">Kualitas Terjamin</p>
-                        <p class="text-[#0B3C5D] font-extrabold text-xl leading-none">Layanan 24/7</p>
-                    </div>
-                </div>
+                @else
+                    {{-- Gambar Default jika database kosong --}}
+                    <img 
+                        src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000" 
+                        alt="Default Hero" 
+                        class="w-full h-[450px] md:h-[600px] object-cover"
+                    >
+                @endif
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0B3C5D]/30 to-transparent"></div>
             </div>
 
+            <div class="absolute bottom-8 left-8 right-8 md:right-auto md:w-72 bg-white/90 backdrop-blur-xl p-5 rounded-[30px] shadow-2xl flex items-center gap-5 border border-white transform transition-all duration-500 hover:-translate-y-2">
+                <div class="bg-[#4285F4] p-4 rounded-2xl text-white shadow-lg shadow-blue-200">
+                    <i class="bi bi-shield-check w-8 h-8"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black mb-1">Kualitas Terjamin</p>
+                    <p class="text-[#0B3C5D] font-extrabold text-xl leading-none">Layanan 24/7</p>
+                </div>
+            </div>
         </div>
-    </section>
 
+    </div>
+</section>
 
 
 

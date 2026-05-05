@@ -39,7 +39,7 @@
             
             <div class="flex items-center">
                 <div class="w-48 h-12 flex items-center">
-                    <img src="assets/images/landing_page/logo.png" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
+                    <img src="{{ optional($profil)->logo ? asset('storage/' . $profil->logo) : asset('assets/images/landing_page/logo.png') }}" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
                     </div>
             </div>
 
@@ -500,18 +500,8 @@
                             <i class="bi bi-geo-alt w-6 h-6"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-900">Alamat Pusat</h3>
-                            <p class="text-slate-500">Perum Bumi Suko Indah D2/81 Sidoarjo-61224</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-slate-100 transition-hover hover:shadow-md">
-                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mr-5 shrink-0">
-                            <i class="bi bi-geo-alt w-6 h-6"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-900">Alamat Cabang</h3>
-                            <p class="text-slate-500">Perum Genteng Indah D/12A Karangsari, Banyuwangi</p>
+                            <h3 class="font-bold text-slate-900">Alamat</h3>
+                            <p class="text-slate-500">{{ optional($profil)->alamat ?? 'Alamat belum tersedia' }}</p>
                         </div>
                     </div>
 
@@ -521,7 +511,7 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900">Telepon</h3>
-                            <p class="text-slate-500">+62 81235188282 / +62 081331733891</p>
+                            <p class="text-slate-500">{{ optional($profil)->no_telepon ?? 'Telepon belum tersedia' }}</p>
                         </div>
                     </div>
 
@@ -531,7 +521,7 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900">Email</h3>
-                            <p class="text-indigo-600 font-medium">tunasjayaclean@gmail.com</p>
+                            <p class="text-indigo-600 font-medium">{{ optional($profil)->email ?? 'Email belum tersedia' }}</p>
                         </div>
                     </div>
 
@@ -541,7 +531,7 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900">Jam Kerja</h3>
-                            <p class="text-slate-500">Senin - Sabtu : 08.00 - 16.00 WIB</p>
+                            <p class="text-slate-500">{{ optional($profil)->senin_jumat ?? 'Senin - Sabtu : 08.00 - 16.00 WIB' }}</p>
                         </div>
                     </div>
                 </div>
@@ -601,7 +591,7 @@
                 {{-- Kolom 1: Logo & Deskripsi --}}
                 <div class="space-y-6">
                     <div class="bg-white p-1 rounded-sm w-full max-w-[280px] h-16 flex items-center justify-center">
-                        <img src="assets/images/landing_page/logo.png" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
+                        <img src="{{ optional($profil)->logo ? asset('storage/' . $profil->logo) : asset('assets/images/landing_page/logo.png') }}" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
                     </div>
 
                     <p class="text-gray-300 text-sm leading-relaxed max-w-xs">
@@ -611,16 +601,16 @@
 
                     {{-- Social Media Icons --}}
                     <div class="flex gap-3">
-                        <a href="https://twitter.com" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                        <a href="{{ optional($profil)->twitter ?: '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ optional($profil)->twitter ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-twitter w-5 h-5 text-white"></i>
                         </a>
-                        <a href="https://facebook.com" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                        <a href="{{ optional($profil)->facebook ?: '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ optional($profil)->facebook ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-facebook w-5 h-5 text-white"></i>
                         </a>
-                        <a href="https://instagram.com" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                        <a href="{{ optional($profil)->ig ?: '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ optional($profil)->ig ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-instagram w-5 h-5 text-white"></i>
                         </a>
-                        <a href="https://linkedin.com" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                        <a href="{{ optional($profil)->linkedIn ?: '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ optional($profil)->linkedIn ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-linkedin w-5 h-5 text-white"></i>
                         </a>
                     </div>
@@ -654,21 +644,18 @@
                 <div class="space-y-6">
                     <h4 class="text-lg font-bold mb-6">Hubungi Kami</h4>
                     
-                    <div class="text-gray-300 text-sm leading-relaxed">
-                        <p>Perum Bumi Suko Indah Blok D2/81</p>
-                        <p>Sidoarjo - 61224</p>
-                        <p>Jawa Timur</p>
-                        <p>Indonesia</p>
+                        <div class="text-gray-300 text-sm leading-relaxed">
+                        <p>{{ optional($profil)->alamat ?? 'Alamat belum tersedia' }}</p>
                     </div>
 
                     <div class="text-sm">
                         <p class="font-bold text-white mb-1">Telepon:</p>
-                        <p class="text-gray-300">081235188282 – Tirta | 081331733891 – Ovin</p>
+                        <p class="text-gray-300">{{ optional($profil)->no_telepon ?? 'Telepon belum tersedia' }}</p>
                     </div>
 
                     <div class="text-sm">
                         <p class="font-bold text-white mb-1">Email:</p>
-                        <p class="text-gray-300">tunasjayaclean@gmail.com</p>
+                        <p class="text-gray-300">{{ optional($profil)->email ?? 'Email belum tersedia' }}</p>
                     </div>
                 </div>
 

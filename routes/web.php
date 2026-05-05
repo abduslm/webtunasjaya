@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Profil_perusahaan;
 use App\Http\Controllers\KelolaHalamanController;
 use App\Http\Controllers\ProfilPerusahaanController;
 
 // ── PUBLIC ────────────────────────────────────────────────────────────────────
 Route::get('/', function () {
-    return view('index');
+    $profil = Profil_perusahaan::first();
+    return view('index', compact('profil'));
 });
 
 Route::get('/login', function () {

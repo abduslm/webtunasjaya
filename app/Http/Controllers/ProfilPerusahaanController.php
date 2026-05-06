@@ -4,62 +4,64 @@ namespace App\Http\Controllers;
 
 use App\Models\Profil_perusahaan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
-class ProfilPerusahaanController
+class ProfilPerusahaanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function hubungiKami()
     {
-        //
+        $data = Profil_perusahaan::first();
+
+        return view('admin.front_pages.hubungiKami', compact('data'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function hubungiKamiUpdate(Request $request)
     {
-        //
+        $request->validate([
+            'nama_perusahaan' => 'required|string|max:255',
+            'motto'           => 'nullable|string|max:255',
+            'logo'            => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
+            'no_telepon'      => 'nullable|string|max:50',
+            'email'           => 'nullable|email|max:255',
+            'alamat'          => 'nullable|string',
+            'senin_jumat'     => 'nullable|string|max:255',
+            'sabtu'           => 'nullable|string|max:255',
+            'minggu'          => 'nullable|string|max:255',
+            'facebook'        => 'nullable|string|max:255',
+            'ig'              => 'nullable|string|max:255',
+            'linkedIn'        => 'nullable|string|max:255',
+            'twitter'         => 'nullable|string|max:255',
+        ]);
+
+        $profil = Profil_perusahaan::firstOrNew([
+            'id_profilPerusahaan' => 1
+        ]);
+
+        $profil->fill($request->except('logo'));
+
+        if ($request->hasFile('logo')) {
+            if ($profil->logo) {
+                Storage::disk('public')->delete($profil->logo);
+            }
+
+            $profil->logo = $request->file('logo')->store('profil', 'public');
+        }
+
+        $profil->save();
+
+        return back()->with('success', 'Data Hubungi Kami berhasil diperbarui.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function hubungiKamiDelete($id)
     {
-        //
-    }
+        $profil = Profil_perusahaan::findOrFail($id);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Profil_perusahaan $profil_perusahaan)
-    {
-        //
-    }
+        if ($profil->logo) {
+            Storage::disk('public')->delete($profil->logo);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Profil_perusahaan $profil_perusahaan)
-    {
-        //
-    }
+        $profil->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Profil_perusahaan $profil_perusahaan)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Profil_perusahaan $profil_perusahaan)
-    {
-        //
+        return back()->with('success', 'Data berhasil dihapus.');
     }
 }

@@ -38,7 +38,6 @@ class AbsensiApiController
             'id_user' => 'required|exists:users,id',
         ], [
             'id_user.exists' => 'User yang dipilih tidak valid.',
-            'id_lokasi.exists' => 'Lokasi yang dipilih tidak valid.',
         ]);
 
         $masuk = Carbon\Carbon::parse($validated['absen_masuk']);

@@ -24,7 +24,7 @@
         <nav class="flex-1 p-4 overflow-y-auto">
 
             <!-- Dashboard -->
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->is('/') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                 <i class="bi bi-house"></i>
                 <span>Dashboard</span>
             </a>
@@ -33,7 +33,7 @@
                 Kelola Front Page
             </div>
 
-            <a href="{{ route('admin.beranda') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.beranda') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="/admin/beranda" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.beranda') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                 <i class="bi bi-file-text"></i>
                 <span>Beranda</span>
             </a>
@@ -63,38 +63,42 @@
                 <span>Hubungi Kami</span>
             </a>
 
-            <div class="mt-6 mb-2 px-4 text-xs text-gray-400 uppercase tracking-wider">
-                Administrasi Absensi
-            </div>
+                <div class="mt-6 mb-2 px-4 text-xs text-gray-400 uppercase tracking-wider">
+                    Administrasi Absensi
+                </div>
 
-            <a href="{{ route('admin.kelola-user') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.users') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-people"></i>
-                <span>User Management</span>
-            </a>
+                <a href="{{ route('admin.kelola-karyawan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.kelola-karyawan.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                    <i class="bi bi-people"></i>
+                    <span>Data Karyawan</span>
+                </a>
+                <a href="{{ route('admin.kelola-user.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.kelola-user.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                    <i class="bi bi-people"></i>
+                    <span>Kelola User</span>
+                </a>
 
-            <a href="{{ route('admin.lokasi-absensi') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.lokasi-absensi') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-geo-alt"></i>
-                <span>Lokasi Absensi</span>
-            </a>
+                <a href="{{ route('admin.kelola-lokasi.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.lokasi-absensi') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Lokasi Absensi</span>
+                </a>
 
-            <a href="{{ route('admin.daftar-absensi') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.daftar-absensi') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-calendar"></i>
-                <span>Daftar Absensi</span>
-            </a>
+                <a href="{{ route('admin.daftar-absensi.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.daftar-absensi') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                    <i class="bi bi-calendar"></i>
+                    <span>Daftar Absensi</span>
+                </a>
 
-            <a href="{{ route('admin.persetujuan-cuti') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.persetujuan-cuti') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-check-square"></i>
-                <span>Persetujuan Izin</span>
-            </a>
+                <a href="{{ route('admin.persetujuan-cuti') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.persetujuan-cuti') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                    <i class="bi bi-check-square"></i>
+                    <span>Persetujuan Izin</span>
+                </a>
 
-            <a href="{{ route('admin.koreksi-absensi') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.koreksi-absensi') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-clock"></i>
-                <span>Koreksi Absensi</span>
-            </a>
+                <a href="{{ route('admin.koreksi-absensi') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.koreksi-absensi') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                    <i class="bi bi-clock"></i>
+                    <span>Koreksi Absensi</span>
+                </a>
 
             <!-- Logout -->
             <div class="mt-auto pt-4 border-t border-gray-200">
-                <form method="POST" action="{{ route('admin.logout') }}">
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-100 transition">
                         <i class="bi bi-box-arrow-right"></i>
@@ -112,8 +116,9 @@
     </main>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js" defer></script>
 
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 </body>
 </html>
-@stack('scripts')

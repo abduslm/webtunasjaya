@@ -10,6 +10,7 @@ class Lokasi extends Model
     use HasFactory;
     protected $primaryKey = 'id_lokasi';
     protected $fillable = [
+        'klien',
         'alamat',
         'longitude',
         'latitude',

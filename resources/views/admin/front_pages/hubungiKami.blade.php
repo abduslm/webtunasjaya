@@ -19,35 +19,7 @@
 
         <div class="space-y-6">
 
-            {{-- Informasi Perusahaan --}}
-            <div class="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Perusahaan</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                    <div>
-                        <label class="block mb-2 text-gray-900 font-medium">Nama Perusahaan</label>
-                        <input type="text" name="nama_perusahaan"
-                            value="{{ old('nama_perusahaan', $data->nama_perusahaan ?? '') }}"
-                            class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-                    </div>
-
-                    <div>
-                        <label class="block mb-2 text-gray-900 font-medium">Motto</label>
-                        <input type="text" name="motto"
-                            value="{{ old('motto', $data->motto ?? '') }}"
-                            class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-                    </div>
-
-                    <div>
-                        <label class="block mb-2 text-gray-900 font-medium">Logo</label>
-                        <input type="file" name="logo"
-                            class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-                        @if(!empty($data?->logo))
-                            <img src="{{ asset('storage/'.$data->logo) }}" class="mt-3 h-16">
-                        @endif
-                    </div>
-                </div>
-            </div>
+            
 
             {{-- Informasi Kontak --}}
             <div class="bg-white rounded-xl border border-gray-200 p-6">

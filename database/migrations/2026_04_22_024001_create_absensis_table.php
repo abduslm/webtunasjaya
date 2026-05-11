@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id_absensi');
             $table->time('absen_masuk')->nullable();
             $table->time('absen_keluar')->nullable();
-            $table->integer('total_waktu')->nullable();
+            $table->decimal('total_waktu',4,2)->nullable();
             $table->date('tanggal');
             $table->string('status')->default('hadir');
             $table->timestamps();

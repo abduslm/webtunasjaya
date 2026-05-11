@@ -5,6 +5,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\KelolaHalamanController;
+use App\Http\Controllers\ProfilPerusahaanController;
+use App\Http\Controllers\PengajuanIzinController;
+use App\Http\Controllers\KoreksiAbsensiController;
+
 use App\Http\Middleware\role;
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\LogRequests;
@@ -13,8 +18,6 @@ use App\Http\Middleware\logLogin;
 use App\Http\Middleware\loginLokasi;
 use App\Http\Controllers\DataKaryawanController;
 use App\Models\Profil_perusahaan;
-use App\Http\Controllers\KelolaHalamanController;
-use App\Http\Controllers\ProfilPerusahaanController;
 
 
 Route::get('/', function () {
@@ -79,15 +82,16 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->group(function ()
     Route::delete('/kelola-lokasi/{id}', [LokasiController::class, 'destroy'])->name('admin.kelola-lokasi.destroy'); 
 
     Route::get('/daftar-absensi', [AbsensiController::class, 'index'])->name('admin.daftar-absensi.index');
-    Route::delete('/daftar-absensi/destroy-period', [AbsensiController::class, 'destroyPeriode'])->name('admin.daftar-absensi.destroyPeriod');
+    Route::post('/daftar-absensi/destroy-period', [AbsensiController::class, 'destroyPeriode'])->name('admin.daftar-absensi.destroyPeriod');
 
+    Route::get('/persetujuan-izin', [PengajuanIzinController::class, 'index'])->name('admin.persetujuan-izin.index');
+    Route::put('/persetujuan-izin/status/{id}', [PengajuanIzinController::class, 'updateStatus'])->name('admin.persetujuan-izin.updateStatus');
+    Route::post('/persetujuan-izin/destroyPeriode', [PengajuanIzinController::class, 'destroyPeriode'])->name('admin.persetujuan-izin.destroyPeriode');
 
+    Route::get('/koreksi-absensi', [KoreksiAbsensiController::class, 'index'])->name('admin.koreksi-absensi.index');
+    Route::put('/koreksi-absensi/status/{id}', [KoreksiAbsensiController::class, 'updateStatus'])->name('admin.koreksi-absensi.updateStatus');
+    Route::post('/koreksi-absensi/destroy-periode', [KoreksiAbsensiController::class, 'destroyPeriode'])->name('admin.koreksi-absensi.destroyPeriode');
 
-
-    Route::get('/persetujuan-cuti', function () {
-        return view('admin.absensi.persetujuanCuti');})->name('admin.persetujuan-cuti');
-    Route::get('/koreksi-absensi', function () {
-        return view('admin.absensi.koreksiAbsensi');})->name('admin.koreksi-absensi');
 });
 
 

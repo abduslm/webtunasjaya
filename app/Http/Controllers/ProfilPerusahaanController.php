@@ -18,7 +18,7 @@ class ProfilPerusahaanController extends Controller
     public function hubungiKamiUpdate(Request $request)
     {
         $request->validate([
-            'nama_perusahaan' => 'required|string|max:255',
+            'nama_perusahaan' => 'nullable|string|max:255',
             'motto'           => 'nullable|string|max:255',
             'logo'            => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
             'no_telepon'      => 'nullable|string|max:50',

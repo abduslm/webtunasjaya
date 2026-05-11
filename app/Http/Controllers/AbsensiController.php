@@ -24,9 +24,8 @@ class AbsensiController
             });
         }
 
-        $hariIni = Carbon::today()->toDateString();
-
-        $filterTanggal = $request->get('tanggal', $hariIni);
+        $filterTanggal = $request->get('tanggal', Carbon::today()->toDateString());
+        $query->whereDate('tanggal', $filterTanggal);
 
         // Filter Tanggal
         if ($request->has('tanggal') && $request->tanggal != '') {

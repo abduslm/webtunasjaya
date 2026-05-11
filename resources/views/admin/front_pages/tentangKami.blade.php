@@ -66,7 +66,7 @@
             <div class="bg-white rounded-xl border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Deskripsi Perusahaan</h3>
                 <textarea name="deskripsi" rows="6"
-                          class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent resize-none">{{ old('deskripsi', $data['deskripsi'] ?? 'PT Bersih Sejahtera adalah perusahaan cleaning service profesional yang telah berpengalaman lebih dari 10 tahun dalam memberikan solusi kebersihan terbaik untuk berbagai jenis bangunan, mulai dari perkantoran, apartemen, hingga fasilitas industri. Kami berkomitmen untuk memberikan layanan dengan standar kualitas tertinggi menggunakan peralatan modern dan produk pembersih ramah lingkungan.') }}</textarea>
+                    class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent resize-none">{{ old('deskripsi', $data['deskripsi'] ?? 'PT Bersih Sejahtera adalah perusahaan cleaning service profesional yang telah berpengalaman lebih dari 10 tahun dalam memberikan solusi kebersihan terbaik untuk berbagai jenis bangunan, mulai dari perkantoran, apartemen, hingga fasilitas industri. Kami berkomitmen untuk memberikan layanan dengan standar kualitas tertinggi menggunakan peralatan modern dan produk pembersih ramah lingkungan.') }}</textarea>
                 @error('deskripsi') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
@@ -98,8 +98,8 @@
                     <div>
                         <label class="block mb-3 text-sm text-gray-500">Paragraf Visi</label>
                         <textarea name="visi" rows="10"
-                                  class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent resize-none">{{ old('visi', $data['visi'] ?? 'Menjadi perusahaan cleaning service terdepan di Indonesia yang dikenal dengan kualitas layanan profesional, inovasi berkelanjutan, dan komitmen terhadap kepuasan pelanggan serta kelestarian lingkungan.') }}</textarea>
-                        @error('visi') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent resize-none">{{ old('visi', $data['visi'] ?? 'Menjadi perusahaan cleaning service terdepan di Indonesia yang dikenal dengan kualitas layanan profesional, inovasi berkelanjutan, dan komitmen terhadap kepuasan pelanggan serta kelestarian lingkungan.') }}</textarea>
+                            @error('visi') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
             </div>
@@ -119,8 +119,8 @@
                         <div class="flex items-start gap-3">
                             <div class="flex-shrink-0 w-8 h-8 mt-2 rounded-full bg-[#e8f5f1] text-[#0a4d3c] flex items-center justify-center font-medium text-sm" x-text="index+1"></div>
                             <textarea x-model="misiList[index]" @input="updateMisi(index, $event.target.value)" rows="2"
-                                      class="flex-1 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent resize-none"
-                                      :placeholder="`Masukkan misi ke-${index+1}`"></textarea>
+                                    class="flex-1 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent resize-none"
+                                    :placeholder="`Masukkan misi ke-${index+1}`"></textarea>
                             <button type="button" @click="hapusMisi(index)" class="flex-shrink-0 mt-2 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                                 <i class="bi bi-trash3"></i>
                             </button>

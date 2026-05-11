@@ -31,7 +31,7 @@
                     <!-- Nama Layanan -->
                     <div>
                         <label class="block mb-2 text-sm text-gray-500">Nama Layanan</label>
-                        <input type="text" x-model="item.nama" required
+                        <input type="text" name="judul" x-model="item.nama" required
                             class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent"
                             placeholder="Contoh: General Cleaning">
                     </div>
@@ -39,7 +39,7 @@
                     <!-- Deskripsi Singkat -->
                     <div>
                         <label class="block mb-2 text-sm text-gray-500">Deskripsi Singkat</label>
-                        <input type="text" x-model="item.deskripsiSingkat" required
+                        <input type="text" name="desk_singkat" x-model="item.deskripsiSingkat" required
                             class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent"
                             placeholder="Contoh: Perhatian Mendalam pada Kebersihan Standar Industri">
                     </div>
@@ -47,7 +47,7 @@
                     <!-- Deskripsi Lengkap -->
                     <div>
                         <label class="block mb-2 text-sm text-gray-500">Deskripsi Lengkap</label>
-                        <textarea rows="4" x-model="item.deskripsiLengkap" required
+                        <textarea rows="4" name="desk_panjang" x-model="item.deskripsiLengkap" required
                             class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent resize-none"
                             placeholder="Masukkan deskripsi lengkap layanan"></textarea>
                     </div>
@@ -66,7 +66,7 @@
                             <template x-for="(poin, poinIdx) in item.poinLayanan" :key="poinIdx">
                                 <div class="flex items-start gap-3">
                                     <div class="flex-shrink-0 w-6 h-6 mt-2 rounded-full bg-[#e8f5f1] text-[#0a4d3c] flex items-center justify-center text-xs font-medium" x-text="poinIdx+1"></div>
-                                    <input type="text" x-model="item.poinLayanan[poinIdx]" 
+                                    <input type="text" name="poin" x-model="item.poinLayanan[poinIdx]" 
                                         class="flex-1 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent"
                                         :placeholder="`Poin layanan ke-${poinIdx+1}`">
                                     <button @click="hapusPoin(idx, poinIdx)" class="flex-shrink-0 mt-1 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
@@ -82,7 +82,7 @@
                         <label class="block mb-2 text-sm text-gray-500">Gambar Layanan</label>
                         
                         <!-- Input File Tersembunyi -->
-                        <input type="file" :id="'file-' + idx" class="hidden" accept="image/*" 
+                        <input type="file" name="gambar" :id="'file-' + idx" class="hidden" accept="image/*" 
                             @change="uploadGambar($event, item, idx)">
 
                         <div @click="document.getElementById('file-' + idx).click()" 
@@ -139,14 +139,13 @@
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 <script>
     function layananApp() {
         return {
             layananList: [],
             
             initData() {
-                // Ambil data dari backend (pastikan formatnya sesuai)
                 let dataFromBackend = @json($layananList);
                 
                 // Jika data kosong, gunakan defaultLayanan dari controller/view

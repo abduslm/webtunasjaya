@@ -207,7 +207,7 @@
             exportData() {
                 const currentParams = new URLSearchParams(window.location.search).toString();
                 window.location.href = `{{ route('admin.daftar-absensi.index') }}/export?${currentParams}`;
-            }
+            },
             hapusPeriode(periode) {
                 const label = periode.replace('_', ' ');
                 if (confirm(`Apakah Anda yakin ingin menghapus data absensi yang sudah lebih dari ${label}? Data yang sudah dihapus tidak dapat dikembalikan.`)) {

@@ -3,6 +3,29 @@
 
 @section('content')
 <div x-data="koreksiAbsensiApp()" x-init="initData()" class="p-8">
+    {{-- Notifikasi --}}
+    @if(session('success'))
+        <div class="p-4 bg-green-50 text-[#0a4d3c] rounded-xl border border-green-100 flex items-center gap-3 animate-fade-in">
+            <i class="bi bi-check-circle-fill"></i> 
+            <span class="text-sm font-medium">{{ session('success') }}</span>
+        </div>
+    @endif
+    {{-- Pesan Error --}}
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-2xl font-bold shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Terjadi kesalahan:</span>
+            </div>
+
+            <ul class="list-disc list-inside font-medium space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="mb-8 flex items-center justify-between">
         <div>
             <h2 class="text-2xl text-gray-900 mb-1">Koreksi Absensi</h2>
@@ -29,7 +52,7 @@
                 <option value="Lupa Check Out">Lupa Check Out</option>
                 <option value="Waktu Check In Salah">Waktu Check In Salah</option>
                 <option value="Waktu Check Out Salah">Waktu Check Out Salah</option>
-                <option value="Tidak Tercatat">Tidak Tercatat</option>
+                <option value="Lainnya">Lainnya</option>
             </select>
 
             <select x-model="filterStatus" class="px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent">
@@ -62,9 +85,9 @@
                                 </div>
                             </div>
                         </div>
-
-                        <span x-show="request.status === 'Pending'" class="px-3 py-1 rounded-full text-sm bg-[#fef2f2] text-[#dc2626]" x-text="request.status"></span>
+                        <span x-show="request.status === 'Pending'" class="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-700" x-text="request.status"></span>
                         <span x-show="request.status === 'Disetujui'" class="px-3 py-1 rounded-full text-sm bg-[#e8f5f1] text-[#0a4d3c]" x-text="request.status"></span>
+                        <span x-show="request.status === 'Ditolak'" class="px-3 py-1 rounded-full text-sm bg-rose-100 text-[#dc2626]" x-text="request.status"></span>
                         <span x-show="request.status !== 'Pending' && request.status !== 'Disetujui'" class="px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-700" x-text="request.status"></span>
                     </div>
 
@@ -116,19 +139,30 @@
                     <div class="flex flex-wrap gap-3">
                         <template x-if="request.status === 'Pending'">
                             <div class="flex gap-3">
-                                <button @click="setujui(request.id)" class="flex items-center gap-2 px-6 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
-                                    <i class="bi bi-check-lg"></i>
-                                    Setujui
-                                </button>
-                                <button @click="tolak(request.id)" class="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                                    <i class="bi bi-x-lg"></i>
-                                    Tolak
-                                </button>
+                                {{-- Form Setujui --}}
+                                <form :action="'{{ route('admin.koreksi-absensi.updateStatus', ':id') }}'.replace(':id', request.id)" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="status" value="Disetujui">
+                                    <button type="submit" class="flex items-center gap-2 px-6 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
+                                        <i class="bi bi-check-lg"></i> Setujui
+                                    </button>
+                                </form>
+
+                                {{-- Form Tolak --}}
+                                <form :action="'{{ route('admin.koreksi-absensi.updateStatus', ':id') }}'.replace(':id', request.id)" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="status" value="Ditolak">
+                                    <button type="submit" class="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                        <i class="bi bi-x-lg"></i> Tolak
+                                    </button>
+                                </form>
                             </div>
                         </template>
-                        <button x-show="request.mediaPendukung" @click="lihatMedia(request.id)" class="flex items-center gap-2 px-6 py-3 bg-[#e0f2fe] text-[#0369a1] rounded-lg hover:bg-[#bae6fd] transition-colors">
-                            <i class="bi bi-image"></i>
-                            Lihat Media Pendukung
+                        
+                        <button x-show="request.mediaPendukung" @click="lihatMedia(request.mediaPendukung)" class="flex items-center gap-2 px-6 py-3 bg-[#e0f2fe] text-[#0369a1] rounded-lg hover:bg-[#bae6fd] transition-colors">
+                            <i class="bi bi-image"></i> Lihat Media Pendukung
                         </button>
                     </div>
                 </div>
@@ -153,30 +187,26 @@
                     <p class="text-sm text-gray-500">Pilih periode data yang ingin dihapus</p>
                 </div>
             </div>
-
             <div class="bg-[#fff4e6] border border-[#d97706]/20 rounded-lg p-4 mb-6">
-                <p class="text-sm text-[#d97706]">⚠️ Data koreksi absensi 3 bulan terakhir tidak dapat dihapus untuk menjaga integritas data</p>
+                <p class="text-sm text-[#d97706]">⚠️ Data Koreksi Absensi 3 bulan terakhir tidak dapat dihapus untuk menjaga integritas data</p>
             </div>
-
             <div class="space-y-3 mb-6">
-                <button @click="hapusPeriode('3_bulan')" class="w-full text-left px-4 py-3 bg-[#fafbfc] hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                    <p class="text-gray-900 mb-1">Lebih dari 3 bulan</p>
-                    <p class="text-xs text-gray-500">Hapus data sebelum 09 Jan 2026</p>
-                </button>
-                <button @click="hapusPeriode('6_bulan')" class="w-full text-left px-4 py-3 bg-[#fafbfc] hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                    <p class="text-gray-900 mb-1">Lebih dari 6 bulan</p>
-                    <p class="text-xs text-gray-500">Hapus data sebelum 09 Okt 2025</p>
-                </button>
-                <button @click="hapusPeriode('1_tahun')" class="w-full text-left px-4 py-3 bg-[#fafbfc] hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                    <p class="text-gray-900 mb-1">Lebih dari 1 tahun</p>
-                    <p class="text-xs text-gray-500">Hapus data sebelum 09 Apr 2025</p>
-                </button>
-                <button @click="hapusPeriode('2_tahun')" class="w-full text-left px-4 py-3 bg-[#fafbfc] hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                    <p class="text-gray-900 mb-1">Lebih dari 2 tahun</p>
-                    <p class="text-xs text-gray-500">Hapus data sebelum 09 Apr 2024</p>
-                </button>
-            </div>
+                @php
+                    $periods = [
+                        ['key' => '3_bulan', 'label' => 'Lebih dari 3 bulan', 'date' => now()->subMonths(3)],
+                        ['key' => '6_bulan', 'label' => 'Lebih dari 6 bulan', 'date' => now()->subMonths(6)],
+                        ['key' => '1_tahun', 'label' => 'Lebih dari 1 tahun', 'date' => now()->subYear()],
+                        ['key' => '2_tahun', 'label' => 'Lebih dari 2 tahun', 'date' => now()->subYears(2)],
+                    ];
+                @endphp
 
+                @foreach($periods as $p)
+                <button @click="hapusPeriode('{{ $p['key'] }}')" class="w-full text-left px-4 py-3 bg-[#fafbfc] hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
+                    <p class="text-gray-900 mb-1 font-medium">{{ $p['label'] }}</p>
+                    <p class="text-xs text-gray-500">Hapus data sebelum {{ $p['date']->translatedFormat('d M Y') }}</p>
+                </button>
+                @endforeach
+            </div>
             <div class="flex gap-3">
                 <button @click="showDeleteModal = false" class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
                     Batal
@@ -214,31 +244,21 @@
     </div>
 </div>
 
-
-@php
-$defaultKoreksi =   [
-                        ['id'=>'KOR001','nama'=>'Hendra Gunawan','tanggal'=>'2026-04-09','jenisKoreksi'=>'Lupa Check Out','checkInSistem'=>'08:15','checkOutSistem'=>'-','checkInUsulan'=>'08:15','checkOutUsulan'=>'17:00','alasan'=>'Lupa melakukan check out, pulang jam 17:00','tanggalPengajuan'=>'2026-04-09','status'=>'Pending','mediaPendukung'=>false],
-                        ['id'=>'KOR002','nama'=>'Ani Susanti','tanggal'=>'2026-04-08','jenisKoreksi'=>'Waktu Check In Salah','checkInSistem'=>'08:45','checkOutSistem'=>'17:10','checkInUsulan'=>'08:05','checkOutUsulan'=>'17:10','alasan'=>'Check in di aplikasi terlambat, sebenarnya sudah datang jam 08:05','tanggalPengajuan'=>'2026-04-08','status'=>'Pending','mediaPendukung'=>true],
-                        ['id'=>'KOR003','nama'=>'Budi Santoso','tanggal'=>'2026-04-07','jenisKoreksi'=>'Tidak Tercatat','checkInSistem'=>'-','checkOutSistem'=>'-','checkInUsulan'=>'08:10','checkOutUsulan'=>'17:05','alasan'=>'GPS error, tidak tercatat padahal sudah hadir','tanggalPengajuan'=>'2026-04-07','status'=>'Pending','mediaPendukung'=>true],
-                        ['id'=>'KOR004','nama'=>'Maya Sari','tanggal'=>'2026-03-20','jenisKoreksi'=>'Lupa Check In','checkInSistem'=>'-','checkOutSistem'=>'17:00','checkInUsulan'=>'08:00','checkOutUsulan'=>'17:00','alasan'=>'Lupa check in saat datang pagi','tanggalPengajuan'=>'2026-03-20','status'=>'Disetujui','mediaPendukung'=>false],
-                    ];
-@endphp
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
     function koreksiAbsensiApp() {
         return {
             searchTerm: '',
             filterJenisKoreksi: 'Semua',
-            filterStatus: 'Semua',
+            filterStatus: 'Pending',
             showDeleteModal: false,
             showMediaModal: false,
-            selectedMedia: null,
+            selectedMediaUrl: null,
             koreksiList: [],
+
             initData() {
-                this.koreksiList = @json($koreksiRequests ?? $defaultKoreksi);
+                this.koreksiList = @json($koreksiRequests);
             },
+
             get filteredRequests() {
                 let filtered = this.koreksiList;
                 if (this.searchTerm.trim() !== '') {
@@ -246,62 +266,51 @@ $defaultKoreksi =   [
                     filtered = filtered.filter(r => r.nama.toLowerCase().includes(term));
                 }
                 if (this.filterJenisKoreksi !== 'Semua') {
-                    filtered = filtered.filter(r => r.jenisKoreksi === this.filterJenisKoreksi);
+                    filtered = filtered.filter(r => r.jenisKoreksi.toLowerCase() === this.filterJenisKoreksi.toLowerCase());
                 }
                 if (this.filterStatus !== 'Semua') {
-                    filtered = filtered.filter(r => r.status === this.filterStatus);
+                    filtered = filtered.filter(r => r.status.toLowerCase() === this.filterStatus.toLowerCase());
                 }
                 return filtered;
             },
-            setujui(id) {
-                fetch('{{ route("admin.koreksi-absensi") }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify({ id: id })
-                }).then(res => res.json()).then(data => {
-                    if (data.success) {
-                        // Update status di local list
-                        const index = this.koreksiList.findIndex(r => r.id === id);
-                        if (index !== -1) this.koreksiList[index].status = 'Disetujui';
-                        alert('Permintaan disetujui');
-                    } else alert('Gagal');
-                }).catch(err => console.error(err));
+
+            formatDisplayJam(decimal) {
+                if (!decimal || decimal == 0) return '-';
+                let jam = Math.floor(decimal);
+                let menit = Math.round((decimal - jam) * 60);
+                let hasil = '';
+                    if (jam > 0) hasil += `${jam} Jam `;
+                    if (menit > 0) hasil += `${menit} Menit`;
+                return hasil.trim();
             },
-            tolak(id) {
-                fetch('{{ route("admin.koreksi-absensi") }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify({ id: id })
-                }).then(res => res.json()).then(data => {
-                    if (data.success) {
-                        const index = this.koreksiList.findIndex(r => r.id === id);
-                        if (index !== -1) this.koreksiList[index].status = 'Ditolak';
-                        alert('Permintaan ditolak');
-                    } else alert('Gagal');
-                }).catch(err => console.error(err));
-            },
-            lihatMedia(id) {
-                this.selectedMedia = id;
+
+            lihatMedia(url) {
+                this.selectedMediaUrl = url;
                 this.showMediaModal = true;
             },
+
             hapusPeriode(periode) {
-                if (confirm(`Hapus data koreksi absensi periode ${periode}?`)) {
-                    fetch('{{ route("admin.koreksi-absensi") }}', {
+                if (confirm(`Hapus data koreksi absensi yang lebih dari ${periode.replace('_', ' ')}?`)) {
+                    fetch('{{ route("admin.koreksi-absensi.destroyPeriode") }}', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        headers: { 
+                            'Content-Type': 'application/json', 
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                        },
                         body: JSON.stringify({ periode: periode })
-                    }).then(res => res.json()).then(data => {
+                    })
+                    .then(res => res.json())
+                    .then(data => {
                         if (data.success) {
-                            alert('Data berhasil dihapus');
+                            alert('Data lama berhasil dibersihkan');
                             location.reload();
-                        } else alert('Gagal');
-                    }).catch(err => console.error(err));
+                        }
+                    });
                 }
                 this.showDeleteModal = false;
             }
         }
     }
 </script>
-@endpush
 
 @endsection

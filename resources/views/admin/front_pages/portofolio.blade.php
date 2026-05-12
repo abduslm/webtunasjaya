@@ -1,161 +1,196 @@
-{{-- resources/views/admin/front_pages/portofolio.blade.php --}}
 @extends('admin.adminLayout')
 
 @section('content')
 <div x-data="portofolioApp()" x-init="initData()" class="p-8">
     <div class="mb-8 flex items-center justify-between">
         <div>
-            <h2 class="text-2xl text-gray-900 mb-1">Kelola Portofolio</h2>
-            <p class="text-gray-500">Showcase proyek yang telah dikerjakan</p>
+            <h2 class="text-2xl text-gray-900 mb-1 font-bold">Kelola Portofolio (Klien)</h2>
+            <p class="text-gray-500">Showcase Klien yang Bermitra dengan PT Tunas Jaya Bersinar Cemerlang</p>
         </div>
-        <button @click="tambahPortfolio" class="flex items-center gap-2 px-4 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
-            <i class="bi bi-plus-lg"></i>
-            Tambah Proyek
-        </button>
+        <div class="flex gap-3">
+            <button @click="simpanSemua" class="flex items-center gap-2 px-6 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-all shadow-md font-semibold">
+                <i class="bi bi-save"></i> Simpan Semua Perubahan
+            </button>
+            <button @click="tambahPortfolio" class="flex items-center gap-2 px-4 py-3 bg-white text-[#0a4d3c] border border-[#0a4d3c] rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="bi bi-plus-lg"></i> Tambah Portofolio
+            </button>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <template x-for="(item, idx) in portfolioList" :key="idx">
-            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <!-- Upload Gambar (Placeholder) -->
-                <div class="aspect-video bg-[#fafbfc] border-b border-gray-200">
-                    <div class="h-full flex flex-col items-center justify-center p-6">
-                        <div class="w-16 h-16 mb-3 rounded-full bg-[#e8f5f1] flex items-center justify-center">
-                            <i class="bi bi-cloud-upload text-[#0a4d3c] text-2xl"></i>
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm flex flex-col">
+                <!-- Upload Gambar Section -->
+                <div class="aspect-video bg-[#fafbfc] border-b border-gray-200 relative group">
+                    <input type="file" :id="'file-' + idx" class="hidden" accept="image/*" @change="uploadGambar($event, item, idx)">
+                    
+                    <div class="h-full flex flex-col items-center justify-center p-4">
+                        <template x-if="item.gambar_url">
+                            <img :src="item.gambar_url" class="absolute inset-0 w-full h-full object-cover">
+                        </template>
+
+                        <template x-if="!item.gambar_url">
+                            <div class="text-center">
+                                <div class="w-12 h-12 mb-2 mx-auto rounded-full bg-[#e8f5f1] flex items-center justify-center">
+                                    <i class="bi bi-cloud-upload text-[#0a4d3c] text-xl"></i>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG (Maks 5MB)</p>
+                            </div>
+                        </template>
+
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button @click="item.id ? document.getElementById('file-' + idx).click() : alert('Klik Simpan terlebih dahulu untuk menyimpan data')" 
+                                class="px-4 py-2 bg-white text-gray-900 rounded-lg text-sm font-medium">
+                                <span x-text="item.gambar_url ? 'Ganti Gambar' : 'Pilih Gambar'"></span>
+                            </button>
                         </div>
-                        <p class="text-sm text-gray-900 mb-1">Upload Gambar Proyek</p>
-                        <p class="text-xs text-gray-500">PNG, JPG hingga 5MB</p>
-                        <button class="mt-3 px-4 py-2 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors text-sm">
-                            Pilih File
-                        </button>
+                    </div>
+
+                    <div x-show="item.uploading" class="absolute inset-0 bg-white/80 flex items-center justify-center">
+                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#0a4d3c]"></div>
                     </div>
                 </div>
 
-                <div class="p-6">
-                    <div class="space-y-4">
-                        <!-- Klien -->
+                <div class="p-5 flex-1 flex flex-col">
+                    <div class="space-y-4 flex-1">
                         <div>
-                            <label class="block mb-2 text-sm text-gray-500">Klien</label>
-                            <input type="text" 
-                                x-model="item.klien" 
-                                @input="updatePortfolio(idx, 'klien', item.klien)"
-                                class="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent"
-                                placeholder="Nama klien">
+                            <label class="block mb-1 text-xs font-semibold text-gray-400 uppercase">Nama Klien</label>
+                            <input type="text" x-model="item.klien" 
+                                class="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none transition-all"
+                                placeholder="Contoh: PT. ABC Indonesia">
                         </div>
 
-                        <!-- Deskripsi Singkat -->
                         <div>
-                            <label class="block mb-2 text-sm text-gray-500">Deskripsi Singkat</label>
-                            <textarea rows="3" 
-                                    x-model="item.deskripsiSingkat" 
-                                    @input="updatePortfolio(idx, 'deskripsiSingkat', item.deskripsiSingkat)"
-                                    class="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent resize-none"
-                                    placeholder="Deskripsi singkat tentang proyek"></textarea>
+                            <label class="block mb-1 text-xs font-semibold text-gray-400 uppercase">Deskripsi Singkat Proyek</label>
+                            <textarea rows="3" x-model="item.deskripsiSingkat" 
+                                class="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none resize-none transition-all"
+                                placeholder="Ceritakan singkat tentang pekerjaan yang dilakukan..."></textarea>
                         </div>
+                    </div>
 
-                        <!-- Actions -->
-                        <div class="pt-2 flex gap-2">
-                            <button @click="simpanPortfolio(idx)" class="flex-1 px-4 py-2 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
-                                Simpan
-                            </button>
-                            <button @click="hapusPortfolio(idx)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                <i class="bi bi-trash3"></i>
-                            </button>
-                        </div>
+                    <div class="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        {{-- Tombol Hapus (Kiri) --}}
+                        <button @click="hapusPortfolio(idx)" 
+                            class="text-sm text-red-500 hover:text-red-700 transition-colors flex items-center gap-1">
+                            <i class="bi bi-trash"></i> Hapus
+                        </button>
+
+                        {{-- Tombol Simpan Per Item (Kanan) --}}
+                        <button @click="simpanSatuItem(idx)" 
+                            :class="item.isDirty ? 'bg-[#0a4d3c] shadow-md' : 'bg-gray-400'"
+                            class="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium transition-all">
+                            <i class="bi bi-check2-circle"></i>
+                            <span x-text="item.id ? 'Update' : 'Simpan'"></span>
+                        </button>
                     </div>
                 </div>
             </div>
         </template>
 
-        <div x-show="portfolioList.length === 0" class="col-span-full bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <p class="text-gray-500">Belum ada portfolio. Klik "Tambah Proyek" untuk menambahkan.</p>
+        <div x-show="portfolioList.length === 0" class="col-span-full bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <i class="bi bi-folder2-open text-4xl text-gray-300 mb-3 block"></i>
+            <p class="text-gray-500">Belum ada portofolio yang ditambahkan.</p>
         </div>
     </div>
 </div>
 
-
-@php
-$defaultPortfolio = [
-    [
-        'klien' => 'PT. ABC Indonesia',
-        'deskripsiSingkat' => 'Pembersihan rutin gedung perkantoran 15 lantai dengan 200+ karyawan'
-    ],
-    [
-        'klien' => 'RS XYZ',
-        'deskripsiSingkat' => 'Sanitasi dan disinfeksi area rumah sakit sesuai standar kesehatan'
-    ],
-    [
-        'klien' => 'PT. Metropolitan',
-        'deskripsiSingkat' => 'Deep cleaning dan maintenance mall dengan area 10.000 m²'
-    ]
-];
-@endphp
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
     function portofolioApp() {
         return {
             portfolioList: [],
+
             initData() {
-                this.portfolioList = @json($portfolioList ?? $defaultPortfolio);
+                this.portfolioList = @json($portfolioList).map(i => ({...i, uploading: false}));
             },
+
             tambahPortfolio() {
-                this.portfolioList.push({
+                this.portfolioList.unshift({
+                    id: null,
                     klien: '',
-                    deskripsiSingkat: ''
+                    deskripsiSingkat: '',
+                    gambar_url: null,
+                    uploading: false,
+                    isDirty: true
                 });
             },
+
             hapusPortfolio(index) {
-                if (confirm('Hapus proyek ini?')) {
+                if (confirm('Hapus proyek ini dari daftar?')) {
                     this.portfolioList.splice(index, 1);
-                    // Opsional: langsung simpan perubahan ke server
-                    this.simpanSemua();
                 }
             },
-            updatePortfolio(index, field, value) {
-                // Auto-save dengan debounce
-                clearTimeout(this.saveTimeout);
-                this.saveTimeout = setTimeout(() => {
-                    this.simpanSemua();
-                }, 1000);
+
+            async uploadGambar(event, item, idx) {
+                const file = event.target.files[0];
+                if (!file || !item.id) return;
+
+                item.uploading = true;
+                let formData = new FormData();
+                formData.append('gambar', file);
+
+                try {
+                    const response = await fetch('{{ route('admin.portofolio.uploadGambar', ':id') }}'.replace(':id', item.id), {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        this.portfolioList[idx].isDirty = false;
+                        this.portfolioList[idx].gambar_url = result.url;
+                    } else {
+                        alert('Gagal: ' + result.message);
+                    }
+                } catch (error) {
+                    alert('Terjadi kesalahan saat mengunggah.');
+                } finally {
+                    item.uploading = false;
+                }
             },
-            simpanPortfolio(index) {
-                // Simpan satu item (bisa juga via fetch)
-                const item = this.portfolioList[index];
-                fetch('{{ route("admin.portofolio") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ index: index, data: item })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) alert('Data tersimpan');
-                    else alert('Gagal menyimpan');
-                })
-                .catch(err => console.error(err));
+
+            async simpanSatuItem(idx) {
+                const item = this.portfolioList[idx];
+                try {
+                    const res = await fetch('{{ route("admin.portofolio.store_single") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(item)
+                    });
+                    const data = await res.json();
+                    if(data.success) {
+                        this.portfolioList[idx].id = data.new_id; 
+                        this.portfolioList[idx].isDirty = false;
+                        alert('Item berhasil disimpan');
+                    }
+                } catch (e) { alert('Gagal'); }
             },
-            simpanSemua() {
-                // Simpan seluruh list ke server
-                fetch('{{ route("admin.portofolio") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ list: this.portfolioList })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) console.error('Gagal sinkronisasi');
-                })
-                .catch(err => console.error(err));
+            async simpanSemua() {
+                try {
+                    const response = await fetch('{{ route("admin.portofolio.store") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ list: this.portfolioList })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        this.portfolioList[idx].isDirty = false;
+                        alert('Seluruh perubahan berhasil disimpan!');
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Gagal menghubungi server.');
+                }
             }
         }
     }
 </script>
-@endpush
-
 @endsection

@@ -147,25 +147,20 @@ class KelolaHalamanController extends Controller
     // =========================================================
     // LAYANAN
     // =========================================================
-    public function layanan()
+    public function layananIndex()
     {
-        // Ambil data hanya untuk section layanan
-        $rows = kelola_halaman::where('section', 'layanan')->get();
-
-        // Mapping agar sesuai dengan variabel item.xxx di Alpine.js
-        $layananList = $rows->map(function ($row) {
-            return [
-                'id'              => $row->id,
-                'nama'            => $row->judul,
-                'deskripsiSingkat'=> $row->desk_singkat,
-                'deskripsiLengkap'=> $row->desk_panjang,
-                // Pastikan poinLayanan selalu menjadi array untuk Alpine.js
-                'poinLayanan'     => $row->poin 
-                                     ? array_values(array_filter(explode("\n", $row->poin))) 
-                                     : [],
-                'gambar_url'      => $row->gambar ? Storage::url($row->gambar) : null,
-            ];
-        });
+        $layananList = kelola_halaman::where('section', 'Layanan')
+            ->orderBy('id_kelolaHalaman', 'asc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id_kelolaHalaman,
+                    'nama' => $item->judul,
+                    'desk_singkat' => $item->desk_singkat,
+                    'desk_panjang' => $item->desk_panjang,
+                    'gambar_url' => $item->gambar ? asset('storage/' . $item->gambar) : null,
+                ];
+            });
 
         return view('admin.front_pages.layanan', compact('layananList'));
     }
@@ -174,87 +169,155 @@ class KelolaHalamanController extends Controller
     {
         $request->validate([
             'layanan' => 'required|array',
-            'layanan.*.nama' => 'required', // Validasi minimal nama harus ada
         ]);
+        $incomingIds = collect($request->layanan)->pluck('id')->filter()->toArray();
 
-        try {
-            return DB::transaction(function () use ($request) {
-                $newIds = [];
+        kelola_halaman::where('section', 'Layanan')
+            ->whereNotIn('id_kelolaHalaman', $incomingIds)
+            ->delete();
 
-                foreach ($request->layanan as $item) {
-                    // Pastikan ID benar-benar angka atau null
-                    $id = (isset($item['id']) && is_numeric($item['id'])) ? $item['id'] : null;
-
-                    $row = kelola_halaman::updateOrCreate(
-                        ['id' => $id, 'section' => 'layanan'],
-                        [
-                            'judul'        => $item['nama'] ?? '',
-                            'desk_singkat' => $item['deskripsiSingkat'] ?? '',
-                            'desk_panjang' => $item['deskripsiLengkap'] ?? '',
-                            // Simpan poin sebagai string baris baru (\n)
-                            'poin'         => implode("\n", array_filter($item['poinLayanan'] ?? [])),
-                        ]
-                    );
-
-                    $newIds[] = $row->id;
-                }
-
-                // Hapus data lama yang sudah tidak ada di list (User klik hapus di UI)
-                $toDelete = kelola_halaman::where('section', 'layanan')
-                            ->whereNotIn('id', $newIds)->get();
-                
-                foreach ($toDelete as $del) {
-                    if ($del->gambar) {
-                        Storage::disk('public')->delete($del->gambar);
-                    }
-                    $del->delete();
-                }
-
-                return response()->json(['success' => true, 'message' => 'Teks berhasil disimpan']);
-            });
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        foreach ($request->layanan as $data) {
+            kelola_halaman::updateOrCreate(
+                ['id_kelolaHalaman' => $data['id'] ?? null],
+                [
+                    'section' => 'Layanan',
+                    'judul' => $data['nama'],
+                    'desk_singkat' => $data['desk_singkat'] ?? '',
+                    'desk_panjang' => $data['desk_panjang'] ?? '',
+                    'poin' => null, 
+                    'gambar' => null, 
+                    'lain_lokasi' => null, 
+                    'lain_tanggal' => null,
+                    'lain_jenis' => null,
+                ]
+            );
         }
+
+        return response()->json(['success' => true]);
     }
 
     public function layananUploadGambar(Request $request, $id)
     {
         $request->validate([
-            'gambar' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048' // Batasi 2MB
+            'gambar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        try {
-            $row = kelola_halaman::where('section', 'layanan')->findOrFail($id);
+        $item = kelola_halaman::findOrFail($id);
 
-            if ($request->hasFile('gambar')) {
-                // Hapus gambar lama jika ada
-                if ($row->gambar && Storage::disk('public')->exists($row->gambar)) {
-                    Storage::disk('public')->delete($row->gambar);
-                }
-
-                // Simpan gambar baru ke folder 'layanan' di disk public
-                $path = $request->file('gambar')->store('layanan', 'public');
-                
-                $row->gambar = $path;
-                $row->save();
-
-                return response()->json([
-                    'success' => true,
-                    'url'     => Storage::url($path),
-                ]);
+        if ($request->hasFile('gambar')) {
+            // Hapus gambar lama jika ada
+            if ($item->gambar) {
+                Storage::disk('public')->delete($item->gambar);
             }
 
-            return response()->json(['success' => false, 'message' => 'File tidak ditemukan'], 400);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-    }
+            $path = $request->file('gambar')->store('layanan', 'public');
+            $item->update(['gambar' => $path]);
 
+            return response()->json([
+                'success' => true,
+                'url' => asset('storage/' . $path)
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Gagal mengunggah file']);
+    }
 
     // =========================================================
     // PORTOFOLIO
     // =========================================================
-    public function portofolio()
+
+    public function portofolioIndex()
+    {
+        $portfolioList = kelola_halaman::where('section', 'Portofolio')
+            ->orderBy('id_kelolaHalaman', 'asc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id_kelolaHalaman,
+                    'klien' => $item->judul,
+                    'deskripsiSingkat' => $item->desk_singkat,
+                    'gambar_url' => $item->gambar ? asset('storage/' . $item->gambar) : null,
+                ];
+            });
+
+        return view('admin.front_pages.portofolio', compact('portfolioList'));
+    }
+
+    public function portofolioStore(Request $request)
+    {
+        $request->validate([
+            'list' => 'required|array',
+        ]);
+
+        $incomingIds = collect($request->list)->pluck('id')->filter()->toArray();
+
+        // 1. Hapus data yang tidak ada di list kiriman
+        kelola_halaman::where('section', 'Portofolio')
+            ->whereNotIn('id_kelolaHalaman', $incomingIds)
+            ->delete();
+
+        // 2. Update atau Create
+        foreach ($request->list as $data) {
+            kelola_halaman::updateOrCreate(
+                ['id_kelolaHalaman' => $data['id'] ?? null],
+                [
+                    'section' => 'Portofolio',
+                    'judul' => $data['klien'] ?? 'Tanpa Nama',
+                    'desk_singkat' => $data['deskripsiSingkat'] ?? '',
+                ]
+            );
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function portofolioStoreSingle(Request $request)
+    {
+        $item = kelola_halaman::updateOrCreate(
+            ['id_kelolaHalaman' => $request->id],
+            [
+                'section' => 'Portofolio',
+                'judul' => $request->klien ?? 'Tanpa Nama',
+                'desk_singkat' => $request->deskripsiSingkat ?? '',
+            ]
+        );
+
+        return response()->json([
+            'success' => true, 
+            'new_id' => $item->id_kelolaHalaman // Kembalikan ID untuk Alpine.js
+        ]);
+    }
+
+    public function portofolioUploadGambar(Request $request, $id)
+    {
+        $request->validate([
+            'gambar' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+        ]);
+
+        $item = kelola_halaman::findOrFail($id);
+
+        if ($request->hasFile('gambar')) {
+            if ($item->gambar) {
+                Storage::disk('public')->delete($item->gambar);
+            }
+
+            $path = $request->file('gambar')->store('portofolio', 'public');
+            $item->update(['gambar' => $path]);
+
+            return response()->json([
+                'success' => true,
+                'url' => asset('storage/' . $path)
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Gagal unggah']);
+    }
+
+
+
+
+
+    public function portofolioooooo()
     {
         $rows = $this->getSectionAll('portofolio');
 
@@ -273,7 +336,7 @@ class KelolaHalamanController extends Controller
         return view('admin.front_pages.portofolio', compact('portfolioList'));
     }
 
-    public function portofolioStore(Request $request)
+    public function portofolioStoressssss(Request $request)
     {
         // Terima JSON dari Alpine.js fetch()
         // Bisa berupa { list: [...] } untuk simpan semua
@@ -312,7 +375,7 @@ class KelolaHalamanController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function portofolioUploadGambar(Request $request, $id)
+    public function portofolioUploadGambarrrr(Request $request, $id)
     {
         $request->validate(['gambar' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120']);
 
@@ -334,7 +397,92 @@ class KelolaHalamanController extends Controller
     // =========================================================
     // DOKUMENTASI
     // =========================================================
-    public function dokumentasi()
+
+    public function dokumentasiIndex(Request $request)
+    {
+        $daftarLayanan = kelola_halaman::where('section', 'Layanan')
+            ->pluck('judul');
+
+        $query = kelola_halaman::where('section', 'Dokumentasi')
+            ->orderBy('lain_tanggal', 'desc');
+        $dokumentasi = $query->paginate(15);
+
+        $dokumentasiList = collect($dokumentasi->items())->map(function ($item) {
+            return [
+                'id' => $item->id_kelolaHalaman,
+                'lokasi' => $item->judul,
+                'jenisLayanan' => $item->lain_jenis,
+                'tanggal' => $item->lain_tanggal,
+                'gambar_url' => $item->gambar ? asset('storage/' . $item->gambar) : null,
+            ];
+        });
+
+        return view('admin.front_pages.dokumentasi', compact('dokumentasiList', 'dokumentasi', 'daftarLayanan'));
+    }
+
+    public function dokumentasiStore(Request $request)
+    {
+        $request->validate(['list' => 'required|array']);
+
+        $incomingIds = collect($request->list)->pluck('id')->filter()->toArray();
+
+        kelola_halaman::where('section', 'Dokumentasi')
+            ->whereNotIn('id_kelolaHalaman', $incomingIds)
+            ->delete();
+
+        foreach ($request->list as $data) {
+            kelola_halaman::updateOrCreate(
+                ['id_kelolaHalaman' => $data['id'] ?? null],
+                [
+                    'section' => 'Dokumentasi',
+                    'judul' => $data['lokasi'] ?? '',
+                    'lain_jenis' => $data['jenisLayanan'] ?? '',
+                    'lain_tanggal' => $data['tanggal'] ?? now()->format('Y-m-d'),
+                ]
+            );
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function dokumentasiStoreSingle(Request $request)
+    {
+        $item = kelola_halaman::updateOrCreate(
+            ['id_kelolaHalaman' => $request->id],
+            [
+                'section' => 'Dokumentasi',
+                'judul' => $request->lokasi,
+                'lain_jenis' => $request->jenisLayanan,
+                'lain_tanggal' => $request->tanggal,
+            ]
+        );
+
+        return response()->json([
+            'success' => true, 
+            'new_id' => $item->id_kelolaHalaman // Kembalikan ID untuk Alpine.js
+        ]);
+    }
+
+    public function dokumentasiUploadGambar(Request $request, $id)
+    {
+        $request->validate(['gambar' => 'required|image|max:5120']);
+        $item = kelola_halaman::findOrFail($id);
+
+        if ($request->hasFile('gambar')) {
+            if ($item->gambar) Storage::disk('public')->delete($item->gambar);
+            $path = $request->file('gambar')->store('dokumentasi', 'public');
+            $item->update(['gambar' => $path]);
+
+            return response()->json(['success' => true, 'url' => asset('storage/' . $path)]);
+        }
+        return response()->json(['success' => false], 400);
+    }
+
+
+
+
+
+    public function dokumentasiiiiii()
     {
         $rows = $this->getSectionAll('dokumentasi');
 
@@ -356,7 +504,7 @@ class KelolaHalamanController extends Controller
         return view('admin.front_pages.dokumentasi', compact('dokumentasiList'));
     }
 
-    public function dokumentasiStore(Request $request)
+    public function dokumentasiStoreeeeee(Request $request)
     {
         $request->validate(['list' => 'required|array']);
 
@@ -391,7 +539,7 @@ class KelolaHalamanController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function dokumentasiUploadGambar(Request $request, $id)
+    public function dokumentasiUploadGambarrrrrrr(Request $request, $id)
     {
         $request->validate(['gambar' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120']);
 

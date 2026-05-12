@@ -107,12 +107,6 @@
                     <span class="text-gray-700 font-medium">Masuk dengan Google</span>
                 </button>
 
-                <!-- Footer Link -->
-                <p class="text-center mt-8 text-gray-600">
-                    Belum punya akun? 
-                    <a href="#" class="text-primary font-bold hover:underline">Daftar sekarang</a>
-                </p>
-
             </div>
         </div>
 

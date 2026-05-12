@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.ck-editor__editable_inline {min-height: 200px;}
+.content-rich-text ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+.content-rich-text ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+.content-rich-text blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; margin: 1rem 0; color: #374151; font-style: italic; background-color: #f9fafb; }
+.content-rich-text table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.content-rich-text table th, .content-rich-text table td { border: 1px solid #d1d5db; padding: 0.5rem 0.75rem; text-align: left; }
+.content-rich-text table th { background-color: #f3f4f6; font-weight: 600; }
+.content-rich-text h1 { font-size: 2.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827; }
+.content-rich-text h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem; color: #1f2937; }
+.content-rich-text h3 { font-size: 1.25rem; font-weight: 500; margin-bottom: 0.5rem; color: #374151; }
+    

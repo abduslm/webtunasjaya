@@ -38,23 +38,25 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->g
     Route::post('/beranda', [KelolaHalamanController::class, 'berandaUpdate'])->name('beranda.update');
 
     // Layanan
-    Route::get('/layanan',              [KelolaHalamanController::class, 'layanan'])->name('layanan');
+    Route::get('/layanan',              [KelolaHalamanController::class, 'layananIndex'])->name('layanan.index');
     Route::post('/layanan',             [KelolaHalamanController::class, 'layananStore'])->name('layanan.store');
-    Route::post('/layanan/{id}/gambar', [KelolaHalamanController::class, 'layananUploadGambar'])->name('layanan.gambar');
+    Route::post('/layanan/{id}/gambar', [KelolaHalamanController::class, 'layananUploadGambar'])->name('layanan.uploadGambar');
 
     // Portofolio
-    Route::get('/portofolio',              [KelolaHalamanController::class, 'portofolio'])->name('portofolio');
+    Route::get('/portofolio',              [KelolaHalamanController::class, 'portofolioIndex'])->name('portofolio.index');
     Route::post('/portofolio',             [KelolaHalamanController::class, 'portofolioStore'])->name('portofolio.store');
-    Route::post('/portofolio/{id}/gambar', [KelolaHalamanController::class, 'portofolioUploadGambar'])->name('portofolio.gambar');
+    Route::post('/portofolio/store-single',[KelolaHalamanController::class, 'portofolioStoreSingle'])->name('portofolio.store_single');
+    Route::post('/portofolio/{id}/gambar', [KelolaHalamanController::class, 'portofolioUploadGambar'])->name('portofolio.uploadGambar');
 
     // Tentang Kami
     Route::get('/tentang-kami',  [KelolaHalamanController::class, 'tentangKami'])->name('tentang-kami');
     Route::post('/tentang-kami', [KelolaHalamanController::class, 'tentangKamiUpdate'])->name('tentang-kami.update');
 
     // Dokumentasi
-    Route::get('/dokumentasi',              [KelolaHalamanController::class, 'dokumentasi'])->name('dokumentasi');
+    Route::get('/dokumentasi',              [KelolaHalamanController::class, 'dokumentasiIndex'])->name('dokumentasi.index');
     Route::post('/dokumentasi',             [KelolaHalamanController::class, 'dokumentasiStore'])->name('dokumentasi.store');
-    Route::post('/dokumentasi/{id}/gambar', [KelolaHalamanController::class, 'dokumentasiUploadGambar'])->name('dokumentasi.gambar');
+    Route::post('/dokumentasi/store-single',[KelolaHalamanController::class, 'dokumentasiStoreSingle'])->name('dokumentasi.store_single');
+    Route::post('/dokumentasi/{id}/gambar', [KelolaHalamanController::class, 'dokumentasiUploadGambar'])->name('dokumentasi.uploadGambar');
 
     // Hubungi Kami
     Route::get('/hubungi-kami',  [ProfilPerusahaanController::class, 'hubungiKami'])->name('hubungi-kami');

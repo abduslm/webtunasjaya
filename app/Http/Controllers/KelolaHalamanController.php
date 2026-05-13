@@ -118,6 +118,7 @@ class KelolaHalamanController extends Controller
         ];
 
         return view('admin.front_pages.tentangKami', compact('data'));
+
     }
 
     public function tentangUpdate(Request $request)

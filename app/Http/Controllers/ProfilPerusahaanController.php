@@ -52,5 +52,4 @@ class ProfilPerusahaanController extends Controller
         return back()->with('success', 'Data Hubungi Kami berhasil diperbarui.');
     }
 
-    
 }

@@ -62,7 +62,12 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->g
     // Hubungi Kami
     Route::get('/hubungi-kami',  [ProfilPerusahaanController::class, 'hubungiKami'])->name('hubungi-kami');
     Route::post('/hubungi-kami/update', [ProfilPerusahaanController::class, 'hubungiKamiUpdate'])->name('hubungi-kami.update');
+
+
+    Route::get('/pesan', function () {return view('admin.front_pages.pesan');})->name('pesan');
 });
+
+
 
 Route::middleware(['auth','role:admin,spv'])->prefix('admin')->group(function () {
     Route::get('/kelola-karyawan', [DataKaryawanController::class, 'index'])->name('admin.kelola-karyawan.index');

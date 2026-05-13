@@ -62,6 +62,10 @@
                 <i class="bi bi-envelope"></i>
                 <span>Hubungi Kami</span>
             </a>
+            <a href="{{ route('admin.pesan') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.pesan') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i class="bi bi-envelope"></i>
+                <span>Pesan</span>
+            </a>
 
                 <div class="mt-6 mb-2 px-4 text-xs text-gray-400 uppercase tracking-wider">
                     Administrasi Absensi

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\kelola_halaman;
+use App\Models\Profil_perusahaan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -85,30 +86,37 @@ class KelolaHalamanController extends Controller
         $misiRows  = $this->getSectionAll('tentang_misi'); // bisa banyak baris
 
         $data = [
-            'logo'            => $identitas?->gambar,
-            'nama_perusahaan' => $identitas?->judul,
-            'moto'            => $identitas?->desk_singkat,
-            'deskripsi'       => $identitas?->desk_panjang,
-            'foto_visi'       => $visi?->gambar,
-            'visi'            => $visi?->desk_panjang,
-            // misi_list: array string dari kolom poin tiap baris
-            'misi_list'       => $misiRows->pluck('judul')->toArray(),
+
+           // Moto/Judul utama menggunakan kolom 'judul'
+        'moto'          => $identitas?->judul,
+        
+        // Deskripsi tetap menggunakan 'desk_panjang'
+        'deskripsi'     => $identitas?->desk_panjang,
+        
+        // Visi sekarang dipetakan ke 'desk_singkat'
+        'visi'          => $visi?->desk_singkat,
+        
+        // Gambar untuk section visi
+        'foto_visi'     => $visi?->gambar,
+        
+        // Misi_list mengambil array string dari kolom 'poin'
+        'misi_list'     => $misiRows->pluck('poin')->toArray(),
         ];
 
         return view('admin.front_pages.tentangKami', compact('data'));
+
     }
 
-    public function tentangKamiUpdate(Request $request)
-    {
-        $request->validate([
-            'nama_perusahaan' => 'required|string|max:255',
-            'moto'            => 'nullable|string|max:255',
-            'deskripsi'       => 'required|string',
-            'visi'            => 'required|string',
-            'logo'            => 'nullable|image|mimes:png,svg,jpg,jpeg|max:2048',
-            'foto_visi'       => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'misi_list'       => 'nullable|string', // JSON string dari hidden input
-        ]);
+  public function tentangKamiUpdate(Request $request)
+{
+    $request->validate([
+        'moto'      => 'required|string|max:255', // Mapping ke 'judul'
+        'deskripsi' => 'required|string',         // Mapping ke 'desk_panjang'
+        'visi'      => 'required|string',         // Mapping ke 'desk_singkat'
+        'foto_visi' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', // Mapping ke 'gambar'
+        'misi_list' => 'nullable|string',         // Mapping ke 'poin' (JSON string)
+    ]);
+    // Logika update dikosongkan sesuai instruksi
 
         // ---- Identitas ----
         $identitas = kelola_halaman::firstOrNew(['section' => 'tentang_identitas']);
@@ -140,6 +148,7 @@ class KelolaHalamanController extends Controller
                 'poin'              => (string)($index + 1),
             ]);
         }
+
 
         return back()->with('success', 'Tentang Kami berhasil disimpan.');
     }

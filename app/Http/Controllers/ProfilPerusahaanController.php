@@ -18,9 +18,6 @@ class ProfilPerusahaanController extends Controller
     public function hubungiKamiUpdate(Request $request)
     {
         $request->validate([
-            'nama_perusahaan' => 'nullable|string|max:255',
-            'motto'           => 'nullable|string|max:255',
-            'logo'            => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
             'no_telepon'      => 'nullable|string|max:50',
             'email'           => 'nullable|email|max:255',
             'alamat'          => 'nullable|string',
@@ -37,20 +34,34 @@ class ProfilPerusahaanController extends Controller
             'id_profilPerusahaan' => 1
         ]);
 
-        $profil->fill($request->except('logo'));
-
-        if ($request->hasFile('logo')) {
-            if ($profil->logo) {
-                Storage::disk('public')->delete($profil->logo);
-            }
-
-            $profil->logo = $request->file('logo')->store('profil', 'public');
-        }
+        $profil->fill($request->only([
+            'no_telepon',
+            'email',
+            'alamat',
+            'senin_jumat',
+            'sabtu',
+            'minggu',
+            'facebook',
+            'ig',
+            'linkedIn',
+            'twitter'
+        ]));
 
         $profil->save();
 
         return back()->with('success', 'Data Hubungi Kami berhasil diperbarui.');
     }
+
+    
+
+
+
+
+
+
+
+
+
 
     public function hubungiKamiDelete($id)
     {

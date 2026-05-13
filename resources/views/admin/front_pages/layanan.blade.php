@@ -2,14 +2,41 @@
 
 @section('content')
 <div x-data="layananApp()" x-init="initData()" class="p-8">
+    @if(session('success'))
+        <div class="p-4 bg-green-50 text-[#0a4d3c] rounded-xl border border-green-100 flex items-center gap-3 animate-fade-in">
+            <i class="bi bi-check-circle-fill"></i> 
+            <span class="text-sm font-medium">{{ session('success') }}</span>
+        </div>
+    @endif
+    {{-- Pesan Error --}}
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-2xl font-bold shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Terjadi kesalahan:</span>
+            </div>
+
+            <ul class="list-disc list-inside font-medium space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="mb-8 flex items-center justify-between">
         <div>
             <h2 class="text-2xl text-gray-900 mb-1 font-bold">Kelola Layanan</h2>
             <p class="text-gray-500">Atur daftar layanan yang ditawarkan</p>
         </div>
-        <button @click="tambahLayanan" class="flex items-center gap-2 px-4 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
-            <i class="bi bi-plus-lg"></i> Tambah Layanan
-        </button>
+        <div class="flex gap-3">
+            <button @click="simpanSemua" class="px-8 py-4 bg-[#0a4d3c] text-white rounded-xl hover:bg-[#0a4d3c]/90 transition-all shadow-xl font-bold flex items-center gap-2">
+                <i class="bi bi-save"></i> Simpan Semua Perubahan
+            </button>
+            <button @click="tambahLayanan" class="flex items-center gap-2 px-4 py-3 bg-white text-[#0a4d3c] border border-[#0a4d3c] rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="bi bi-plus-lg"></i> Tambah Layanan
+            </button>
+        </div>
     </div>
 
     <div class="space-y-6">
@@ -29,13 +56,13 @@
                     <div class="space-y-6">
                         <div>
                             <label class="block mb-2 text-sm font-medium text-gray-700">Nama Layanan</label>
-                            <input name="judul" type="text" x-model="item.nama" required
+                            <input name="judul" type="text" x-model="item.nama" @input="item.isDirty = true" required
                                 class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none">
                         </div>
 
                         <div>
                             <label class="block mb-2 text-sm font-medium text-gray-700">Deskripsi Singkat</label>
-                            <textarea name="desk_singkat" x-model="item.desk_singkat" rows="2" required
+                            <textarea name="desk_singkat" x-model="item.desk_singkat" rows="2" @input="item.isDirty = true" required
                                 class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none"></textarea>
                         </div>
                     </div>
@@ -76,18 +103,28 @@
                     <div class="prose max-w-none">
                         <div x-init="setupCKEditor($el, idx)" 
                             class="ck-editor-container">
-                            <textarea x-model="item.desk_panjang"></textarea>
+                            <textarea x-model="item.desk_panjang" @input="item.isDirty = true" required></textarea>
                         </div>
                     </div>
                 </div>
+
+                <div class="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        {{-- Tombol Hapus (Kiri) --}}
+                        <button @click="hapusLayanan(idx)" 
+                            class="text-sm text-red-500 hover:text-red-700 transition-colors flex items-center gap-1">
+                            <i class="bi bi-trash"></i> Hapus
+                        </button>
+
+                        {{-- Tombol Simpan Per Item (Kanan) --}}
+                        <button @click="simpanSatuItem(idx)" 
+                            :class="item.isDirty ? 'bg-[#0a4d3c] shadow-md' : 'bg-gray-400'"
+                            class="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium transition-all">
+                            <i class="bi bi-check2-circle"></i>
+                            <span x-text="item.id ? 'Update' : 'Simpan'"></span>
+                        </button>
+                    </div>
             </div>
         </template>
-    </div>
-
-    <div class="mt-8">
-        <button @click="simpanSemua" class="px-8 py-4 bg-[#0a4d3c] text-white rounded-xl hover:bg-[#0a4d3c]/90 transition-all shadow-xl font-bold flex items-center gap-2">
-            <i class="bi bi-save"></i> Simpan Semua Perubahan
-        </button>
     </div>
 </div>
 
@@ -129,7 +166,8 @@
                     desk_singkat: '',
                     desk_panjang: '',
                     gambar_url: null,
-                    uploading: false
+                    uploading: false,
+                    isDirty: true
                 });
             },
 
@@ -150,6 +188,7 @@
                     const result = await response.json();
                     if (result.success) {
                         this.layananList[idx].gambar_url = result.url;
+                        this.LayananList[idx].isDirty = false;
                     } else {
                         alert(result.message);
                     }
@@ -160,6 +199,25 @@
                 }
             },
 
+            async simpanSatuItem(idx) {
+                const item = this.layananList[idx];
+                try {
+                    const res = await fetch('{{ route("admin.layanan.store_single") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(item)
+                    });
+                    const data = await res.json();
+                    if(data.success) {
+                        this.layananList[idx].id = data.new_id; 
+                        this.layananList[idx].isDirty = false;
+                        alert('Item berhasil disimpan');
+                    }
+                } catch (e) { alert('Gagal'); }
+            },
             async simpanSemua() {
                 try {
                     this.layananList.forEach((item, idx) => {
@@ -183,6 +241,7 @@
                     const result = await response.json();
                     
                     if (response.ok && result.success) {
+                        this.LayananList[idx].isDirty = false;
                         alert('Data berhasil disimpan!');
                         window.location.reload();
                     } else {

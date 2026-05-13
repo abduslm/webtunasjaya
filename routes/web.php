@@ -40,6 +40,7 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->g
     // Layanan
     Route::get('/layanan',              [KelolaHalamanController::class, 'layananIndex'])->name('layanan.index');
     Route::post('/layanan',             [KelolaHalamanController::class, 'layananStore'])->name('layanan.store');
+    Route::post('/layanan/store-single',[KelolaHalamanController::class, 'layananStoreSingle'])->name('layanan.store_single');
     Route::post('/layanan/{id}/gambar', [KelolaHalamanController::class, 'layananUploadGambar'])->name('layanan.uploadGambar');
 
     // Portofolio
@@ -49,8 +50,8 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->g
     Route::post('/portofolio/{id}/gambar', [KelolaHalamanController::class, 'portofolioUploadGambar'])->name('portofolio.uploadGambar');
 
     // Tentang Kami
-    Route::get('/tentang-kami',  [KelolaHalamanController::class, 'tentangKami'])->name('tentang-kami');
-    Route::post('/tentang-kami', [KelolaHalamanController::class, 'tentangKamiUpdate'])->name('tentang-kami.update');
+    Route::get('/tentang-kami',  [KelolaHalamanController::class, 'tentangIndex'])->name('tentang-kami.index');
+    Route::put('/tentang-kami', [KelolaHalamanController::class, 'tentangUpdate'])->name('tentang-kami.update');
 
     // Dokumentasi
     Route::get('/dokumentasi',              [KelolaHalamanController::class, 'dokumentasiIndex'])->name('dokumentasi.index');

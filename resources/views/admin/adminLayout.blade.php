@@ -38,7 +38,7 @@
                 <span>Beranda</span>
             </a>
 
-            <a href="{{ route('admin.tentang-kami') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.tentang-kami') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="{{ route('admin.tentang-kami.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.tentang-kami.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                 <i class="bi bi-file-text"></i>
                 <span>Tentang Kami</span>
             </a>

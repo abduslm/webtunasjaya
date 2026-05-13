@@ -18,50 +18,39 @@ class ProfilPerusahaanController extends Controller
     public function hubungiKamiUpdate(Request $request)
     {
         $request->validate([
-            'nama_perusahaan' => 'nullable|string|max:255',
-            'motto'           => 'nullable|string|max:255',
-            'logo'            => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
             'no_telepon'      => 'nullable|string|max:50',
             'email'           => 'nullable|email|max:255',
             'alamat'          => 'nullable|string',
-            'senin_jumat'     => 'nullable|string|max:255',
-            'sabtu'           => 'nullable|string|max:255',
-            'minggu'          => 'nullable|string|max:255',
+            'senin_jumat_mulai'     => 'nullable|string|max:5',
+            'senin_jumat_selesai'   => 'nullable|string|max:5',
+            'sabtu_mulai'           => 'nullable|string|max:5',
+            'sabtu_selesai'         => 'nullable|string|max:5',
+            'minggu_mulai'          => 'nullable|string|max:5',
+            'minggu_selesai'        => 'nullable|string|max:5',
             'facebook'        => 'nullable|string|max:255',
             'ig'              => 'nullable|string|max:255',
             'linkedIn'        => 'nullable|string|max:255',
             'twitter'         => 'nullable|string|max:255',
         ]);
 
-        $profil = Profil_perusahaan::firstOrNew([
-            'id_profilPerusahaan' => 1
-        ]);
-
-        $profil->fill($request->except('logo'));
-
-        if ($request->hasFile('logo')) {
-            if ($profil->logo) {
-                Storage::disk('public')->delete($profil->logo);
-            }
-
-            $profil->logo = $request->file('logo')->store('profil', 'public');
-        }
-
-        $profil->save();
+        $profil = Profil_perusahaan::updateOrCreate(
+            ['id_profilPerusahaan' => 1],
+            [
+                'no_telepon'      => $request->no_telepon ?? '',
+                'email'           => $request->email ?? '',
+                'alamat'          => $request->alamat ?? '',
+                'senin_jumat'     => $request->senin_jumat_mulai .'-'. $request->senin_jumat_selesai ?? '',
+                'sabtu'           => $request->sabtu_mulai .'-'. $request->sabtu_selesai ?? '',
+                'minggu'          => $request->minggu_mulai .'-'. $request->minggu_selesai ?? '',
+                'facebook'        => $request->facebook ?? '',
+                'ig'              => $request->ig ?? '',
+                'linkedIn'        => $request->linkedIn ?? '',
+                'twitter'         => $request->twitter ?? '',
+            ]
+        );
 
         return back()->with('success', 'Data Hubungi Kami berhasil diperbarui.');
     }
 
-    public function hubungiKamiDelete($id)
-    {
-        $profil = Profil_perusahaan::findOrFail($id);
-
-        if ($profil->logo) {
-            Storage::disk('public')->delete($profil->logo);
-        }
-
-        $profil->delete();
-
-        return back()->with('success', 'Data berhasil dihapus.');
-    }
+    
 }

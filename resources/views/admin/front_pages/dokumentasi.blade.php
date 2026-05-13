@@ -2,6 +2,29 @@
 
 @section('content')
 <div x-data="dokumentasiApp()" x-init="initData()" class="p-8">
+    @if(session('success'))
+        <div class="p-4 bg-green-50 text-[#0a4d3c] rounded-xl border border-green-100 flex items-center gap-3 animate-fade-in">
+            <i class="bi bi-check-circle-fill"></i> 
+            <span class="text-sm font-medium">{{ session('success') }}</span>
+        </div>
+    @endif
+    {{-- Pesan Error --}}
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-2xl font-bold shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Terjadi kesalahan:</span>
+            </div>
+
+            <ul class="list-disc list-inside font-medium space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+
     <div class="mb-8 flex items-center justify-between">
         <div>
             <h2 class="text-2xl text-gray-900 mb-1 font-bold">Kelola Dokumentasi</h2>
@@ -51,7 +74,7 @@
                 <div class="p-5 space-y-4">
                     <div>
                         <label class="block mb-1 text-xs font-semibold text-gray-400 uppercase">Lokasi Pekerjaan</label>
-                        <input type="text" x-model="doc.lokasi" 
+                        <input type="text" x-model="doc.lokasi" @input="doc.isDirty = true" required
                             class="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none"
                             placeholder="Contoh: Gedung Astra Lt. 5">
                     </div>
@@ -59,12 +82,12 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block mb-1 text-xs font-semibold text-gray-400 uppercase">Tanggal</label>
-                            <input type="date" x-model="doc.tanggal" 
+                            <input type="date" x-model="doc.tanggal" @input="doc.isDirty = true" required
                                 class="w-full px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 text-sm focus:outline-none">
                         </div>
                         <div>
                             <label class="block mb-1 text-xs font-semibold text-gray-400 uppercase">Layanan</label>
-                            <select x-model="doc.jenisLayanan" class="w-full px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 text-sm focus:outline-none">
+                            <select x-model="doc.jenisLayanan" @input="doc.isDirty = true" class="w-full px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 text-sm focus:outline-none">
                                 <option value="">Pilih Layanan</option>
                                 @foreach($daftarLayanan as $layanan)
                                     <option value="{{ $layanan }}">{{ $layanan }}</option>

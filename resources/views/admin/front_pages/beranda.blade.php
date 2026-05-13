@@ -3,18 +3,33 @@
 
 @section('content')
 <div class="p-8">
+    {{-- Notifikasi  button onclick="this.parentElement.remove()" class="text-green-900 font-bold">&times; button --}}
+    @if(session('success'))
+        <div class="p-4 bg-green-50 text-[#0a4d3c] rounded-xl border border-green-100 flex items-center gap-3 animate-fade-in">
+            <i class="bi bi-check-circle-fill"></i> 
+            <span class="text-sm font-medium">{{ session('success') }}</span>
+        </div>
+    @endif
+    {{-- Pesan Error --}}
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-2xl font-bold shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Terjadi kesalahan:</span>
+            </div>
+
+            <ul class="list-disc list-inside font-medium space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="mb-8">
         <h2 class="text-2xl text-gray-900 mb-1">Kelola Beranda</h2>
         <p class="text-gray-500">Atur konten halaman utama (Hero Section) website</p>
     </div>
-
-    {{-- Notifikasi Sukses --}}
-    @if(session('success'))
-    <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 flex justify-between items-center">
-        <span>{{ session('success') }}</span>
-        <button onclick="this.parentElement.remove()" class="text-green-900 font-bold">&times;</button>
-    </div>
-    @endif
 
     <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
         {{-- Sesuai dengan Route::post di web.php, hapus @method('PUT') --}}
@@ -68,8 +83,8 @@
                     <div>
                         <label class="block mb-2 text-gray-900 font-semibold text-sm tracking-wide uppercase">Ganti Gambar Baru</label>
                         <div id="dropzone" 
-                             class="border-2 border-dashed border-gray-300 rounded-xl h-52 flex flex-col items-center justify-center text-center hover:border-[#0a4d3c] hover:bg-gray-50 transition-all cursor-pointer relative overflow-hidden"
-                             onclick="document.getElementById('gambar_hero').click()">
+                            class="border-2 border-dashed border-gray-300 rounded-xl h-52 flex flex-col items-center justify-center text-center hover:border-[#0a4d3c] hover:bg-gray-50 transition-all cursor-pointer relative overflow-hidden"
+                            onclick="document.getElementById('gambar_hero').click()">
                             
                             {{-- Container untuk Preview --}}
                             <div id="preview-container" class="hidden absolute inset-0 w-full h-full p-2 bg-white">
@@ -80,7 +95,7 @@
                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                <p class="mt-2 text-sm text-gray-600 font-medium">Klik atau Seret Gambar ke Sini</p>
+                                <p class="mt-2 text-sm text-gray-600 font-medium">Klik untuk ganti gambar</p>
                                 <p class="text-xs text-gray-400 mt-1">Format: PNG, JPG, JPEG (Maks. 5MB)</p>
                             </div>
                         </div>

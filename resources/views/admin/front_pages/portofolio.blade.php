@@ -160,6 +160,7 @@
                     if (result.success) {
                         this.portfolioList[idx].gambar_url = result.url;
                         this.portfolioList[idx].isDirty = false;
+                        alert('Upload Gambar Berhasil!');
                     } else {
                         alert('Gagal: ' + result.message);
                     }
@@ -200,16 +201,18 @@
                         },
                         body: JSON.stringify({ list: this.portfolioList })
                     });
-                    
-                    const data = await response.json();
-                    if (data.success) {
-                        this.portfolioList[idx].isDirty = false;
-                        alert('Seluruh perubahan berhasil disimpan!');
+
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        alert('Data berhasil disimpan!');
                         window.location.reload();
+                    } else {
+                        alert('Gagal menyimpan: ' + (result.message || 'Cek server log'));
                     }
+
                 } catch (err) {
-                    console.error(err);
-                    alert('Gagal menghubungi server.');
+                    console.error("Kesalahan fatal:", err);
+                    alert('Terjadi kesalahan sistem. Cek konsol browser.');
                 }
             }
         }

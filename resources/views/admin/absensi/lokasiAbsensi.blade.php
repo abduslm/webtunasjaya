@@ -3,222 +3,201 @@
 
 @section('content')
 <style>[x-cloak] { display: none !important; }</style>
-<div x-data="{isModalOpen: false, editingItem: {klien:'', alamat:'',latitude:'',longitude:'',radius:'',gambar:''}}" class="p-8">
 
-    {{-- Notifikasi --}}
-    @if(session('success'))
-        <div class="p-4 bg-green-50 text-[#0a4d3c] rounded-xl border border-green-100 flex items-center gap-3 animate-fade-in">
-            <i class="bi bi-check-circle-fill"></i> 
-            <span class="text-sm font-medium">{{ session('success') }}</span>
-        </div>
-    @endif
-    {{-- Pesan Error --}}
-    @if($errors->any())
-        <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-2xl font-bold shadow-sm">
-            <div class="flex items-center gap-3 mb-2">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>Terjadi kesalahan:</span>
-            </div>
+<div x-data="{ 
+    isModalOpen: false, 
+    editingItem: null,
+    photoPreview: null,
+    resetForm() {
+        this.editingItem = { klien: '', alamat: '', latitude: '', longitude: '', radius: '' };
+        this.photoPreview = null;}
+}" class="p-8">
 
-            <ul class="list-disc list-inside font-medium space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <div class="mb-8 flex items-center justify-between">
+    {{-- Header --}}
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h2 class="text-2xl text-gray-900 mb-1">Lokasi Absensi</h2>
-            <p class="text-gray-500">Kelola lokasi untuk absensi karyawan</p>
+            <h2 class="text-2xl font-bold text-gray-900">Lokasi Absensi</h2>
+            <p class="text-gray-500">Kelola titik lokasi absensi klien dan radius karyawan</p>
         </div>
-        <button @click="isModalOpen = true; editingItem = null"
-            class="flex items-center gap-2 px-4 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
+        <button @click="resetForm(); isModalOpen = true"
+            class="flex items-center justify-center gap-2 px-5 py-3 bg-[#0a4d3c] text-white rounded-xl hover:bg-[#0a3a2e] transition-all shadow-sm shadow-emerald-200">
             <i class="bi bi-plus-lg"></i>
-            Tambah Lokasi
+            <span class="font-semibold">Tambah Lokasi</span>
         </button>
     </div>
 
-    {{-- Filter dan Pencarian --}}
-    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
+    {{-- Filter & Search --}}
+    <div class="bg-white rounded-2xl border border-gray-100 p-8 mb-8 shadow-sm">
+        <form action="{{ route('admin.kelola-lokasi.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
             <div class="flex-1 relative">
-                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                <input type="text" placeholder="Cari nama klien..."
-                    class="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent">
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari nama klien atau alamat..."
+                    class="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-[#0a4d3c]/20 outline-none transition-all">
             </div>
-        </div>
+                @if(request('search'))
+                <a href="{{ route('admin.kelola-lokasi.index') }}" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-center">
+                    Reset
+                </a>
+                @endif
+        </form>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            @forelse($lokasiList as $lokasi)
-            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div class="aspect-video bg-[#fafbfc] border-b border-gray-200 flex items-center justify-center">
-                    <i class="bi bi-geo-alt-fill text-gray-400 text-5xl"></i>
-                </div>
-
-                <div class="p-6">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex-1">
-                            <h3 class="text-gray-900 font-semibold mb-1" >{{ $lokasi->klien }}</h3>
-                            <p class="text-sm text-gray-500 mb-2">{{ $lokasi->alamat }}</p>
+    {{-- Grid Card --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @forelse($lokasiList as $lokasi)
+        <div class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col">
+            <div class="relative aspect-[16/10] overflow-hidden bg-gray-100">
+                @if($lokasi->gambar)
+                    <img src="{{ asset('storage/' . $lokasi->gambar) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                @else
+                    <div class="w-full h-full flex flex-col items-center justify-center p-6 bg-emerald-50/30">
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            {!! DNS2D::getBarcodeHTML('https://www.google.com/maps?q=' . $lokasi->latitude . ',' . $lokasi->longitude,'QRCODE', 4, 4) !!}
                         </div>
-                        <div class="flex gap-2">
-                            <button @click="isModalOpen = true; editingItem = {{ json_encode($lokasi) }}"
-                                class="p-2 text-[#0a4d3c] hover:bg-[#e8f5f1] rounded-lg transition-colors">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <form action="{{ route('admin.kelola-lokasi.destroy', $lokasi->id_lokasi) }}" method="POST" onsubmit="return confirm('Apakah anda yakin hapus lokasi ini?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                        <i class="bi bi-trash3"></i>
-                                    </button>
-                                </form>
-                        </div>
+                        <span class="text-[10px] text-gray-400 mt-2 tracking-widest uppercase font-bold">Pindai Koordinat</span>
                     </div>
-
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between p-3 bg-[#fafbfc] rounded-lg">
-                            <span class="text-sm text-gray-500">Koordinat</span>
-                            <span class="text-sm text-gray-900">{{ $lokasi->latitude .', '.$lokasi->longitude }} </span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-[#fafbfc] rounded-lg">
-                            <span class="text-sm text-gray-500">Radius</span>
-                            <span class="text-sm text-gray-900">{{ $lokasi->radius }} Meter</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <button @click="window.open('https://www.google.com/maps?q=' + {{$lokasi->latitude}} + ',' + {{$lokasi->longitude}}, '_blank')"
-                            class="w-full px-4 py-3 bg-[#e8f5f1] text-[#0a4d3c] rounded-lg hover:bg-[#d1ebe3] transition-colors">
-                            Lihat di Peta
-                        </button>
-                    </div>
+                @endif
+                <div class="absolute top-3 right-3 px-3 py-1 bg-white/90 backdrop-blur text-[#0a4d3c] text-xs font-bold rounded-full border border-emerald-100">
+                    Radius: {{ $lokasi->radius }}m
                 </div>
             </div>
-            @empty
 
-        <div class="col-span-full bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <i class="bi bi-geo-alt-fill text-gray-400 text-5xl mb-4 block"></i>
-            <p class="text-gray-500">Tidak ada lokasi yang sesuai dengan pencarian</p>
+            {{-- Konten --}}
+            <div class="p-5 flex-1 flex flex-col">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-lg font-bold text-gray-900 truncate pr-2">{{ $lokasi->klien }}</h3>
+                    <div class="flex gap-1 shrink-0">
+                        <button @click="editingItem = {{ json_encode($lokasi) }}; photoPreview = null; isModalOpen = true"
+                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <form action="{{ route('admin.kelola-lokasi.destroy', $lokasi->id_lokasi) }}" method="POST" 
+                            onsubmit="return confirm('Hapus lokasi {{ $lokasi->klien }}?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-2 mb-4">
+                    <i class="bi bi-geo-alt text-emerald-600 mt-1 shrink-0"></i>
+                    <p class="text-sm text-gray-500 line-clamp-2 leading-relaxed">{{ $lokasi->alamat }}</p>
+                </div>
+
+                <div class="mt-auto pt-4 flex gap-3">
+                    <a href="https://www.google.com/maps?q={{ $lokasi->latitude }},{{ $lokasi->longitude }}" target="_blank"
+                        class="flex-1 text-center py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-100 transition-colors border border-gray-200">
+                        <i class="bi bi-map mr-1"></i> Navigasi
+                    </a>
+                </div>
+            </div>
+        </div>
+        @empty
+        <div class="col-span-full py-20 bg-white rounded-3xl border border-dashed border-gray-200 flex flex-col items-center">
+            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <i class="bi bi-geo text-3xl text-gray-300"></i>
+            </div>
+            <p class="text-gray-400 font-medium">Tidak ada lokasi yang ditemukan</p>
         </div>
         @endforelse
     </div>
 
-    <!-- Modal Overlay -->
-<div x-show="isModalOpen" 
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak>
-    
-    <!-- Modal Content -->
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        
-        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
-            <h3 class="text-xl font-semibold text-gray-900" x-text="editingItem ? 'Edit Lokasi' : 'Tambah Lokasi Baru'"></h3>
-            <button @click="isModalOpen = false" class="text-gray-400 hover:text-gray-600">
-                <i class="bi bi-x-lg"></i>
-            </button>
+    {{-- Pagination --}}
+    <div class="p-6 border-t border-gray-100 bg-gray-50/30">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-gray-500">
+                Menampilkan <span class="font-medium text-gray-900">{{ $lokasiList->firstItem() }}</span> 
+                sampai <span class="font-medium text-gray-900">{{ $lokasiList->lastItem() }}</span> 
+                dari <span class="font-medium text-gray-900">{{ $lokasiList->total() }}</span> Lokasi
+            </p>
+
+            {{-- Tombol Navigasi --}}
+            <div class="pagination-wrapper">
+                {{ $lokasiList->appends(request()->input())->links('pagination::tailwind') }}
+            </div>
         </div>
+    </div>
 
-        <form :action="editingItem ? '{{ route('admin.kelola-lokasi.update', ':id') }}'.replace(':id', editingItem.id_lokasi) : '{{ route('admin.kelola-lokasi.store') }}'"
-                method="POST" 
-                enctype="multipart/form-data" 
-                class="p-6 space-y-5">
-            @csrf
-
-            <template x-if="editingItem">
-                <input type="hidden" name="_method" value="PUT">
-            </template>
-            <!-- Upload Gambar -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Foto Lokasi</label>
-                <div class="flex items-center gap-4">
-                    <div class="w-24 h-24 rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden relative">
-                        
-                        <input type="file"  class="absolute inset-0 opacity-0 cursor-pointer">
-                    </div>
-                    <div class="text-xs text-gray-500">
-                        <p class="font-medium text-[#0a4d3c]">Klik untuk unggah gambar</p>
-                        <p>Format: JPG, PNG (Maks. 2MB)</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Nama Klien -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Klien</label>
-                    <input type="text" name='klien' x-model="editingItem.klien" required
-                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none">
-                </div>
-
-                <!-- Alamat -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label>
-                    <textarea name='alamat' x-model="editingItem.alamat" rows="2" required
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none"></textarea>
-                </div>
-
-                <!-- Latitude -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
-                    <input type="text" name='latitude' x-model="editingItem.latitude" placeholder="-6.xxxx" required
-                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none">
-                </div>
-
-                <!-- Longitude -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
-                    <input type="text" name='longitude' x-model="editingItem.longitude" placeholder="106.xxxx" required
-                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none">
-                </div>
-
-                <!-- Radius -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Radius Absensi (Meter)</label>
-                    <div class="relative">
-                        <input type="number" name='radius' x-model="editingItem.radius" placeholder="Contoh: 50" required
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none">
-                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">meter</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex gap-3 pt-4 border-t border-gray-100">
-                <button type="button" @click="isModalOpen = false"
-                        class="flex-1 px-4 py-3 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
-                    Batal
-                </button>
-                <button type="submit"
-                        class="flex-1 px-4 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a3a2e] transition-colors font-medium">
-                    Simpan Lokasi
+    <div x-show="isModalOpen" 
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-start justify-center p-4 bg-gray-900/60 backdrop-blur-sm overflow-y-auto" 
+        x-cloak>
+        
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-zoom-in">
+            <div class="p-6 border-b border-gray-50 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-900" x-text="editingItem?.id_lokasi ? 'Edit Lokasi' : 'Tambah Lokasi'"></h3>
+                <button @click="isModalOpen = false" class="w-8 h-8 flex items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="bi bi-x-lg"></i>
                 </button>
             </div>
-        </form>
+
+            <form :action="editingItem?.id_lokasi ? '{{ route('admin.kelola-lokasi.update', ':id') }}'.replace(':id', editingItem.id_lokasi) : '{{ route('admin.kelola-lokasi.store') }}'"
+                method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+                @csrf
+                <template x-if="editingItem?.id_lokasi">
+                    <input type="hidden" name="_method" value="PUT">
+                </template>
+
+                {{-- Image Upload --}}
+                <div class="flex flex-col items-center bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-gray-200 hover:border-emerald-300 transition-colors relative">
+                    <template x-if="photoPreview || editingItem?.gambar">
+                        <img :src="photoPreview ? photoPreview : '/storage/' + editingItem.gambar" class="w-full h-40 object-cover rounded-xl mb-2">
+                    </template>
+                    <div x-show="!photoPreview && !editingItem?.gambar" class="text-center py-4">
+                        <i class="bi bi-cloud-arrow-up text-3xl text-emerald-600 mb-2"></i>
+                        <p class="text-xs text-gray-500 font-medium">Klik untuk upload foto lokasi</p>
+                    </div>
+                    <input type="file" name="gambar" class="absolute inset-0 opacity-0 cursor-pointer"
+                        @change="const file = $event.target.files[0]; if(file){ const reader = new FileReader(); reader.onload = (e) => { photoPreview = e.target.result; }; reader.readAsDataURL(file); }">
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Nama Klien</label>
+                        <input type="text" name="klien" x-model="editingItem.klien" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Alamat</label>
+                        <textarea name="alamat" x-model="editingItem.alamat" rows="2" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Latitude</label>
+                            <input type="text" name="latitude" x-model="editingItem.latitude" placeholder="-6.234" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Longitude</label>
+                            <input type="text" name="longitude" x-model="editingItem.longitude" placeholder="106.123" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm font-mono">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Radius (Meter)</label>
+                        <div class="flex items-center">
+                        <input type="number" name="radius" x-model="editingItem.radius" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none">
+                            <span class="ml-2 text-gray-600"> M</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-6">
+                    <button type="button" @click="isModalOpen = false" class="flex-1 py-3.5 text-gray-500 font-semibold rounded-xl hover:bg-gray-200 transition-colors">Batal</button>
+                    <button type="submit" class="flex-1 py-3.5 bg-[#0a4d3c] text-white font-bold rounded-xl shadow-lg shadow-emerald-200">Simpan Lokasi</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-</div>
 
-<script>
-    function lokasiApp() {
-        return {
-            handleFileUpload(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    // Simpan file ke property (opsional jika dikirim via AJAX)
-                    // Untuk preview:
-                    this.editingItem.previewGambar = URL.createObjectURL(file);
-                }
-            }
-        }
-    }
-</script>
-
+<style>
+    .animate-zoom-in { animation: zoom-in 0.3s ease-out; }
+    @keyframes zoom-in { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+</style>
 @endsection

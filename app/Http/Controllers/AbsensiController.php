@@ -7,6 +7,8 @@ use App\models\User;
 use App\models\Data_Karyawan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AbsensiExport;
 
 class AbsensiController
 {
@@ -41,6 +43,12 @@ class AbsensiController
         $absensi = $query->latest('tanggal')->paginate(25)->withQueryString();
 
         return view('admin.absensi.daftarAbsensi', compact('absensi'));
+    }
+
+    public function export(Request $request) 
+    {
+        $namaFile = 'Laporan_Absensi_' . Carbon::now()->format('Y-m-d_His') . '.xlsx';
+        return Excel::download(new AbsensiExport($request), $namaFile);
     }
 
     public function indexi()

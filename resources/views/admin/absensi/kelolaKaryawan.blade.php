@@ -2,7 +2,7 @@
 
 @section('content')
 <style>[x-cloak] { display: none !important; }</style>
-<div class="p-8" x-data="{isModalOpen: false, editingItem: {nama_lengkap:'', tanggal_lahir:'',jenis_kelamin:'',no_hp:'',alamat:'',id_lokasi:'',email:'',password:'',role:'',status:'',device_id:'',id_user:''}, userBaru: false, userLama: true}">
+<div class="p-8" x-data="{isModalOpen: false, photoPreview: null, editingItem: {nama_lengkap:'', tanggal_lahir:'',jenis_kelamin:'',no_hp:'',alamat:'',id_lokasi:'',email:'',password:'',role:'',status:'',device_id:'',id_user:''}, userBaru: false, userLama: true}">
 
     {{-- Notifikasi --}}
     @if(session('success'))
@@ -34,7 +34,7 @@
             <p class="text-gray-500">Kelola profil dan data karyawan</p>
         </div>
         <button 
-            @click="isModalOpen = true; editingItem = null"
+            @click="isModalOpen = true; editingItem = null; photoPreview = null"
             class="flex items-center gap-2 px-4 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors shadow-sm">
             <i class="bi bi-plus-lg"></i>Tambah Karyawan
         </button>
@@ -45,21 +45,29 @@
         <form method="GET" action="{{ route('admin.kelola-karyawan.index') }}" class="flex flex-col md:flex-row gap-4">
             <div class="flex-1 relative">
                 <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                {{-- Input Search: Menekan Enter akan otomatis submit form --}}
                 <input type="text" name="search" value="{{ request('search') }}"
-                    placeholder="Cari nama, ID, atau email karyawan..."
+                    placeholder="Cari nama, No HP, atau email..."
                     class="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c]/20 focus:border-[#0a4d3c] transition-all">
             </div>
+            
+            {{-- Select Lokasi: onchange="this.form.submit()" akan langsung memfilter saat dipilih --}}
             <select name="lokasi" onchange="this.form.submit()"
                 class="px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c]/20 focus:border-[#0a4d3c]">
                 <option value="Semua">Semua Lokasi</option>
-                @forelse($daftarLokasi as $lokasi)
+                @foreach($daftarLokasi as $lokasi)
                     <option value="{{ $lokasi->id_lokasi }}" {{ request('lokasi') == $lokasi->id_lokasi ? 'selected' : '' }}>
-                        {{ $lokasi->alamat }}
+                        {{ $lokasi->klien }} - {{ $lokasi->alamat }}
                     </option>
-                @empty
-                    <option value="" disabled>Tidak ada lokasi tersedia</option>
-                @endforelse
+                @endforeach
             </select>
+
+            {{-- Tombol Reset --}}
+            @if(request('search') || (request('lokasi') && request('lokasi') != 'Semua'))
+                <a href="{{ route('admin.kelola-karyawan.index') }}" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-center">
+                    Reset
+                </a>
+            @endif
         </form>
     </div>
 
@@ -81,8 +89,12 @@
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#0a4d3c] font-bold">
-                                    {{ substr($karyawan->nama_lengkap, 0, 1) }}
+                                <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-[#0a4d3c] font-bold border border-gray-200">
+                                    @if($karyawan->foto)
+                                        <img src="{{ asset('storage/' . $karyawan->foto) }}" alt="{{ $karyawan->nama_lengkap }}" class="w-full h-full object-cover">
+                                    @else
+                                        {{ substr($karyawan->nama_lengkap, 0, 1) }}
+                                    @endif
                                 </div>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">{{ $karyawan->nama_lengkap }}</div>
@@ -135,7 +147,7 @@
 
                 {{-- Tombol Navigasi --}}
                 <div class="pagination-wrapper">
-                    {{ $karyawanList->links('pagination::tailwind') }}
+                    {{ $karyawanList->appends(request()->input())->links('pagination::tailwind') }}
                 </div>
             </div>
         </div>
@@ -173,12 +185,40 @@
                     {{-- Upload Foto --}}
                     <div class="flex items-center gap-6">
                         <div class="w-24 h-24 rounded-full bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden relative group">
-                            <i class="bi bi-cloud-arrow-up text-2xl text-gray-400 group-hover:text-[#0a4d3c] transition-colors"></i>
-                            <input type="file" name="foto" class="absolute inset-0 opacity-0 cursor-pointer">
+                            
+                            {{-- Tampilan jika ada preview (foto baru dipilih) --}}
+                            <template x-if="photoPreview">
+                                <img :src="photoPreview" class="w-full h-full object-cover">
+                            </template>
+
+                            {{-- Tampilan jika sedang edit dan ada foto lama (tapi belum pilih foto baru) --}}
+                            <template x-if="!photoPreview && editingItem && editingItem.foto">
+                                <img :src="'/storage/' + editingItem.foto" class="w-full h-full object-cover">
+                            </template>
+
+                            {{-- Tampilan Default jika kosong --}}
+                            <template x-if="!photoPreview && (!editingItem || !editingItem.foto)">
+                                <i class="bi bi-cloud-arrow-up text-2xl text-gray-400 group-hover:text-[#0a4d3c] transition-colors"></i>
+                            </template>
+
+                            <input type="file" name="foto" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer"
+                                @change="
+                                    const file = $event.target.files[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = (e) => { photoPreview = e.target.result; };
+                                        reader.readAsDataURL(file);
+                                    }
+                                ">
                         </div>
                         <div>
                             <span class="block text-sm font-medium text-gray-700">Foto Profil</span>
                             <p class="text-xs text-gray-400 mt-1">JPG, PNG atau WEBP (Maks. 2MB)</p>
+                            {{-- Tombol Hapus Preview --}}
+                            <button x-show="photoPreview" type="button" @click="photoPreview = null; $event.target.closest('div').parentElement.querySelector('input').value = ''" 
+                                class="text-xs text-red-600 mt-2 hover:underline">
+                                Batal Ubah Foto
+                            </button>
                         </div>
                     </div>
 
@@ -321,7 +361,7 @@
                     <button type="submit" class="flex-1 px-6 py-3 bg-[#0a4d3c] text-white rounded-xl font-semibold hover:bg-[#0a3a2e] transition-all shadow-lg shadow-emerald-900/10">
                         Simpan Data Karyawan
                     </button>
-                    <button type="button" @click="isModalOpen = false" class="px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-semibold hover:bg-gray-100 transition-all">
+                    <button type="button" @click="isModalOpen = false; photoPreview = null" class="px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-semibold hover:bg-gray-100 transition-all">
                         Batal
                     </button>
                 </div>

@@ -25,7 +25,8 @@
     @endif
 
 
-    <div class="mb-8 flex items-center justify-between">
+    <div class="mb-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
             <h2 class="text-2xl text-gray-900 mb-1 font-bold">Kelola Dokumentasi</h2>
             <p class="text-gray-500">Arsip foto pekerjaan PT Tunas Jaya Bersinar Cemerlang</p>
@@ -39,6 +40,50 @@
             </button>
         </div>
     </div>
+
+    {{-- SECTION SEARCH & FILTER --}}
+    <div class="bg-white rounded-xl border border-gray-200 p-5 mb-8 shadow-sm">
+        <form action="{{ route('admin.dokumentasi.index') }}" method="GET" class="flex flex-wrap gap-4">
+            
+            {{-- Search Input --}}
+            <div class="flex-1 min-w-[250px] relative">
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari lokasi pekerjaan..."
+                    class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c]/20 focus:border-[#0a4d3c] outline-none transition-all text-sm">
+            </div>
+
+            {{-- Filter Layanan --}}
+            <div class="w-full md:w-48">
+                <select name="layanan" onchange="this.form.submit()"
+                    class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c]/20 focus:border-[#0a4d3c] outline-none text-sm">
+                    <option value="">Semua Layanan</option>
+                    @foreach($daftarLayanan as $layanan)
+                        <option value="{{ $layanan }}" {{ request('layanan') == $layanan ? 'selected' : '' }}>
+                            {{ $layanan }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Filter Tanggal --}}
+            <div class="w-full md:w-48">
+                <input type="date" name="tanggal" value="{{ request('tanggal') }}" onchange="this.form.submit()"
+                    class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c]/20 focus:border-[#0a4d3c] outline-none text-sm">
+            </div>
+
+            {{-- Reset Button --}}
+            @if(request()->anyFilled(['search', 'layanan', 'tanggal']))
+                <a href="{{ route('admin.dokumentasi.index') }}" 
+                    class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-center">
+                    Reset
+                </a>
+            @endif
+
+            <button type="submit" class="hidden">Submit</button>
+        </form>
+    </div>
+</div>
 
     {{-- Grid Dokumentasi --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -116,9 +161,19 @@
         </template>
     </div>
 
-    {{-- Paginasi Laravel --}}
-    <div class="mt-8">
-        {{ $dokumentasi->links() }}
+    <div class="p-6 border-t border-gray-100 bg-gray-50/30">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-gray-500">
+                Menampilkan <span class="font-medium text-gray-900">{{ $dokumentasi->firstItem() }}</span> 
+                sampai <span class="font-medium text-gray-900">{{ $dokumentasi->lastItem() }}</span> 
+                dari <span class="font-medium text-gray-900">{{ $dokumentasi->total() }}</span> Dokumentasi
+            </p>
+
+            {{-- Tombol Navigasi --}}
+            <div class="pagination-wrapper">
+                {{ $dokumentasi->appends(request()->input())->links('pagination::tailwind') }}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -159,6 +214,7 @@
                     if(data.success) {
                         this.dokumentasiList[idx].gambar_url = data.url;
                         this.dokumentasiList[idx].isDirty = false;
+                        alert('Upload Gambar Berhasil');
                     }
                 } catch (e) { alert('Gagal upload'); }
             },
@@ -183,21 +239,28 @@
             },
             async simpanSemua() {
                 try {
-                    const res = await fetch('{{ route("admin.dokumentasi.store") }}', {
+                    const response = await fetch('{{ route("admin.dokumentasi.store") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({ list: this.dokumentasiList })
                     });
-                    const data = await res.json();
-                    if(data.success) {
-                        this.dokumentasiList[idx].isDirty = false;
-                        alert('Berhasil disimpan!');
+
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        alert('Data berhasil disimpan!');
                         window.location.reload();
+                    } else {
+                        alert('Gagal menyimpan: ' + (result.message || 'Cek server log'));
                     }
-                } catch (e) { alert('Gagal menyimpan'); }
+
+                } catch (err) {
+                    console.error("Kesalahan fatal:", err);
+                    alert('Terjadi kesalahan sistem. Cek konsol browser.');
+                }
             }
         }
     }

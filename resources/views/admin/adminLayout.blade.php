@@ -95,7 +95,7 @@
                     <span>Persetujuan Izin</span>
                 </a>
 
-                <a href="{{ route('admin.koreksi-absensi.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.koreksi-absensi') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                <a href="{{ route('admin.koreksi-absensi.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.koreksi-absensi.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                     <i class="bi bi-clock"></i>
                     <span>Koreksi Absensi</span>
                 </a>

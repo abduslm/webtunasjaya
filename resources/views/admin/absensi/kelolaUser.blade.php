@@ -62,12 +62,7 @@
                         <input type="text" name="search" value="{{ request('search') }}" 
                             placeholder="Cari nama, email, atau ID user..."
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c]/20 focus:border-[#0a4d3c] transition-all text-sm">
-                        <input type="hidden" name="status" value="{{ request('status', 'semua') }}">       
-                        {{-- Ikon X --}}
-                        @if(request('search'))
-                            <i class="bi bi-x-lg absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer hover:text-red-500 transition-colors" 
-                            onclick="window.location.href='{{ route('admin.kelola-user.index', ['status' => request('status', 'semua')]) }}'"></i>
-                        @endif
+                        <input type="hidden" name="status" value="{{ request('status', 'semua') }}">
                     </form>
                 </div>
 
@@ -79,6 +74,13 @@
                     <option value="{{ route('admin.kelola-user.index', ['status' => 'izin', 'search' => request('search')]) }}" {{ request('status') == 'izin' ? 'selected' : '' }}>Izin</option>
                     <option value="{{ route('admin.kelola-user.index', ['status' => 'non-Aktif', 'search' => request('search')]) }}" {{ request('status') == 'non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
                 </select>
+
+                {{-- Tombol Reset --}}
+                @if(request('search') || (request('status') && request('status') != 'semua'))
+                    <a href="{{ route('admin.kelola-user.index') }}" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-center">
+                        Reset
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -157,9 +159,9 @@
                     dari <span class="font-medium text-gray-900">{{ $userWithKaryawan->total() }}</span> user
                 </p>
 
-                {{-- Tombol Navigasi --}}
+                {{-- Tombol Navigasi  userWithKaryawan->links('pagination::tailwind')  --}}
                 <div class="pagination-wrapper">
-                    {{ $userWithKaryawan->links('pagination::tailwind') }}
+                    {{ $userWithKaryawan->appends(request()->input())->links('pagination::tailwind') }}
                 </div>
             </div>
         </div>

@@ -30,10 +30,10 @@
             <p class="text-gray-500">Atur daftar layanan yang ditawarkan</p>
         </div>
         <div class="flex gap-3">
-            <button @click="simpanSemua" class="px-8 py-4 bg-[#0a4d3c] text-white rounded-xl hover:bg-[#0a4d3c]/90 transition-all shadow-xl font-bold flex items-center gap-2">
+            <button @click="simpanSemua" class="px-8 py-4 bg-[#0a4d3c] text-white rounded-xl hover:bg-[#0a4d3c]/60 transition-all shadow-xl font-bold flex items-center gap-2">
                 <i class="bi bi-save"></i> Simpan Semua Perubahan
             </button>
-            <button @click="tambahLayanan" class="flex items-center gap-2 px-4 py-3 bg-white text-[#0a4d3c] border border-[#0a4d3c] rounded-lg hover:bg-gray-50 transition-colors">
+            <button @click="tambahLayanan" class="flex items-center gap-2 px-4 py-3 bg-white text-[#0a4d3c] border border-[#0a4d3c] rounded-lg hover:bg-gray-200 transition-colors">
                 <i class="bi bi-plus-lg"></i> Tambah Layanan
             </button>
         </div>
@@ -47,9 +47,6 @@
                         <div class="w-10 h-10 rounded-full bg-[#e8f5f1] text-[#0a4d3c] flex items-center justify-center font-bold" x-text="idx+1"></div>
                         <h3 class="text-gray-900 font-semibold text-lg" x-text="item.nama ? item.nama : 'Layanan Baru'"></h3>
                     </div>
-                    <button @click="hapusLayanan(idx)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                        <i class="bi bi-trash3 text-xl"></i>
-                    </button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -82,7 +79,7 @@
                             <template x-if="!item.gambar_url">
                                 <div class="text-center">
                                     <i class="bi bi-cloud-upload text-3xl text-gray-400"></i>
-                                    <p class="text-sm text-gray-500 mt-2">Pilih Gambar (Maks 2MB)</p>
+                                    <p class="text-sm text-gray-500 mt-2">Pilih Gambar</p>
                                 </div>
                             </template>
 
@@ -100,10 +97,10 @@
                 {{-- Deskripsi Panjang (CKEditor) --}}
                 <div class="mt-6" wire:ignore>
                     <label class="block mb-2 text-sm font-medium text-gray-700">Deskripsi Lengkap</label>
-                    <div class="prose max-w-none">
+                    <div>
                         <div x-init="setupCKEditor($el, idx)" 
                             class="ck-editor-container">
-                            <textarea x-model="item.desk_panjang" @input="item.isDirty = true" required></textarea>
+                            <textarea name="desk_panjang" id="editor" x-model="item.desk_panjang" required></textarea>
                         </div>
                     </div>
                 </div>
@@ -145,13 +142,14 @@
                 if (!textarea) return;
 
                 ClassicEditor.create(textarea, {
-                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', 'undo', 'redo'],
+                    toolbar: ['undo', 'redo','|','heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'blockQuote','|','link', 'insertTable'],
                 })
                 .then(editor => {
                     ckInstances[idx] = editor;
                     editor.setData(this.layananList[idx].desk_panjang || '');
                     editor.model.document.on('change:data', () => {
                         this.layananList[idx].desk_panjang = editor.getData();
+                        this.layananList[idx].isDirty = true;
                     });
                 })
                 .catch(error => {
@@ -169,6 +167,17 @@
                     uploading: false,
                     isDirty: true
                 });
+                this.$nextTick(() => {
+                    const kartuLayanan = document.querySelectorAll('.space-y-6 > .bg-white');
+                    const kartuTerbaru = kartuLayanan[kartuLayanan.length - 1];
+                    
+                    if (kartuTerbaru) {
+                        kartuTerbaru.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
             },
 
             async uploadGambar(event, item, idx) {
@@ -185,15 +194,17 @@
                         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         body: formData
                     });
+                    
                     const result = await response.json();
                     if (result.success) {
                         this.layananList[idx].gambar_url = result.url;
-                        this.LayananList[idx].isDirty = false;
+                        this.layananList[idx].isDirty = false;
+                        alert('Upload Gambar Berhasil!');
                     } else {
                         alert(result.message);
                     }
                 } catch (error) {
-                    alert('Gagal mengunggah gambar');
+                    alert('Terjadi Kesalahan');
                 } finally {
                     item.uploading = false;
                 }
@@ -226,8 +237,6 @@
                         }
                     });
 
-                    console.log("Mengirim data...", this.layananList);
-
                     const response = await fetch('{{ route("admin.layanan.store") }}', {
                         method: 'POST',
                         headers: {
@@ -239,9 +248,7 @@
                     });
 
                     const result = await response.json();
-                    
                     if (response.ok && result.success) {
-                        this.LayananList[idx].isDirty = false;
                         alert('Data berhasil disimpan!');
                         window.location.reload();
                     } else {

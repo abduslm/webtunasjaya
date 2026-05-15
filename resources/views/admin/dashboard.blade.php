@@ -163,7 +163,7 @@
 
                     </div>
                     <div class="flex gap-2">
-                        <form :action="'{{ route('admin.persetujuan-izin.updateStatus', ':id') }}'.replace(':id', $izinList->id_pengajuanIzin)" method="POST">
+                        <form action="{{ route('admin.persetujuan-izin.updateStatus', $izinList->id_pengajuanIzin) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <input type="hidden" name="status" value="disetujui">
@@ -171,7 +171,7 @@
                                 Setujui
                             </button>
                         </form>
-                        <form :action="'{{ route('admin.persetujuan-izin.updateStatus', ':id') }}'.replace(':id', $izinList->id_pengajuanIzin)" method="POST">
+                        <form action="{{ route('admin.persetujuan-izin.updateStatus', $izinList->id_pengajuanIzin) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <input type="hidden" name="status" value="ditolak">

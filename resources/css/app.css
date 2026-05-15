@@ -2,14 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-.ck-editor__editable_inline {min-height: 200px;}
-.content-rich-text ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-.content-rich-text ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
-.content-rich-text blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; margin: 1rem 0; color: #374151; font-style: italic; background-color: #f9fafb; }
-.content-rich-text table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-.content-rich-text table th, .content-rich-text table td { border: 1px solid #d1d5db; padding: 0.5rem 0.75rem; text-align: left; }
-.content-rich-text table th { background-color: #f3f4f6; font-weight: 600; }
-.content-rich-text h1 { font-size: 2.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827; }
-.content-rich-text h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem; color: #1f2937; }
-.content-rich-text h3 { font-size: 1.25rem; font-weight: 500; margin-bottom: 0.5rem; color: #374151; }
-    
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+.ck-content, .content-rich-text {
+    line-height: 1.6;
+    color: #374151;
+}
+.ck-content h1, .content-rich-text h1 { 
+    font-size: 2.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 1rem; color: #111827; 
+}
+.ck-content h2, .content-rich-text h2 { 
+    font-size: 1.5rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.75rem; color: #1f2937; 
+}
+.ck-content h3, .content-rich-text h3 { 
+    font-size: 1.25rem; font-weight: 500; margin-top: 1rem; margin-bottom: 0.5rem; color: #374151; 
+}
+.ck-content ul, .content-rich-text ul { 
+    list-style-type: disc !important; 
+    padding-left: 1.5rem !important; 
+    margin-bottom: 1rem; 
+}
+.ck-content ol, .content-rich-text ol { 
+    list-style-type: decimal !important; 
+    padding-left: 1.5rem !important; 
+    margin-bottom: 1rem; 
+}
+.ck-content li, .content-rich-text li {margin-bottom: 0.25rem;}
+.ck-content blockquote, .content-rich-text blockquote { 
+    border-left: 4px solid #3b82f6; 
+    padding: 0.75rem 1rem; 
+    margin: 1.5rem 0; 
+    color: #4b5563; 
+    font-style: italic; 
+    background-color: #f3f4f6; 
+}
+.ck-content table, .content-rich-text table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin: 1.5rem 0; 
+}
+.ck-content table th, .content-rich-text table th,
+.ck-content table td, .content-rich-text table td { 
+    border: 1px solid #d1d5db; 
+    padding: 0.75rem; 
+    text-align: left; 
+}
+.ck-content table th, .content-rich-text table th { 
+    background-color: #f9fafb; 
+    font-weight: 600; 
+    color: #111827;
+}
+.ck-content a, .content-rich-text a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+.ck-editor__editable_inline {min-height: 300px;}

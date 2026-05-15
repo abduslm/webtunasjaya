@@ -33,37 +33,58 @@
     <form method="POST" action="{{ route('admin.hubungi-kami.update') }}" enctype="multipart/form-data">
         @csrf
 
-        <div class="space-y-6">
-            {{-- Informasi Kontak --}}
-            <div class="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Kontak</h3>
-                <div class="space-y-4">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Kontak</h3>
+            <div class="space-y-6">
 
-                    <div>
-                        <label class="block mb-2 text-sm font-semibold text-gray-700">Nomor Telepon</label>
-                        <input type="text" name="no_telepon"
-                            pattern="^(?:\+62|0)8[0-9]{8,12}$"
-                            title="No HP terdiri dari 10 - 14 digit angka dan harus dimulai dengan 08 atau +62"
-                            value="{{ old('no_telepon', $data->no_telepon ?? '') }}"
-                            placeholder="Contoh: 081234567890"
-                            class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-                    </div>
+                {{-- Dinamis Nomor Telepon --}}
+                <div id="wrapper-telepon">
+                    <label class="block mb-2 text-sm font-semibold text-gray-700 flex justify-between">
+                        Nomor Telepon
+                        <button type="button" onclick="addItem('wrapper-telepon', 'no_telepon[]')" class="text-blue-600 text-xs hover:underline">+ Tambah No</button>
+                    </label>
+                    @php $telepons = explode('|', $data->no_telepon ?? ''); @endphp
+                    @foreach($telepons as $telp)
+                        <div class="flex gap-2 mb-2 item-row">
+                            <input type="text" name="no_telepon[]" value="{{ $telp }}" placeholder="Contoh: 081234567890"
+                                class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <button type="button" onclick="removeItem(this)" class="px-3 text-red-500 hover:bg-red-50 rounded-lg">×</button>
+                        </div>
+                    @endforeach
+                </div>
 
-                    <div>
-                        <label class="block mb-2 text-sm font-semibold text-gray-700">Email</label>
-                        <input type="email" name="email"
-                            value="{{ old('email', $data->email ?? '') }}"
-                            class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-                    </div>
+                {{-- Dinamis Email --}}
+                <div id="wrapper-email">
+                    <label class="block mb-2 text-sm font-semibold text-gray-700 flex justify-between">
+                        Email
+                        <button type="button" onclick="addItem('wrapper-email', 'email[]')" class="text-blue-600 text-xs hover:underline">+ Tambah Email</button>
+                    </label>
+                    @php $emails = explode('|', $data->email ?? ''); @endphp
+                    @foreach($emails as $em)
+                        <div class="flex gap-2 mb-2 item-row">
+                            <input type="email" name="email[]" value="{{ $em }}" placeholder="admin@gmail.com"
+                                class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <button type="button" onclick="removeItem(this)" class="px-3 text-red-500 hover:bg-red-50 rounded-lg">×</button>
+                        </div>
+                    @endforeach
+                </div>
 
-                    <div>
-                        <label class="block mb-2 text-sm font-semibold text-gray-700">Alamat</label>
-                        <textarea name="alamat" rows="3" aria-describedby="pemisahAlamat"
-                            class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">{{ old('alamat', $data->alamat ?? '') }}</textarea>
-                        <small id="pemisahAlamat">pakai tanda " | " untuk memisah jika ada lebih dari 1 alaman</small>
-                    </div>
+                {{-- Dinamis Alamat --}}
+                <div id="wrapper-alamat">
+                    <label class="block mb-2 text-sm font-semibold text-gray-700 flex justify-between">
+                        Alamat
+                        <button type="button" onclick="addItem('wrapper-alamat', 'alamat[]', true)" class="text-blue-600 text-xs hover:underline">+ Tambah Alamat</button>
+                    </label>
+                    @php $alamats = explode('|', $data->alamat ?? ''); @endphp
+                    @foreach($alamats as $al)
+                        <div class="flex gap-2 mb-2 item-row">
+                            <textarea name="alamat[]" rows="2" class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">{{ $al }}</textarea>
+                            <button type="button" onclick="removeItem(this)" class="px-3 text-red-500 hover:bg-red-50 rounded-lg">×</button>
+                        </div>
+                    @endforeach
                 </div>
             </div>
+        </div>
 
             {{-- Jam Operasional --}}
             <div class="bg-white rounded-xl border border-gray-200 p-6">
@@ -75,13 +96,13 @@
                         <div class="flex items-center gap-3">
                             <div class="flex-1">
                                 <input type="time" name="senin_jumat_mulai"
-                                    value="{{ old('senin_jumat_mulai', $data->senin_jumat_mulai ?? '') }}"
+                                    value="{{ old('senin_jumat_mulai', $jamSeninJumat['mulai']) }}"
                                     class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none">
                             </div>
                             <span class="text-gray-400">s/d</span>
                             <div class="flex-1">
                                 <input type="time" name="senin_jumat_selesai"
-                                    value="{{ old('senin_jumat_selesai', $data->senin_jumat_selesai ?? '') }}"
+                                    value="{{ old('senin_jumat_selesai', $jamSeninJumat['selesai']) }}"
                                     class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none">
                             </div>
                         </div>
@@ -92,13 +113,13 @@
                         <div class="flex items-center gap-3">
                             <div class="flex-1">
                                 <input type="time" name="sabtu_mulai"
-                                    value="{{ old('sabtu_mulai', $data->mulai_mulai ?? '') }}"
+                                    value="{{ old('sabtu_mulai', $jamSabtu['mulai']) }}"
                                     class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none">
                             </div>
                             <span class="text-gray-400">s/d</span>
                             <div class="flex-1">
                                 <input type="time" name="sabtu_selesai"
-                                    value="{{ old('sabtu_selesai', $data->sabtu_selesai ?? '') }}"
+                                    value="{{ old('sabtu_selesai', $jamSabtu['selesai']) }}"
                                     class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none">
                             </div>
                         </div>
@@ -109,13 +130,13 @@
                         <div class="flex items-center gap-3">
                             <div class="flex-1">
                                 <input type="time" name="minggu_mulai"
-                                    value="{{ old('minggu_mulai', $data->minggu_mulai ?? '') }}"
+                                    value="{{ old('minggu_mulai', $jamMinggu['mulai']) }}"
                                     class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none">
                             </div>
                             <span class="text-gray-400">s/d</span>
                             <div class="flex-1">
                                 <input type="time" name="minggu_selesai"
-                                    value="{{ old('minggu_selesai', $data->minggu_selesai ?? '') }}"
+                                    value="{{ old('minggu_selesai', $jamMinggu['selesai']) }}"
                                     class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none">
                             </div>
                         </div>
@@ -188,4 +209,32 @@
         </div>
     </form>
 </div>
+
+
+<script>
+    function addItem(wrapperId, name, isTextArea = false) {
+        const wrapper = document.getElementById(wrapperId);
+        const div = document.createElement('div');
+        div.className = 'flex gap-2 mb-2 item-row animate-fade-in';
+        
+        const input = isTextArea 
+            ? `<textarea name="${name}" rows="2" class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200"></textarea>`
+            : `<input type="${name.includes('email') ? 'email' : 'text'}" name="${name}" class="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">`;
+
+        div.innerHTML = `
+            ${input}
+            <button type="button" onclick="removeItem(this)" class="px-3 text-red-500 hover:bg-red-50 rounded-lg">×</button>
+        `;
+        wrapper.appendChild(div);
+    }
+
+    function removeItem(btn) {
+        const row = btn.closest('.item-row');
+        if (row.parentNode.querySelectorAll('.item-row').length > 1) {
+            row.remove();
+        } else {
+            alert('Minimal harus ada satu data.');
+        }
+    }
+</script>
 @endsection

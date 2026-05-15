@@ -20,10 +20,11 @@ use App\Http\Controllers\DataKaryawanController;
 use App\Models\Profil_perusahaan;
 
 
-Route::get('/', function () {
+Route::get('/pr', function () {
     $profil = Profil_perusahaan::first();
     return view('index', compact('profil'));
 });
+Route::get('/',  [KelolaHalamanController::class, 'landingPage'])->name('landingPage.index');
 
 
 Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->group(function () {
@@ -91,6 +92,7 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->group(function ()
 
     Route::get('/daftar-absensi', [AbsensiController::class, 'index'])->name('admin.daftar-absensi.index');
     Route::post('/daftar-absensi/destroy-period', [AbsensiController::class, 'destroyPeriode'])->name('admin.daftar-absensi.destroyPeriod');
+    Route::get('/daftar-absensi/export', [AbsensiController::class, 'export'])->name('daftar-absensi.export');
 
     Route::get('/persetujuan-izin', [PengajuanIzinController::class, 'index'])->name('admin.persetujuan-izin.index');
     Route::put('/persetujuan-izin/status/{id}', [PengajuanIzinController::class, 'updateStatus'])->name('admin.persetujuan-izin.updateStatus');
@@ -103,7 +105,7 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->group(function ()
 });
 
 
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware(['logLogin','loginLimit']);
 
 Route::middleware(['auth'])->group(function () {

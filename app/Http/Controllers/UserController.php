@@ -42,7 +42,7 @@ class UserController
             $query->where('status', $status);
         }
         
-        $userWithKaryawan = $query->paginate(10)->withQueryString();
+        $userWithKaryawan = $query->paginate(15)->withQueryString();
 
         return view('admin.absensi.kelolaUser', compact('userWithKaryawan'));
     }

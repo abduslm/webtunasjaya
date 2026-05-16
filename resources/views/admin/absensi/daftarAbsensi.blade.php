@@ -1,15 +1,15 @@
 {{-- resources/views/admin/absensi/daftarAbsensi.blade.php --}}
 @extends('admin.adminLayout')
 
-@section('content')
+@push('styles')
 <style>
-    [x-cloak] { display: none !important; }
-    /* Memperbaiki tampilan link paginasi Tailwind agar rapi */
     .pagination svg { width: 1.5rem; height: 1.5rem; display: inline; }
-    .pagination nav div:first-child { display: none; } /* Sembunyikan text "Showing..." bawaan jika ingin custom */
+    .pagination nav div:first-child { display: none; } 
     @media (min-width: 640px) { .pagination nav div:first-child { display: flex; } }
 </style>
+@endpush
 
+@section('content')
 <div x-data="absensiManager()" class="p-8">
     {{-- Header --}}
     <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -177,9 +177,10 @@
             </div>
         </div>
     </div>
-
 </div>
+@endsection
 
+@push('scripts')
 <script>
     function absensiManager() {
         return {
@@ -239,4 +240,4 @@
         }
     }
 </script>
-@endsection
+@endpush

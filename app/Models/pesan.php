@@ -21,5 +21,10 @@ class Pesan extends Model
         'email',
         'subject',
         'pesan',
+        'status',
     ];
+    protected $attributes = [
+        'status' => 'belum-dibaca'
+    ];
+
 }

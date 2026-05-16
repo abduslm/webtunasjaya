@@ -120,6 +120,9 @@
     </div>
 </div>
 
+@endsection
+
+@push('scripts')
 <script>
     /**
      * Menampilkan preview gambar segera setelah file dipilih
@@ -142,7 +145,6 @@
         }
     }
 
-    // Tambahan: Agar bisa drag & drop file secara sederhana
     const dropzone = document.getElementById('dropzone');
     dropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -162,4 +164,4 @@
         }
     });
 </script>
-@endsection
+@endpush

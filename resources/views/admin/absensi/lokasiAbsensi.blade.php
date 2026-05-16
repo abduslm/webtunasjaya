@@ -1,17 +1,34 @@
 {{-- resources/views/admin/absensi/lokasiAbsensi.blade.php --}}
 @extends('admin.adminLayout')
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<style>
+    [x-cloak] { display: none !important; }
+    .leaflet-container { z-index: 10 !important; }
+    .leaflet-control-geocoder {
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        border: 1px border-gray-200 !important;
+    }
+    .leaflet-control-geocoder-form input {
+        font-size: 13px !important;
+        padding: 6px 12px !important;
+        outline: none !important;
+    }
+    .leaflet-control-geocoder-alternatives {
+    max-height: 150px !important;
+    overflow-y: auto !important;
+    background: white;
+    border-radius: 8px;
+    }
+    .animate-zoom-in { animation: zoom-in 0.25s ease-out; }
+    @keyframes zoom-in { 0% { opacity: 0; transform: scale(0.97); } 100% { opacity: 1; transform: scale(1); } }
+</style>
+@endpush
 @section('content')
-<style>[x-cloak] { display: none !important; }</style>
-
-<div x-data="{ 
-    isModalOpen: false, 
-    editingItem: null,
-    photoPreview: null,
-    resetForm() {
-        this.editingItem = { klien: '', alamat: '', latitude: '', longitude: '', radius: '' };
-        this.photoPreview = null;}
-}" class="p-8">
+<div x-data="lokasiApp()"  x-init="$watch('isModalOpen', value => {if (value) { initMap(); }});" class="p-8">
 
     {{-- Header --}}
     <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -35,11 +52,11 @@
                     placeholder="Cari nama klien atau alamat..."
                     class="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-[#0a4d3c]/20 outline-none transition-all">
             </div>
-                @if(request('search'))
-                <a href="{{ route('admin.kelola-lokasi.index') }}" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-center">
-                    Reset
-                </a>
-                @endif
+            @if(request('search'))
+            <a href="{{ route('admin.kelola-lokasi.index') }}" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-center">
+                Reset
+            </a>
+            @endif
         </form>
     </div>
 
@@ -106,7 +123,7 @@
     </div>
 
     {{-- Pagination --}}
-    <div class="p-6 border-t border-gray-100 bg-gray-50/30">
+    <div class="p-6 border-t border-gray-100 bg-gray-50/30 mt-6">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
             <p class="text-sm text-gray-500">
                 Menampilkan <span class="font-medium text-gray-900">{{ $lokasiList->firstItem() }}</span> 
@@ -114,13 +131,13 @@
                 dari <span class="font-medium text-gray-900">{{ $lokasiList->total() }}</span> Lokasi
             </p>
 
-            {{-- Tombol Navigasi --}}
             <div class="pagination-wrapper">
                 {{ $lokasiList->appends(request()->input())->links('pagination::tailwind') }}
             </div>
         </div>
     </div>
 
+    {{-- MODAL TAMBAH / EDIT --}}
     <div x-show="isModalOpen" 
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0"
@@ -131,7 +148,7 @@
         class="fixed inset-0 z-50 flex items-start justify-center p-4 bg-gray-900/60 backdrop-blur-sm overflow-y-auto" 
         x-cloak>
         
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-zoom-in">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-zoom-in my-8">
             <div class="p-6 border-b border-gray-50 flex justify-between items-center">
                 <h3 class="text-xl font-bold text-gray-900" x-text="editingItem?.id_lokasi ? 'Edit Lokasi' : 'Tambah Lokasi'"></h3>
                 <button @click="isModalOpen = false" class="w-8 h-8 flex items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:text-gray-600 transition-colors">
@@ -168,36 +185,133 @@
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Alamat</label>
                         <textarea name="alamat" x-model="editingItem.alamat" rows="2" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none"></textarea>
                     </div>
+
+                    {{-- MAP PICKER CONTAINER --}}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Pilih Titik di Peta</label>
+                        <div id="map-picker" class="w-full h-80 bg-gray-100 rounded-xl border border-gray-200 shadow-inner"></div>
+                        <p class="text-[11px] text-gray-400 mt-1 ml-1"><i class="bi bi-info-circle"></i> Klik pada peta atau geser pin untuk memperbarui koordinat secara otomatis.</p>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Latitude</label>
-                            <input type="text" name="latitude" x-model="editingItem.latitude" placeholder="-6.234" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm font-mono">
+                            <input type="text" name="latitude" x-model="editingItem.latitude" placeholder="-6.234" required 
+                                @input="if(marker && map) { marker.setLatLng([editingItem.latitude, editingItem.longitude]); map.panTo([editingItem.latitude, editingItem.longitude]); }"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Longitude</label>
-                            <input type="text" name="longitude" x-model="editingItem.longitude" placeholder="106.123" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm font-mono">
+                            <input type="text" name="longitude" x-model="editingItem.longitude" placeholder="106.123" required 
+                                @input="if(marker && map) { marker.setLatLng([editingItem.latitude, editingItem.longitude]); map.panTo([editingItem.latitude, editingItem.longitude]); }"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm font-mono">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Radius (Meter)</label>
                         <div class="flex items-center">
-                        <input type="number" name="radius" x-model="editingItem.radius" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none">
-                            <span class="ml-2 text-gray-600"> M</span>
+                            <input type="number" name="radius" x-model="editingItem.radius" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500/20 outline-none">
+                            <span class="ml-2 text-gray-600 font-medium">M</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex gap-3 pt-6">
-                    <button type="button" @click="isModalOpen = false" class="flex-1 py-3.5 text-gray-500 font-semibold rounded-xl hover:bg-gray-200 transition-colors">Batal</button>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" @click="isModalOpen = false" class="flex-1 py-3.5 text-gray-500 font-semibold rounded-xl hover:bg-gray-100 transition-colors">Batal</button>
                     <button type="submit" class="flex-1 py-3.5 bg-[#0a4d3c] text-white font-bold rounded-xl shadow-lg shadow-emerald-200">Simpan Lokasi</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-<style>
-    .animate-zoom-in { animation: zoom-in 0.3s ease-out; }
-    @keyframes zoom-in { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
-</style>
 @endsection
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script>
+    function lokasiApp() {
+        return {
+            isModalOpen: false, 
+            editingItem: null,
+            photoPreview: null,
+            map: null,
+            marker: null,
+            defaultLat: -6.200000,
+            defaultLng: 106.816666,
+
+            resetForm() {
+                this.editingItem = { klien: '', alamat: '', latitude: '', longitude: '', radius: '' };
+                this.photoPreview = null;
+            },
+
+            initMap() {
+                setTimeout(() => {
+                    let activeLat = this.editingItem.latitude ? parseFloat(this.editingItem.latitude) : this.defaultLat;
+                    let activeLng = this.editingItem.longitude ? parseFloat(this.editingItem.longitude) : this.defaultLng;
+
+                    if (!this.map) {
+                        {{-- Inisialisasi Peta Pertama Kali --}}
+                        this.map = L.map('map-picker').setView([activeLat, activeLng], 13);
+                        
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; OpenStreetMap contributors'
+                        }).addTo(this.map);
+
+                        {{-- Buat Marker yang Bisa Digeser (Draggable) --}}
+                        this.marker = L.marker([activeLat, activeLng], { draggable: true }).addTo(this.map);
+
+                        {{-- FITUR BARU: Pencarian Alamat (Geocoder) --}}
+                        let geocoder = L.Control.geocoder({
+                            defaultMarkGeocode: false,
+                            placeholder: "Cari alamat atau nama tempat...",
+                            errorMessage: "Lokasi tidak ditemukan."
+                        })
+                        .on('markgeocode', (e) => {
+                            let bbox = e.geocode.bbox;
+                            let center = e.geocode.center;
+                            
+                            {{-- Pindahkan marker dan peta ke lokasi hasil pencarian --}}
+                            this.marker.setLatLng(center);
+                            this.map.setView(center, 16);
+                            
+                            {{-- Isi otomatis field latitude, longitude, dan alamat --}}
+                            this.editingItem.latitude = center.lat.toFixed(6);
+                            this.editingItem.longitude = center.lng.toFixed(6);
+                            
+                            {{-- Opsional: Mengisi otomatis textarea alamat dengan nama lokasi yang dicari --}}
+                            if(!this.editingItem.alamat) {
+                                this.editingItem.alamat = e.geocode.name;
+                            }
+                        })
+                        .addTo(this.map);
+                        let geocoderContainer = geocoder.getContainer();
+                        L.DomEvent.disableScrollPropagation(geocoderContainer);
+                        L.DomEvent.disableClickPropagation(geocoderContainer);
+
+                        {{-- Event saat marker selesai digeser --}}
+                        this.marker.on('dragend', (e) => {
+                            let position = this.marker.getLatLng();
+                            this.editingItem.latitude = position.lat.toFixed(6);
+                            this.editingItem.longitude = position.lng.toFixed(6);
+                        });
+
+                        {{-- Event saat peta diklik --}}
+                        this.map.on('click', (e) => {
+                            this.marker.setLatLng(e.latlng);
+                            this.editingItem.latitude = e.latlng.lat.toFixed(6);
+                            this.editingItem.longitude = e.latlng.lng.toFixed(6);
+                        });
+
+                    } else {
+                        {{-- Jika peta sudah ada, perbarui posisi tengah dan markernya --}}
+                        this.map.invalidateSize();
+                        this.map.setView([activeLat, activeLng], 13);
+                        this.marker.setLatLng([activeLat, activeLng]);
+                    }
+                }, 200);
+            }
+        }
+    }
+</script>
+@endpush

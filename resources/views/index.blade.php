@@ -197,7 +197,7 @@
                             {{ $dataHubungi['motto'] }}
                         </h3>
                         
-                        <div class="text-gray-600 space-y-4 text-justify md:text-left leading-relaxed">
+                        <div class="text-gray-600 space-y-4 text-justify md:text-left leading-relaxed content-rich-text">
                             {!! $dataTentang['deskripsi'] !!}
                         </div>
                     </div>
@@ -545,20 +545,20 @@
                 </div>
             </section>
 
-            <section id="" class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100">
+            <section id="kirimPesan" class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100">
                 <h2 class="text-2xl font-bold mb-8 text-slate-900">Kirim Pesan kepada Kami</h2>
-                
-                <form action="#" method="POST" class="space-y-6">
+            
+                <form action="{{route('landingPage.kirimPesan')}}" method="POST" class="space-y-6">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Lengkap</label>
-                            <input type="text" name="nama" placeholder="Contoh: Budi Santoso" 
+                            <input type="text" name="nama_lengkap" placeholder="Contoh: Budi Santoso" required
                                 class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
-                            <input type="email" name="email" placeholder="budi@email.com" 
+                            <input type="email" name="email" placeholder="budi@email.com" required
                                 class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
                         </div>
                     </div>
@@ -568,8 +568,8 @@
                         <div class="relative">
                             <select name="subject" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white appearance-none transition-all">
                                 <option>Pertanyaan Umum</option>
-                                <option>Layanan Energi</option>
-                                <option>Proyek Konstruksi</option>
+                                <option>Layanan</option>
+                                <option>Kerja Sama</option>
                                 <option>Lainnya</option>
                             </select>
                         </div>
@@ -577,13 +577,18 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Pesan</label>
-                        <textarea name="pesan" rows="5" placeholder="Tuliskan pesan Anda di sini..." 
+                        <textarea name="pesan" rows="5" placeholder="Tuliskan pesan Anda di sini..." required
                             class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <button type="submit" class="w-full md:w-auto px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 active:scale-95">
                         Kirim Pesan
                     </button>
+                    @if(session('success'))
+                        <script>
+                            alert("{{ session('success') }}");
+                        </script>
+                    @endif
                 </form>
             </section>
 
@@ -609,16 +614,16 @@
 
                     {{-- Social Media Icons --}}
                     <div class="flex gap-3">
-                        <a href="{{ optional($dataHubungi)->twitter ?: '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ optional($dataHubungi)->twitter ? '' : 'pointer-events-none opacity-50' }}">
+                        <a href="{{ $dataHubungi['twitter'] ?? '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ !empty($dataHubungi['twitter']) ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-twitter w-5 h-5 text-white"></i>
                         </a>
-                        <a href="{{ optional($dataHubungi)->facebook ?: '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ optional($dataHubungi)->facebook ? '' : 'pointer-events-none opacity-50' }}">
+                        <a href="{{ $dataHubungi['facebook'] ?? '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ !empty($dataHubungi['facebook']) ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-facebook w-5 h-5 text-white"></i>
                         </a>
-                        <a href="{{ optional($dataHubungi)->ig ?: '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ optional($dataHubungi)->ig ? '' : 'pointer-events-none opacity-50' }}">
+                        <a href="{{ $dataHubungi['ig'] ?? '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ !empty($dataHubungi['ig']) ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-instagram w-5 h-5 text-white"></i>
                         </a>
-                        <a href="{{ optional($dataHubungi)->linkedIn ?: '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ optional($dataHubungi)->linkedIn ? '' : 'pointer-events-none opacity-50' }}">
+                        <a href="{{ $dataHubungi['linkedIn'] ?? '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ !empty($dataHubungi['linkedIn']) ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-linkedin w-5 h-5 text-white"></i>
                         </a>
                     </div>

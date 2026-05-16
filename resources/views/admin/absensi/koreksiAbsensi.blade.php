@@ -243,7 +243,9 @@
         </div>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
     function koreksiAbsensiApp() {
         return {
@@ -312,5 +314,4 @@
         }
     }
 </script>
-
-@endsection
+@endpush

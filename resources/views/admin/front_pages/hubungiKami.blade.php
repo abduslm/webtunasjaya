@@ -209,8 +209,9 @@
         </div>
     </form>
 </div>
+@endsection
 
-
+@push('scripts')
 <script>
     function addItem(wrapperId, name, isTextArea = false) {
         const wrapper = document.getElementById(wrapperId);
@@ -237,4 +238,4 @@
         }
     }
 </script>
-@endsection
+@endpush

@@ -177,6 +177,9 @@
     </div>
 </div>
 
+@endsection
+
+@push('scripts')
 <script>
     function dokumentasiApp() {
         return {
@@ -265,4 +268,4 @@
         }
     }
 </script>
-@endsection
+@endpush

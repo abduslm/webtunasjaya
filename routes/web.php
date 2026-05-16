@@ -9,6 +9,7 @@ use App\Http\Controllers\KelolaHalamanController;
 use App\Http\Controllers\ProfilPerusahaanController;
 use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\KoreksiAbsensiController;
+use App\Http\Controllers\PesanController;
 
 use App\Http\Middleware\role;
 use App\Http\Middleware\isAdmin;
@@ -25,7 +26,7 @@ Route::get('/pr', function () {
     return view('index', compact('profil'));
 });
 Route::get('/',  [KelolaHalamanController::class, 'landingPage'])->name('landingPage.index');
-
+Route::post('/kirimPesan', [PesanController::class, 'store'])->name('landingPage.kirimPesan');
 
 Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
@@ -64,8 +65,10 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->g
     Route::get('/hubungi-kami',  [ProfilPerusahaanController::class, 'hubungiKami'])->name('hubungi-kami');
     Route::post('/hubungi-kami/update', [ProfilPerusahaanController::class, 'hubungiKamiUpdate'])->name('hubungi-kami.update');
 
-
-    Route::get('/pesan', function () {return view('admin.front_pages.pesan');})->name('pesan');
+    Route::get('/pesan', [PesanController::class, 'index'])->name('pesan.index');
+    Route::put('/pesan/{id_pesan}', [PesanController::class, 'tandaiDibaca'])->name('pesan.tandaiDibaca');
+    Route::delete('/pesan/destroy/{id_pesan}', [PesanController::class, 'destroy'])->name('pesan.destroy');
+    Route::delete('/pesan/destroy-periode', [PesanController::class, 'destroyPeriode'])->name('pesan.destroyPeriode');
 });
 
 

@@ -115,7 +115,9 @@
         </div>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
     function portofolioApp() {
         return {
@@ -218,4 +220,4 @@
         }
     }
 </script>
-@endsection
+@endpush

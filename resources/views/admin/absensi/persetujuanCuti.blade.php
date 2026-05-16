@@ -225,7 +225,9 @@
     </div>
 </div>
 
+@endsection
 
+@push('scripts')
 <script>
     function persetujuanCutiApp() {
         return {
@@ -283,7 +285,4 @@
         }
     }
 </script>
-
-
-
-@endsection
+@endpush

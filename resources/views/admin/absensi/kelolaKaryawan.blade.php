@@ -1,7 +1,6 @@
 @extends('admin.adminLayout')
 
 @section('content')
-<style>[x-cloak] { display: none !important; }</style>
 <div class="p-8" x-data="{isModalOpen: false, photoPreview: null, editingItem: {nama_lengkap:'', tanggal_lahir:'',jenis_kelamin:'',no_hp:'',alamat:'',id_lokasi:'',email:'',password:'',role:'',status:'',device_id:'',id_user:''}, userBaru: false, userLama: true}">
 
     {{-- Notifikasi --}}
@@ -369,8 +368,4 @@
         </div>
     </div>
 </div>
-
-{{-- Script Logika Modal (Alpine.js) --}}
-
-
 @endsection

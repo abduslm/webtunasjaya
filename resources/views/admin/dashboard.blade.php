@@ -3,31 +3,47 @@
 
 @section('content')
 @php
-    // --- 1. SETTING WAKTU & HARI ---
+    // --- 1. SETTING WAKTU & FILTER ---
     $hari_ini = date('Y-m-d');
     $daysIndo = [
         'Sunday' => 'Min', 'Monday' => 'Sen', 'Tuesday' => 'Sel', 
         'Wednesday' => 'Rab', 'Thursday' => 'Kam', 'Friday' => 'Jum', 'Saturday' => 'Sab'
     ];
 
-    // --- 2. AMBIL NILAI MASUK HARI INI (Jumlah id_absensi pertanggal hari ini) ---
-    $hadir_hari_ini = \DB::table('absensis')
-        ->where('tanggal', $hari_ini)
-        ->count('id_absensi');
+    // Ambil ID Lokasi dari URL jika ada
+    $filter_lokasi = request('lokasi_id');
 
-    // --- 3. AMBIL JUMLAH ID_ABSENSI PERTANGGAL (Untuk Grafik 7 Hari) ---
+    // --- 2. AMBIL DATA LOKASI UNTUK DROPDOWN ---
+    $list_lokasi = \App\Models\Lokasi::all();
+
+    // --- 3. AMBIL NILAI MASUK HARI INI ---
+    $query_hadir = \DB::table('absensis')->where('tanggal', $hari_ini);
+    if ($filter_lokasi) {
+        $query_hadir->where('id_lokasi', $filter_lokasi);
+    }
+    $hadir_hari_ini = $query_hadir->count('id_absensi');
+
+    // --- 4. AMBIL JUMLAH ID_ABSENSI PERTANGGAL (Untuk Grafik 7 Hari) ---
     $stats = [];
+    
+    // Hitung Max Karyawan (Jika filter lokasi aktif, ambil jumlah karyawan di lokasi tersebut)
+    // Catatan: Asumsi model User punya relasi ke lokasi atau ada tabel penempatan. 
+    // Jika tidak ada, biarkan count() total.
     $max_karyawan = \App\Models\User::where('role', 'karyawan')->count() ?: 1;
 
     for ($i = 6; $i >= 0; $i--) {
         $tglTarget = date('Y-m-d', strtotime("-$i days"));
         $namaHariInggris = date('l', strtotime($tglTarget));
-        $namaHariIndo = $daysIndo[$namaHariInggris]; // Merubah tanggal ke hari (Sen, Sel, dst)
+        $namaHariIndo = $daysIndo[$namaHariInggris];
 
-        // Ngambil jumlah id_absensi pertanggal
-        $jumlahAbsensi = \DB::table('absensis')
-            ->where('tanggal', $tglTarget)
-            ->count('id_absensi');
+        $query_stat = \DB::table('absensis')->where('tanggal', $tglTarget);
+        
+        // Terapkan filter lokasi ke grafik
+        if ($filter_lokasi) {
+            $query_stat->where('id_lokasi', $filter_lokasi);
+        }
+
+        $jumlahAbsensi = $query_stat->count('id_absensi');
 
         $stats[] = [
             'tanggal' => $tglTarget,
@@ -36,11 +52,12 @@
         ];
     }
 
-    // --- 4. LIST ABSENSI TERBARU (Ambil id_user, bukan Join Tabel User) ---
-    $absensiTerbaru = \App\Models\Absensi::with('user.dataKaryawan')
-        ->orderBy('created_at', 'desc')
-        ->limit(4)
-        ->get();
+    // --- 5. DATA LAINNYA ---
+    $absensiTerbaruQuery = \App\Models\Absensi::with('user.dataKaryawan');
+    if ($filter_lokasi) {
+        $absensiTerbaruQuery->where('id_lokasi', $filter_lokasi);
+    }
+    $absensiTerbaru = $absensiTerbaruQuery->orderBy('created_at', 'desc')->limit(4)->get();
 
     $lokasi_aktif = \App\Models\Lokasi::count() ?: 0;
     $izinPending = \App\Models\Pengajuan_izin::where('status', 'pending')->count() ?: 0;
@@ -60,9 +77,31 @@
 @endphp
 
 <div class="p-8">
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-1">Dashboard</h2>
-        <p class="text-gray-500">Sistem Administrasi Cleaning Service</p>
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-1">Dashboard</h2>
+            <p class="text-gray-500">Sistem Administrasi Cleaning Service</p>
+        </div>
+
+        {{-- FILTER LOKASI --}}
+        <div class="flex items-center gap-3">
+            <form action="" method="GET" id="filterForm" class="flex items-center gap-2">
+                <label for="lokasi_id" class="text-sm font-medium text-gray-600">Filter Lokasi:</label>
+                <select name="lokasi_id" id="lokasi_id" 
+                    onchange="this.form.submit()"
+                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#0a4d3c] focus:border-[#0a4d3c] block p-2.5 shadow-sm">
+                    <option value="">Semua Lokasi</option>
+                    @foreach($list_lokasi as $lok)
+                        <option value="{{ $lok->id_lokasi }}" {{ $filter_lokasi == $lok->id_lokasi ? 'selected' : '' }}>
+                            {{ $lok->nama_lokasi }}
+                        </option>
+                    @endforeach
+                </select>
+                @if($filter_lokasi)
+                    <a href="{{ url()->current() }}" class="text-sm text-red-600 hover:underline">Reset</a>
+                @endif
+            </form>
+        </div>
     </div>
 
     {{-- Stats Cards --}}
@@ -91,7 +130,7 @@
             </div>
         </div>
 
-        {{-- JUMLAH ABSENSI HARI INI --}}
+        {{-- JUMLAH ABSENSI HARI INI (Terpengaruh Filter) --}}
         <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-lg bg-[#fff4e6] flex items-center justify-center">
@@ -110,23 +149,30 @@
                     <i class="bi bi-check-square text-[#dc2626] text-2xl"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500">Pengajuan Izin (Pending)</p>
+                    <p class="text-sm text-gray-500">Pengajuan Izin</p>
                     <p class="text-2xl font-bold text-gray-900 mt-1">{{ $izinPending }}</p>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- GRAFIK: JUMLAH ID_ABSENSI PERTANGGAL (HARI) --}}
+    {{-- GRAFIK: TERPENGARUH FILTER --}}
     <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm mb-8">
-        <h3 class="text-lg font-bold text-gray-900 mb-6">Statistik Absensi Mingguan</h3>
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-gray-900">Statistik Absensi Mingguan</h3>
+            @if($filter_lokasi)
+                <span class="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100">
+                    Lokasi: {{ $list_lokasi->firstWhere('id_lokasi', $filter_lokasi)->nama_lokasi }}
+                </span>
+            @endif
+        </div>
         <div class="relative w-full h-72">
             <canvas id="absensiChart"></canvas>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {{-- LIST BERDASARKAN ID_USER --}}
+        {{-- LIST BERDASARKAN FILTER --}}
         <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
             <h3 class="text-lg font-bold text-gray-900 mb-6">Absensi Terbaru</h3>
             <div class="space-y-2">
@@ -149,8 +195,7 @@
             </div>
         </div>
 
-
-        {{-- Persetujuan Pending --}}
+        {{-- Persetujuan Pending (Biasanya global, tidak terfilter lokasi secara default) --}}
         <div class="bg-white p-6 rounded-xl border border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Persetujuan Izin Pending</h3>
             <div class="space-y-4">
@@ -159,25 +204,13 @@
                     <div>
                         <p class="text-gray-900">{{ optional($izinList->user->dataKaryawan)->nama_lengkap ?? $izinList->user->email }}</p>
                         <p class="text-sm text-gray-500">{{ $izinList->jenis_izin }}</p>
-                        <p class="text-xs text-gray-500 mt-1">{{ $izinList->tanggal_mulai }} @if($izinList->tanggal_mulai != $izinList->tanggal_selesai) - {{ $izinList->tanggal_selesai }} @endif </p>
-
+                        <p class="text-xs text-gray-500 mt-1">{{ $izinList->tanggal_mulai }}</p>
                     </div>
                     <div class="flex gap-2">
                         <form action="{{ route('admin.persetujuan-izin.updateStatus', $izinList->id_pengajuanIzin) }}" method="POST">
-                            @csrf
-                            @method('PUT')
+                            @csrf @method('PUT')
                             <input type="hidden" name="status" value="disetujui">
-                            <button type="submit" class="px-4 py-2 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
-                                Setujui
-                            </button>
-                        </form>
-                        <form action="{{ route('admin.persetujuan-izin.updateStatus', $izinList->id_pengajuanIzin) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="status" value="ditolak">
-                            <button type="submit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                                Tolak
-                            </button>
+                            <button type="submit" class="px-3 py-1.5 text-xs bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">Setujui</button>
                         </form>
                     </div>
                 </div>
@@ -195,62 +228,36 @@
     document.addEventListener('DOMContentLoaded', function() {
         const ctx = document.getElementById('absensiChart').getContext('2d');
         
-        // Data dari PHP Laravel
+  
         const labels = @json($chartLabels);
         const dataValues = @json($chartData);
         const maxKaryawan = {{ $max_karyawan }};
 
         new Chart(ctx, {
-            type: 'bar', // Tipe grafik batang
+            type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
                     label: 'Jumlah Kehadiran',
                     data: dataValues,
-                    backgroundColor: '#0B3C5D', // Warna bar sesuai dashboard Anda
-                    borderRadius: 8,
-                    borderSkipped: false,
-                    barThickness: 40,
+                    backgroundColor: '#0a4d3c',
+                    borderRadius: 6,
+                    barThickness: 35,
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false // Sembunyikan label dataset karena judul sudah ada
-                    },
-                    tooltip: {
-                        backgroundColor: '#1f2937',
-                        padding: 12,
-                        cornerRadius: 8,
-                        displayColors: false
-                    }
+                    legend: { display: false },
                 },
                 scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#9ca3af',
-                            font: { 
-                                size: 11 // Sedikit diperkecil agar pas
-                            },
-                            maxRotation: 45, // Memiringkan teks jika layar sempit
-                            minRotation: 0
-                        }
-                    },
+                    x: { grid: { display: false } },
                     y: {
                         beginAtZero: true,
-                        max: maxKaryawan, // Batas maksimal sesuai jumlah karyawan
-                        ticks: {
-                            stepSize: 1,
-                            color: '#9ca3af'
-                        },
-                        grid: {
-                            color: '#f3f4f6'
-                        }
+                        // Jika filter aktif, angka max mengikuti jumlah data tertinggi agar grafik proporsional
+                        max: {{ $filter_lokasi ? 'Math.max(...dataValues) + 2' : $max_karyawan }}, 
+                        ticks: { stepSize: 1 }
                     }
                 }
             }

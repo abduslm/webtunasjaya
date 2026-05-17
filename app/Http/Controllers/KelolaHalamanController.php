@@ -14,36 +14,36 @@ use Carbon\Carbon;
 class KelolaHalamanController extends Controller
 {
     public function landingPage(){
-        $hubungi = profil_perusahaan::first();
+        $hubungi = Profil_perusahaan::first();
         $dataHubungi = [
-            'logo'              => $hubungi->logo ? asset('storage/' . $hubungi->logo) : null,
-            'nama_perusahaan'   => $hubungi->nama_perusahaan ?? '',
-            'motto'             => $hubungi->motto ?? '',
-            'no_telepon'        => isset($hubungi->no_telepon) ? explode('|', $hubungi->no_telepon) : [],
-            'email'             => isset($hubungi->email) ? explode('|', $hubungi->email) : [],
-            'alamat'            => isset($hubungi->alamat) ? explode('|', $hubungi->alamat) : [],
-            'senin_jumat'       => (!empty($hubungi->senin_jumat) && $hubungi->senin_jumat !== '00:00-00:00') ? $hubungi->senin_jumat : '-',
-            'sabtu'             => (!empty($hubungi->sabtu) && $hubungi->sabtu !== '00:00-00:00') ? $hubungi->sabtu : '-',
-            'minggu'            => (!empty($hubungi->minggu) && $hubungi->minggu !== '00:00-00:00') ? $hubungi->minggu : '-',
-            'facebook'          => $hubungi->facebook ?? '',
-            'ig'                => $hubungi->ig ?? '',
-            'linkedIn'          => $hubungi->linkedIn ?? '',
-            'twitter'           => $hubungi->twitter ?? '',
+            'logo'              => $hubungi?->logo ? asset('storage/' . $hubungi->logo) : null,
+            'nama_perusahaan'   => $hubungi?->nama_perusahaan ?? '',
+            'motto'             => $hubungi?->motto ?? '',
+            'no_telepon'        => $hubungi?->no_telepon ? explode('|', $hubungi->no_telepon) : [],
+            'email'             => $hubungi?->email ? explode('|', $hubungi->email) : [],
+            'alamat'            => $hubungi?->alamat ? explode('|', $hubungi->alamat) : [],
+            'senin_jumat'       => (!empty($hubungi?->senin_jumat) && $hubungi->senin_jumat !== '00:00-00:00') ? $hubungi->senin_jumat : '-',
+            'sabtu'             => (!empty($hubungi?->sabtu) && $hubungi->sabtu !== '00:00-00:00') ? $hubungi->sabtu : '-',
+            'minggu'            => (!empty($hubungi?->minggu) && $hubungi->minggu !== '00:00-00:00') ? $hubungi->minggu : '-',
+            'facebook'          => $hubungi?->facebook ?? '',
+            'ig'                => $hubungi?->ig ?? '',
+            'linkedIn'          => $hubungi?->linkedIn ?? '',
+            'twitter'           => $hubungi?->twitter ?? '',
         ];
 
         $beranda = $this->getSection('beranda_hero');
         $dataBeranda = [
-            'judulHero'  => $beranda->judul ?? '',
-            'deskripsi'  => $beranda->desk_singkat ?? '',
-            'gambar' => $beranda->gambar ? asset('storage/' . $beranda->gambar) : null,
+            'judulHero'  => $beranda?->judul ?? '',
+            'deskripsi'  => $beranda?->desk_singkat ?? '',
+            'gambar' => $beranda?->gambar ? asset('storage/' . $beranda->gambar) : null,
         ];
 
         $tentang = $this->getSection('Tentang-kami');
         $dataTentang = [
-            'deskripsi' => $tentang->desk_panjang ?? '',
-            'foto_visi' => $tentang->gambar ? asset('storage/' . $tentang->gambar) : null,
-            'visi'      => $tentang->desk_singkat ?? '',
-            'misi_list' => isset($tentang->poin) ? explode('|', $tentang->poin) : [],
+            'deskripsi' => $tentang?->desk_panjang ?? '',
+            'foto_visi' => $tentang?->gambar ? asset('storage/' . $tentang->gambar) : null,
+            'visi'      => $tentang?->desk_singkat ?? '',
+            'misi_list' => $tentang?->poin !== null ? explode('|', $tentang->poin) : [],
         ];
 
         $layanan = $this->getSectionAll('Layanan');

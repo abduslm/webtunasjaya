@@ -179,9 +179,6 @@
                 <button type="submit" class="px-6 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
                     Simpan Perubahan
                 </button>
-                <button type="button" @click="window.location.reload()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                    Reset
-                </button>
             </div>
         </div>
     </form>

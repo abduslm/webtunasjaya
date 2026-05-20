@@ -45,26 +45,26 @@
         {{-- Navigasi Menu --}}
         <nav class="flex-1 p-4 overflow-y-auto space-y-1">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-house"></i>
+                <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
             <div class="mt-6 mb-2 px-4 text-xs text-gray-400 uppercase tracking-wider font-medium">
                 Kelola Front Page
             </div>
             <a href="{{ route('admin.beranda') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.beranda') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-file-text"></i>
+                <i class="bi bi-house"></i>
                 <span>Beranda</span>
             </a>
             <a href="{{ route('admin.tentang-kami.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.tentang-kami.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-file-text"></i>
+                <i class="bi bi-info-circle"></i>
                 <span>Tentang Kami</span>
             </a>
             <a href="{{ route('admin.layanan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.layanan.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-file-text"></i>
+                <i class="bi bi-briefcase"></i>
                 <span>Layanan</span>
             </a>
             <a href="{{ route('admin.portofolio.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.portofolio.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-briefcase"></i>
+                <i class="bi bi-file-text"></i>
                 <span>Portofolio</span>
             </a>
             <a href="{{ route('admin.dokumentasi.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.dokumentasi.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
@@ -72,7 +72,7 @@
                 <span>Dokumentasi</span>
             </a>
             <a href="{{ route('admin.hubungi-kami') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.hubungi-kami') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-envelope"></i>
+                <i class="bi bi-telephone"></i>
                 <span>Hubungi Kami</span>
             </a>
             <a href="{{ route('admin.pesan.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.pesan.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">

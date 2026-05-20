@@ -31,15 +31,6 @@
         </div>
         
         <div class="flex flex-wrap items-center gap-3">
-            {{-- INPUT SEARCH BARU --}}
-            <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="bi bi-search text-gray-400"></i>
-                </span>
-                <input type="text" x-model="search" placeholder="Cari nama klien..." 
-                    class="pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] focus:outline-none text-sm w-64 shadow-sm">
-            </div>
-
             <button @click="simpanSemua" class="flex items-center gap-2 px-6 py-2 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-all shadow-md font-semibold text-sm">
                 <i class="bi bi-save"></i> Simpan Semua
             </button>
@@ -48,6 +39,18 @@
             </button>
         </div>
     </div>
+
+    {{-- SECTION SEARCH & FILTER --}}
+    <div class="bg-white rounded-xl border border-gray-200 p-5 mb-8 shadow-sm">
+        <div class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[250px] relative">
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" x-model="search" placeholder="Cari nama klien..." 
+                    class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c]/20 focus:border-[#0a4d3c] outline-none transition-all text-sm">
+            </div>
+        </div>
+    </div>
+
 
     {{-- Info hasil pencarian --}}
     <template x-if="search">

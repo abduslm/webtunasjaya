@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'loginLimit' => \App\Http\Middleware\loginLimit::class,
             'logLogin' => \App\Http\Middleware\logLogin::class,
             'loginLokasi' => \App\Http\Middleware\loginLokasi::class,
+            'guest.antispam' => \App\Http\Middleware\RateLimitGuestSpam::class,
             ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

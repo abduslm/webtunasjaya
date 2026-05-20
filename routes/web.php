@@ -26,7 +26,7 @@ Route::get('/pr', function () {
     return view('index', compact('profil'));
 });
 Route::get('/',  [KelolaHalamanController::class, 'landingPage'])->name('landingPage.index');
-Route::post('/kirimPesan', [PesanController::class, 'store'])->name('landingPage.kirimPesan');
+Route::post('/kirimPesan', [PesanController::class, 'store'])->middleware('guest.antispam:contact_message')->name('landingPage.kirimPesan');
 
 Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {

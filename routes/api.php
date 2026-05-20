@@ -15,7 +15,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 
 
 Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('forgot-password.show');
-Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp'])->name('forgot-password.send-otp');
+Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp'])->middleware('guest.antispam:otp_request')->name('forgot-password.send-otp');
 Route::post('/forgot-password/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('forgot-password.verify-otp');
 Route::post('/forgot-password/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('forgot-password.reset-password');
 

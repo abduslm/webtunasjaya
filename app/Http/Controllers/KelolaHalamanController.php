@@ -117,20 +117,16 @@ class KelolaHalamanController extends Controller
     private function uploadAndCompress(Request $request, string $field, ?string $oldPath, string $folder): ?string
     {
         if ($request->hasFile($field)) {
-            if ($oldPath && Storage::disk('public')->exists($oldPath)) {
-                Storage::disk('public')->delete($oldPath);
+            if ($oldPath && file_exists(public_path('storage/' . $oldPath))) {
+                unlink(public_path('storage/' . $oldPath));
             }
-
             $file = $request->file($field);
-            $filename = hexdec(uniqid()) . '.jpg';
-            $targetPath = $folder . '/' . $filename;
-        
-            $path = $file->storeAs($folder, $filename, 'public');
-            $fullPath = Storage::disk('public')->path($path);
-
+            $relativePath = $file->store($folder, 'public');
+            $fullPath = public_path('storage/' . $relativePath);
             Image::load($fullPath)->optimize()->quality(60)->save($fullPath);
-            return $targetPath;
+            return $relativePath;
         }
+
         return $oldPath;
     }
 

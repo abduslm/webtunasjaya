@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('tanggal');
             $table->time('absen_masuk')->nullable();
             $table->time('absen_keluar')->nullable();
-            $table->integer('total_waktu')->nullable();
+            $table->decimal('total_waktu',4,2)->nullable();
             $table->string('alasan');
             $table->string('media_pendukung')->nullable();
             $table->string('status')->default('pending');

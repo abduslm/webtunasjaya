@@ -24,6 +24,55 @@ class UserApiController extends Controller
         ]);
     }
 
+    public function loginMobile(Request $request): JsonResponse{
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+            'device_id' => ['required'],
+        ]);
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            if (Auth::user()->role == 'karyawan') {
+                if(empty(Auth::user()->device_id) && $validated['device_id'] != null){
+                    Auth::user()->update(['device_id' => $validated['device_id']]);
+
+                    $token = $user->createToken('auth_token')->plainTextToken;
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Login Berhasil.',
+                        'token' => $token,
+                        'user' => $user->load('dataKaryawan')
+                    ], 201);
+
+                } elseif(Auth::user()->device_id && Auth::user()->device_id == $validated['device_id']){
+                    $token = $user->createToken('auth_token')->plainTextToken;
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Login Berhasil.',
+                        'token' => $token,
+                        'user' => $user->load('dataKaryawan')
+                    ], 201);
+                } else{
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'hanya bisa login pada perangkat yang sama, Hubungi Admin untuk info lebih lanjut',
+                    ], 403);
+                }
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aplikasi ini hanya untuk karyawan lapangan',
+                ], 403);
+            }
+        } else {
+            return response()->json([
+                    'success' => false,
+                    'message' => 'Email atau Kata sandi anda salah',
+                ], 401);
+        }
+    }
+
     public function login(Request $request): JsonResponse
     {
         try {
@@ -173,6 +222,7 @@ class UserApiController extends Controller
     }
 
 
+
     // =========================
     // REGISTER USER + KARYAWAN
     // =========================
@@ -197,7 +247,6 @@ class UserApiController extends Controller
                 'errors' => $e->errors()
             ], 422);
         }
-
         $user = User::create([
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
@@ -208,8 +257,6 @@ class UserApiController extends Controller
 
         $imageName = null;
 
-       
-
         $karyawan = $user->dataKaryawan()->create([
             'nama_lengkap' => $validated['nama_lengkap'],
             'tanggal_lahir' => $validated['tanggal_lahir'],
@@ -219,7 +266,6 @@ class UserApiController extends Controller
             'foto' => $imageName,
             'id_lokasi' => null,
             'id_user' => $user->id,
-            
         ]);
 
         return response()->json([

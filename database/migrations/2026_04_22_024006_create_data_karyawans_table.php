@@ -19,8 +19,8 @@ return new class extends Migration
             $table->text('alamat');
             $table->string('no_hp');
             $table->string('foto')->nullable();
-            $table->foreignId('id_lokasi')->constrained('lokasis','id_lokasi')->onDelete('cascade');
-            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
+            $table->foreignId('id_lokasi')->nullable()->constrained('lokasis','id_lokasi')->onDelete('set null');
+            $table->foreignId('id_user')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }

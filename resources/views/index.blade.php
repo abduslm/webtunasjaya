@@ -7,11 +7,48 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300,400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
         .sidebar-nav a {
             transition: all 0.2s ease;
         }
         body { font-family: 'Inter', sans-serif; }
+        .portofolioSwiper .swiper-pagination {
+            position: relative;
+            bottom: 0 !important;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100% !important;
+            left: 0 !important;
+        }
+
+        .portofolioSwiper .swiper-pagination-bullet {
+            width: 12px;
+            height: 12px;
+            background-color: #d1d5db;
+            opacity: 1;
+            margin: 0 8px !important;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .portofolioSwiper .swiper-pagination-bullet-active {
+            background-color: #008080 !important;
+            width: 30px;
+            border-radius: 20px;
+        }
+
+        .portofolioSwiper .swiper-pagination-bullet:hover {
+            background-color: #008080;
+            transform: scale(1.2);
+        }
+
+        .portofolioSwiper {
+            padding: 10px 10px 50px 10px !important;
+        }
     </style>
 </head>
 
@@ -23,11 +60,19 @@
             <div class="flex gap-4 md:gap-6">
                 <div class="flex items-center gap-1 md:gap-2">
                     <i class="bi bi-envelope-fill w-3 h-3 md:w-4 md:h-4 text-white"></i>
-                    <span>tunasjayaclean@gmail.com</span>
+                    @forelse ($dataHubungi['email'] as $email)
+                    <a href="mailto:{{ $email ?? '' }}">| {{$email}} </a>
+                    @empty
+                    <span></span>
+                    @endforelse
                 </div>
                 <div class="flex items-center gap-1 md:gap-2">
                     <i class="bi bi-telephone-fill w-3 h-3 md:w-4 md:h-4 text-white"></i>
-                    <span>081235188282 / 081331733891</span>
+                    @forelse ($dataHubungi['no_telepon'] as $no_telepon)
+                    <a href="https://wa.me/{{ str_replace([' ', '+', '-'], '', $no_telepon ?? '') }}" >| {{$no_telepon}} </a>
+                    @empty
+                    <span></span>
+                    @endforelse
                 </div>
             </div>
             <div class="hidden md:block italic">Profesional & Terpercaya</div>
@@ -39,7 +84,7 @@
             
             <div class="flex items-center">
                 <div class="w-48 h-12 flex items-center">
-                    <img src="assets/images/landing_page/logo.png" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
+                    <img src="{{ optional($dataHubungi)->logo ? $dataHubungi->logo : asset('assets/images/landing_page/logo.png') }}" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
                     </div>
             </div>
 
@@ -56,75 +101,84 @@
 
 {{-- welcome --}}
 <section id="beranda" class="min-h-screen flex items-center justify-center p-6 md:p-12">
-        <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+    <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        
+        <div class="order-2 lg:order-1 space-y-8">
+            <div>
+                <span class="bg-[#E8EFFF] text-[#4285F4] px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
+                    Cleaning Solution Partner
+                </span>
+            </div>
             
-            <div class="order-2 lg:order-1 space-y-8">
+            {{-- JUDUL DINAMIS --}}
+            <h1 class="text-5xl md:text-7xl font-extrabold text-[#0B3C5D] leading-[1.1]">
+                {!! nl2br(e($dataBeranda['judulHero'] ?? 'Profesional Outsourcing & Cleaning Service')) !!}
+            </h1>
+            
+            <div class="w-20 h-1.5 bg-[#4285F4] rounded-full"></div>
+            
+            {{-- DESKRIPSI DINAMIS --}}
+            <p class="text-gray-500 text-lg md:text-xl leading-relaxed max-w-lg">
+                {{ $dataBeranda['deskripsi'] ?? 'Solusi Terpadu Layanan Profesional untuk Bisnis Anda. Kami menghadirkan standar kebersihan kelas dunia untuk menunjang produktivitas Anda.' }}
+            </p>
+            
+            <div class="flex flex-wrap gap-4 pt-4">
+                <a href="#hubungi-kami" class="bg-[#4285F4] hover:bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all duration-300 shadow-xl shadow-blue-200 transform hover:-translate-y-1">
+                    <i class="bi bi-envelope-fill w-5 h-5"></i>    
+                    Hubungi Kami
+                </a>
+                <a href="#layanan" class="bg-white border border-gray-100 text-[#4285F4] hover:bg-gray-50 px-10 py-4 rounded-2xl font-bold transition-all duration-300 shadow-sm transform hover:-translate-y-1">
+                    Lihat Layanan
+                </a>
+            </div>
+            
+            <div class="flex gap-12 pt-10 border-t border-gray-200">
                 <div>
-                    <span class="bg-[#E8EFFF] text-[#4285F4] px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
-                        Cleaning Solution Partner
-                    </span>
+                    <h3 class="text-3xl font-extrabold text-[#0B3C5D]">100%</h3>
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Terpercaya</p>
                 </div>
-                
-                <h1 class="text-5xl md:text-7xl font-extrabold text-[#0B3C5D] leading-[1.1]">
-                    Profesional <br>
-                    <span class="text-[#4285F4]">Outsourcing &</span> <br>
-                    Cleaning Service
-                </h1>
-                
-                <div class="w-20 h-1.5 bg-[#4285F4] rounded-full"></div>
-                
-                <p class="text-gray-500 text-lg md:text-xl leading-relaxed max-w-lg">
-                    Solusi Terpadu Layanan Profesional untuk Bisnis Anda. Kami menghadirkan standar kebersihan kelas dunia untuk menunjang produktivitas Anda.
-                </p>
-                
-                <div class="flex flex-wrap gap-4 pt-4">
-                    <a href="#hubungi-kami" class="bg-[#4285F4] hover:bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all duration-300 shadow-xl shadow-blue-200 transform hover:-translate-y-1">
-                        <i class="bi bi-envelope-fill w-5 h-5"></i>    
-                        Hubungi Kami
-                    </a>
-                    <a href="#layanan" class="bg-white border border-gray-100 text-[#4285F4] hover:bg-gray-50 px-10 py-4 rounded-2xl font-bold transition-all duration-300 shadow-sm transform hover:-translate-y-1">
-                        Lihat Layanan
-                    </a>
-                </div>
-                
-                <div class="flex gap-12 pt-10 border-t border-gray-200">
-                    <div>
-                        <h3 class="text-3xl font-extrabold text-[#0B3C5D]">100%</h3>
-                        <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Terpercaya</p>
-                    </div>
-                    <div>
-                        <h3 class="text-3xl font-extrabold text-[#0B3C5D]">Bersertifikasi</h3>
-                        <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Tim Profesional</p>
-                    </div>
+                <div>
+                    <h3 class="text-3xl font-extrabold text-[#0B3C5D]">Bersertifikasi</h3>
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Tim Profesional</p>
                 </div>
             </div>
+        </div>
 
-            <div class="order-1 lg:order-2 relative group">
-                <div class="absolute inset-0 bg-blue-200 rounded-[50px] rotate-3 scale-95 blur-xl opacity-50 group-hover:rotate-0 transition-transform duration-700"></div>
-                
-                <div class="relative rounded-[50px] overflow-hidden shadow-2xl transition-transform duration-700 group-hover:scale-[1.02]">
+        <div class="order-1 lg:order-2 relative group">
+            <div class="absolute inset-0 bg-blue-200 rounded-[50px] rotate-3 scale-95 blur-xl opacity-50 group-hover:rotate-0 transition-transform duration-700"></div>
+            
+            <div class="relative rounded-[50px] overflow-hidden shadow-2xl transition-transform duration-700 group-hover:scale-[1.02] bg-gray-200">
+                {{-- GAMBAR DINAMIS --}}
+                @if($dataBeranda && $dataBeranda['gambar'])
                     <img 
-                        src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000" 
-                        alt="Modern Glass Building Architecture" 
+                        src="{{ $dataBeranda['gambar'] }}" 
+                        alt="Hero Image" 
                         class="w-full h-[450px] md:h-[600px] object-cover"
                     >
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#0B3C5D]/30 to-transparent"></div>
-                </div>
-
-                <div class="absolute bottom-8 left-8 right-8 md:right-auto md:w-72 bg-white/90 backdrop-blur-xl p-5 rounded-[30px] shadow-2xl flex items-center gap-5 border border-white transform transition-all duration-500 hover:-translate-y-2">
-                    <div class="bg-[#4285F4] p-4 rounded-2xl text-white shadow-lg shadow-blue-200">
-                        <i class="bi bi-shield-check w-8 h-8"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black mb-1">Kualitas Terjamin</p>
-                        <p class="text-[#0B3C5D] font-extrabold text-xl leading-none">Layanan 24/7</p>
-                    </div>
-                </div>
+                @else
+                    {{-- Gambar Default jika database kosong --}}
+                    <img 
+                        src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000" 
+                        alt="Default Hero" 
+                        class="w-full h-[450px] md:h-[600px] object-cover"
+                    >
+                @endif
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0B3C5D]/30 to-transparent"></div>
             </div>
 
+            <div class="absolute bottom-8 left-8 right-8 md:right-auto md:w-72 bg-white/90 backdrop-blur-xl p-5 rounded-[30px] shadow-2xl flex items-center gap-5 border border-white transform transition-all duration-500 hover:-translate-y-2">
+                <div class="bg-[#4285F4] p-4 rounded-2xl text-white shadow-lg shadow-blue-200">
+                    <i class="bi bi-shield-check w-8 h-8"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black mb-1">Kualitas Terjamin</p>
+                    <p class="text-[#0B3C5D] font-extrabold text-xl leading-none">Layanan 24/7</p>
+                </div>
+            </div>
         </div>
-    </section>
 
+    </div>
+</section>
 
 
 
@@ -135,26 +189,21 @@
                 
                 <div class="space-y-8">
                     <div>
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-[#0B3C5D] mb-1 uppercase tracking-tight">Tentang Kami</h2>
-                        <div class="w-16 h-1 bg-[#0B3C5D] mb-6"></div>
+                        <h2 class="text-4xl font-bold text-[#0B3C5D] inline-block border-b-4 border-[#0B3C5D] pb-1">Tentang Kami</h2>
+                        <div class="mt-4 text-gray-700 text-lg max-w-3xl"></div>
                         
                         <h3 class="text-lg font-bold text-gray-800 mb-3 leading-snug">
-                            Tunas Jaya adalah sebuah perusahaan yang bergerak dalam bidang jasa.
+                            {{ $dataHubungi['motto'] }}
                         </h3>
                         
-                        <div class="text-gray-600 space-y-4 text-justify md:text-left leading-relaxed">
-                            <p>
-                                Didirikan pada Agustus 2007, <strong>PT. Tunas Jaya Bersinar Cemerlang</strong> berkomitmen menghadirkan standar baru dalam industri Outsourcing dan Cleaning Service dengan menyeimbangkan keahlian teknis dan kekuatan karakter.
-                            </p>
-                            <p>
-                                Di tengah persaingan industri, kami memastikan setiap personil dibekali pelatihan intensif agar memiliki etika kerja, integritas, dan tanggung jawab yang tinggi sebagai mitra strategis perusahaan Anda.
-                            </p>
+                        <div class="text-gray-600 space-y-4 text-justify md:text-left leading-relaxed content-rich-text">
+                            {!! $dataTentang['deskripsi'] !!}
                         </div>
                     </div>
 
                     <div class="bg-[#F4F7FF] p-5 rounded-xl flex flex-col sm:flex-row gap-5 items-center shadow-sm border border-blue-100">
                         <div class="w-full sm:w-[40%]">
-                            <img src="assets/images/landing_page/tentangKami1.png" alt="tentangkami 1" class="w-auto h-full object-contain bg-blue-800/20">
+                            <img src="{{$dataTentang['foto_visi']}}" alt="tentangkami 1" class="w-auto h-full object-contain bg-blue-800/20">
                         </div>
 
                         <div class="w-full sm:w-[60%]">
@@ -163,7 +212,7 @@
                                 <div class="flex-grow h-px bg-blue-200"></div>
                             </div>
                             <p class="italic text-gray-700 leading-relaxed text-xs md:text-sm">
-                                "Menjadi Perusahaan Outsourcing & Cleaning Service yang terbaik dengan menciptakan tenaga kerja yang berkualitas & selalu mengutamakan kepuasan pelanggan."
+                                {{$dataTentang['visi']}}
                             </p>
                         </div>
                     </div>
@@ -177,50 +226,17 @@
                     </div>
 
                     <div class="space-y-6">
-                        <div class="flex gap-4 items-start">
-                            <div class="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-600">
-                                <i class="bi bi-people" class="w-5 h-5"></i>
+                        @forelse($dataTentang['misi_list'] as $misi) 
+                        <div class="flex gap-4 items-start group">
+                            <div class="flex-shrink-0 w-10 h-10 bg-[#0B3C5D] text-white rounded-lg flex items-center justify-center shadow-md font-bold text-sm transition-transform group-hover:scale-110">
+                                {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
                             </div>
-                            <p class="text-gray-700 text-sm md:text-base leading-snug pt-1">
-                                Mewujudkan sistem kerja yang sistematis dan mantap sehingga menghasilkan SDM berkualitas.
+                            <p class="text-gray-700 text-sm md:text-base leading-snug pt-2">
+                                {{$misi}}
                             </p>
                         </div>
-
-                        <div class="flex gap-4 items-start">
-                            <div class="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-600">
-                                <i class="bi bi-cash-stack" class="w-5 h-5"></i>
-                            </div>
-                            <p class="text-gray-700 text-sm md:text-base leading-snug pt-1">
-                                Memberikan hasil berkualitas dan pelayanan memuaskan dengan harga terjangkau.
-                            </p>
-                        </div>
-
-                        <div class="flex gap-4 items-start">
-                            <div class="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-600">
-                                <i class="bi bi-chat-dots w-5 h-5"></i>
-                            </div>
-                            <p class="text-gray-700 text-sm md:text-base leading-snug pt-1">
-                                Menciptakan komunikasi terarah dan kerjasama tim yang baik antara pimpinan dan karyawan.
-                            </p>
-                        </div>
-
-                        <div class="flex gap-4 items-start">
-                            <div class="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-600">
-                                <i class="bi bi-heart w-5 h-5"></i>
-                            </div>
-                            <p class="text-gray-700 text-sm md:text-base leading-snug pt-1">
-                                Mewujudkan kesejahteraan karyawan guna meningkatkan motivasi dan loyalitas kerja.
-                            </p>
-                        </div>
-
-                        <div class="flex gap-4 items-start">
-                            <div class="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-600">
-                                <i class="bi bi-lightbulb w-5 h-5"></i>
-                            </div>
-                            <p class="text-gray-700 text-sm md:text-base leading-snug pt-1">
-                                Melatih karyawan agar bermental tangguh, disiplin, jujur, ramah, rapi, kreatif, dan inovatif.
-                            </p>
-                        </div>
+                        @empty
+                        @endforelse
                     </div>
                 </div>
 
@@ -231,236 +247,221 @@
 
 
 {{-- layanan --}}
-<section id="layanan" class="py-20 px-4 md:px-12 lg:px-24 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
-            <div class="mb-16">
-                <h2 class="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">Our Core Services</h2>
-                <div class="w-24 h-1.5 bg-[#0B3C5D] mb-6"></div>
-                <p class="text-gray-500 max-w-xl text-lg">Elevate your environment with our curated suite of professional maintenance and aesthetic solutions.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white p-10 rounded-3xl border-2 border-[#0B3C5D] relative overflow-hidden group">
-                    <div class="bg-blue-100 text-[#0B3C5D] w-14 h-14 rounded-xl flex items-center justify-center mb-8">
-                        <i class="bi bi-recycle w-8 h-8"></i>
-                    </div>
-                    <h4 class="text-2xl font-bold mb-2">Cleaning Service</h4>
-                    <p class="text-gray-400 text-xs uppercase font-bold tracking-widest mb-10">Commercial & Industrial</p>
-                    <a href="#" class="text-[#0B3C5D] font-bold flex items-center gap-2 text-sm">
-                        Selected Service <i class="bi bi-checks-circle w-4 h-4"></i>
-                    </a>
-                    <div class="absolute -top-4 -right-4 w-20 h-20 bg-gray-100 rounded-full opacity-50"></div>
-                </div>
-
-                <div class="bg-white p-10 rounded-3xl border border-transparent shadow-sm relative overflow-hidden">
-                    <div class="bg-blue-100 text-blue-400 w-14 h-14 rounded-xl flex items-center justify-center mb-8">
-                        <i class="bi bi-flower1 w-8 h-8"></i>
-                    </div>
-                    <h4 class="text-2xl font-bold mb-2 text-gray-700">Gardening</h4>
-                    <p class="text-gray-400 text-xs uppercase font-bold tracking-widest mb-10">Precision Horticulture</p>
-                    <a href="#" class="text-blue-500 font-bold flex items-center gap-2 text-sm">
-                        View details <i class="bi bi-arrow-right w-4 h-4"></i>
-                    </a>
-                </div>
-
-                <div class="bg-white p-10 rounded-3xl border border-transparent shadow-sm relative overflow-hidden">
-                    <div class="bg-blue-100 text-blue-400 w-14 h-14 rounded-xl flex items-center justify-center mb-8">
-                        <i class="bi bi-tree w-8 h-8"></i>
-                    </div>
-                    <h4 class="text-2xl font-bold mb-2 text-gray-700">Landscape</h4>
-                    <p class="text-gray-400 text-xs uppercase font-bold tracking-widest mb-10">Architectural Design</p>
-                    <a href="#" class="text-blue-500 font-bold flex items-center gap-2 text-sm">
-                        View details <i class="bi bi-arrow-right w-4 h-4"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div class="rounded-[2.5rem] overflow-hidden shadow-2xl h-96 bg-gray-300">
-                    <img src="/assets/images/landing_page/layanan1.png" alt="Industrial Cleaning" class="w-full h-full object-cover">
-                </div>
-
-                <div class="space-y-8">
-                    <span class="text-blue-600 font-bold text-xs uppercase tracking-[0.2em]">Spesialisasi Pembersihan</span>
-                    <h2 class="text-4xl font-bold text-gray-900 leading-tight">Perhatian Mendalam pada Standar Industri</h2>
-                    <p class="text-gray-500 leading-relaxed">Divisi pembersihan khusus kami menggunakan protokol disinfeksi kelas medis dan peralatan standar industri untuk mengubah lingkungan komersial dengan trafik tinggi.</p>
-                    
-                    <div class="space-y-6">
-                        <div class="flex gap-4">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                                <i class="bi bi-layers w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <h5 class="font-bold text-gray-900">Pembersihan Lantai Mendalam</h5>
-                                <p class="text-gray-500 text-sm">Poles dan restorasi untuk marmer, beton, dan permukaan lainnya.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                                <i class="bi bi-shield-check w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <h5 class="font-bold text-gray-900">Sanitasi Area Kerja</h5>
-                                <p class="text-gray-500 text-sm">Kontrol patogen spektrum penuh untuk kantor korporat.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                                <i class="bi bi-trash2 w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <h5 class="font-bold text-gray-900">Pengelolaan Sampah Profesional</h5>
-                                <p class="text-gray-500 text-sm">Sistem pembuangan berkelanjutan dan optimalisasi daur ulang.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<section id="layanan" class="py-20 px-4 md:px-12 lg:px-24 bg-gray-50" 
+        x-data="{ 
+            selectedId: {{ $dataLayanan->first()['id'] ?? 0 }},
+            layananData: {{ $dataLayanan->toJson() }}
+            }"
+        @pilih-layanan.window="const target = layananData.find(item => item.nama.includes($event.detail.nama));
+            if (target) {
+                selectedId = target.id;
+            }
+        ">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-16">
+            <h2 class="text-4xl font-bold text-[#0B3C5D] inline-block border-b-4 border-[#0B3C5D] pb-1">Layanan</h2>
+            <p class="mt-4 text-gray-700 text-lg max-w-3xl">Elevate your environment with our curated suite of professional maintenance and aesthetic solutions.</p>
         </div>
-    </section>
+
+        {{-- Grid Card Layanan --}}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            @foreach($dataLayanan as $layanan)
+            <div @click="selectedId = {{ $layanan['id'] }}" 
+                class="cursor-pointer transition-all duration-300 p-10 rounded-3xl border shadow-sm relative overflow-hidden group"
+                :class="selectedId === {{ $layanan['id'] }} ? 'bg-[#0B3C5D] border-[#0B3C5D]' : 'bg-white border-transparent hover:shadow-md'">
+                
+                <span class="absolute -top-4 -right-4 text-8xl font-black opacity-10"
+                    :class="selectedId === {{ $layanan['id'] }} ? 'text-white' : 'text-gray-200'">
+                    {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
+                </span>
+
+                <h4 class="text-2xl font-bold mb-2 transition-colors"
+                    :class="selectedId === {{ $layanan['id'] }} ? 'text-white' : 'text-gray-700'">
+                    {{ $layanan['nama'] }}
+                </h4>
+                
+                <p class="text-xs uppercase font-bold tracking-widest mb-10 transition-colors"
+                    :class="selectedId === {{ $layanan['id'] }} ? 'text-blue-200' : 'text-gray-400'">
+                    {{ $layanan['desk_singkat'] }}
+                </p>
+
+                <div class="flex items-center gap-2 text-sm font-bold transition-colors"
+                    :class="selectedId === {{ $layanan['id'] }} ? 'text-white' : 'text-blue-500'">
+                    <span>View details</span> 
+                    <i class="bi bi-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        <template x-for="item in layananData" :key="item.id">
+            <div x-show="selectedId === item.id" 
+                x-transition:enter="transition ease-out duration-500"
+                x-transition:enter-start="opacity-0 translate-y-8"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                class="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                
+                {{-- Bagian Gambar --}}
+                <div class="rounded-[2.5rem] overflow-hidden shadow-2xl h-[450px] bg-gray-300">
+                    <img :src="item.gambar_url || '/assets/images/placeholder.png'" 
+                        :alt="item.nama" 
+                        class="w-full h-full object-cover shadow-inner">
+                </div>
+
+                {{-- Bagian Deskripsi --}}
+                <div class="space-y-8">
+                    <span class="text-blue-600 font-bold text-xs uppercase tracking-[0.2em]" x-text="'Spesialisasi ' + item.nama"></span>
+                    <h2 class="text-4xl font-bold text-gray-900 leading-tight" x-text="item.nama"></h2>
+                    
+                    <div class="text-gray-500 leading-relaxed text-lg content-rich-text" x-html="item.desk_panjang"></div>
+                
+                    <div class="pt-4">
+                        <a href="https://wa.me/{{ str_replace([' ', '+', '-'], '', $dataHubungi['no_telepon'][0] ?? '') }}" 
+                            class="inline-flex items-center gap-3 bg-[#0B3C5D] text-white px-8 py-4 rounded-full font-bold hover:bg-opacity-90 transition-all shadow-lg">
+                            Konsultasi Sekarang <i class="bi bi-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</section>
+
 
 
 
 {{-- portofolio --}}
-<section id="portofolio" class="py-16 px-4 md:px-8 lg:px-16">
-        <div class="max-w-7xl mx-auto">
-            
-            <div class="mb-12">
-                <h1 class="text-4xl font-bold text-[#0B3C5D] inline-block border-b-4 border-[#0B3C5D] pb-1">
-                    Portofolio
-                </h1>
-                <p class="mt-4 text-gray-700 text-lg max-w-3xl">
-                    Dedikasi kami tercermin dalam pengalaman, keahlian, dan hasil yang terbukti bersama klien kami
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div class="w-full aspect-[4/3] bg-gray-200 rounded-[2rem] overflow-hidden mb-6 flex items-center justify-center border border-gray-100">
-                        <img src="assets/images/landing_page/porto1.png" alt="porto 1" class="w-auto h-full object-contain">
-                    </div>
-                    <div class="space-y-2">
-                        <h3 class="text-xl font-bold text-gray-900">Intiland Tower Surabaya</h3>
-                        <p class="text-gray-600 italic text-sm leading-relaxed">
-                            Gedung perkantoran (office tower) prestisius berkonsep hijau (eco-friendly)
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div class="w-full aspect-[4/3] bg-gray-200 rounded-[2rem] overflow-hidden mb-6 flex items-center justify-center border border-gray-100">
-                        <img src="assets/images/landing_page/porto2.png" alt="porto 2" class="w-auto h-full object-contain">
-                    </div>
-                    <div class="space-y-2">
-                        <h3 class="text-xl font-bold text-gray-900 text-left">Boncafe Surabaya</h3>
-                        <p class="text-gray-600 italic text-sm leading-relaxed">
-                            Boncafe adalah restoran steak legendaris di Surabaya yang berdiri sejak 28 Februari 1977. Terkenal dengan cita rasa steak khas Eropa.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div class="w-full aspect-[4/3] bg-gray-200 rounded-[2rem] overflow-hidden mb-6 flex items-center justify-center border border-gray-100">
-                        <img src="assets/images/landing_page/porto3.png" alt="porto 3" class="w-auto h-full object-contain">
-                    </div>
-                    <div class="space-y-2">
-                        <h3 class="text-xl font-bold text-gray-900 uppercase">RSUD BANGIL</h3>
-                        <p class="text-gray-600 italic text-sm leading-relaxed">
-                            Rumah sakit milik Pemerintah Kabupaten Pasuruan, Jawa Timur, yang berlokasi di Jl. Raya Raci Bangil
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="mt-12 flex justify-center items-center space-x-3">
-                <span class="w-3 h-3 rounded-full bg-gray-300 cursor-pointer"></span>
-                <span class="w-3 h-3 rounded-full bg-[#008080] cursor-pointer"></span>
-                <span class="w-3 h-3 rounded-full bg-gray-300 cursor-pointer"></span>
-                <span class="w-3 h-3 rounded-full bg-gray-300 cursor-pointer"></span>
-                <span class="w-3 h-3 rounded-full bg-gray-300 cursor-pointer"></span>
-            </div>
+<section id="portofolio" class="py-16 px-4 md:px-8 lg:px-16 overflow-hidden">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-12">
+            <h1 class="text-4xl font-bold text-[#0B3C5D] inline-block border-b-4 border-[#0B3C5D] pb-1">
+                Portofolio
+            </h1>
+            <p class="mt-4 text-gray-700 text-lg max-w-3xl">
+                Dedikasi kami tercermin dalam pengalaman, keahlian, dan hasil yang terbukti bersama klien kami
+            </p>
         </div>
-    </section>
+        <div class="swiper portofolioSwiper !pb-14">
+            <div class="swiper-wrapper">
+                @forelse($dataPortofolio as $portofolio)
+                <div class="swiper-slide h-auto">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full hover:shadow-md transition-shadow duration-300">
+                        <div class="w-full aspect-[4/3] bg-gray-50 rounded-[2rem] overflow-hidden mb-6 flex items-center justify-center border border-gray-100">
+                            <img src="{{ $portofolio['gambar_url'] ?? asset('assets/images/placeholder.png') }}" 
+                                alt="{{ $portofolio['klien'] }}" 
+                                class="w-full h-full object-contain p-4">
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-bold text-gray-900">{{ $portofolio['klien'] }}</h3>
+                            <p class="text-gray-600 italic text-sm leading-relaxed">
+                                {{ $portofolio['desk_singkat'] }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                    <p class="text-center text-gray-400">Belum ada data portofolio.</p>
+                @endforelse
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+</section>
 
 {{-- Dokumentasi --}}
-    <section class="py-16 px-4 md:px-8 lg:px-16 bg-white">
-        <div class="max-w-7xl mx-auto">
-            
-            <div class="mb-10">
-                <h2 class="text-4xl font-bold text-[#0B3C5D] inline-block border-b-4 border-[#0B3C5D] pb-2">
-                    Dokumentasi
-                </h2>
-            </div>
+<section class="py-16 px-4 md:px-8 lg:px-16 bg-white" 
+    x-data="{ 
+        currentPage: 1,
+        pageSize: 12,
+        selectedCategory: 'All',
+        allData: {{ json_encode($dataDokumentasi) }},
+        
+        get filteredData() {
+            if (this.selectedCategory === 'All') return this.allData;
+            return this.allData.filter(item => item.jenisLayanan === this.selectedCategory);
+        },
 
-            <div class="flex flex-wrap justify-center gap-6 mb-12 text-sm md:text-base font-semibold text-gray-600">
-                <button class="text-[#008080] border-b-2 border-[#008080] pb-1">All</button>
-                <button class="hover:text-[#008080] transition-colors">Cleaning Service</button>
-                <button class="hover:text-[#008080] transition-colors">Gardening</button>
-                <button class="hover:text-[#008080] transition-colors">Landscape</button>
-            </div>
+        get paginatedData() {
+            let start = (this.currentPage - 1) * this.pageSize;
+            let end = start + this.pageSize;
+            return this.filteredData.slice(start, end);
+        },
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                
-                <div class="group cursor-pointer">
-                    <div class="w-full aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-4 border border-gray-200 flex items-center justify-center relative">
-                        <img src="assets/images/landing_page/dokumentasi1.jpeg" alt="dokumentasi 1" class="w-auto h-full object-contain">
-                        <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-lg text-gray-900">1 Maret 2026 - PT sentosa Jaya</h3>
-                        <p class="text-gray-500 text-sm">Cleaning Service</p>
-                    </div>
-                </div>
-
-                <div class="group cursor-pointer">
-                    <div class="w-full aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-4 border border-gray-200 flex items-center justify-center relative">
-                        <img src="assets/images/landing_page/dok2.jpeg" alt="dokumentasi 2" class="w-auto h-full object-contain">
-                        <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-lg text-gray-900">1 Maret 2026 - Yamaha Kalsel</h3>
-                        <p class="text-gray-500 text-sm">Cleaning Service</p>
-                    </div>
-                </div>
-
-                <div class="group cursor-pointer">
-                    <div class="w-full aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-4 border border-gray-200 flex items-center justify-center relative">
-                        <img src="assets/images/landing_page/dok3.jpeg" alt="dokumentasi 3" class="w-auto h-full object-contain">
-                        <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-lg text-gray-900">1 Maret 2026 - Yamaha Kaltim</h3>
-                        <p class="text-gray-500 text-sm">Cleaning Service</p>
-                    </div>
-                </div>
-
-                <div class="group cursor-pointer">
-                    <div class="w-full aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-4 border border-gray-200 flex items-center justify-center relative">
-                        <img src="assets/images/landing_page/dok4.jpeg" alt="dokumentasi 4" class="w-auto h-full object-contain">
-                        <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-lg text-gray-900">1 Maret 2026 - Yamaha Banyuwangi</h3>
-                        <p class="text-gray-500 text-sm">Cleaning Service</p>
-                    </div>
-                </div>
-
-                <div class="group cursor-pointer">
-                    <div class="w-full aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-4 border border-gray-200 flex items-center justify-center relative">
-                        <img src="assets/images/landing_page/dok5.jpeg" alt="dokumentasi 5" class="w-auto h-full object-contain">
-                        <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-lg text-gray-900">28 Februari 2026 - Yamaha Kaltim</h3>
-                        <p class="text-gray-500 text-sm">Cleaning Service</p>
-                    </div>
-                </div>
-            </div>
+        get totalPages() {
+            return Math.ceil(this.filteredData.length / this.pageSize);
+        }
+    }">
+    <div class="max-w-7xl mx-auto">
+        
+        <div class="mb-10">
+            <h2 class="text-4xl font-bold text-[#0B3C5D] inline-block border-b-4 border-[#0B3C5D] pb-2">
+                Dokumentasi
+            </h2>
         </div>
-    </section>
-    
+
+        {{-- Filter Kategori --}}
+        <div class="flex flex-wrap justify-center gap-6 mb-12 text-sm md:text-base font-semibold text-gray-600">
+            <button 
+                @click="selectedCategory = 'All'; currentPage = 1"
+                :class="selectedCategory === 'All' ? 'text-[#008080] border-b-2 border-[#008080] pb-1' : 'hover:text-[#008080] transition-colors'">
+                All
+            </button>
+            @foreach($daftarLayananDok as $listLayananDok)
+            <button 
+                @click="selectedCategory = '{{ $listLayananDok }}'; currentPage = 1"
+                :class="selectedCategory === '{{ $listLayananDok }}' ? 'text-[#008080] border-b-2 border-[#008080] pb-1' : 'hover:text-[#008080] transition-colors'">
+                {{ $listLayananDok }}
+            </button>
+            @endforeach
+        </div>
+
+        {{-- Grid Dokumentasi --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 min-h-[400px]">
+            <template x-for="(doc, index) in paginatedData" :key="index">
+                <div class="group cursor-pointer" x-transition:enter="transition ease-out duration-300">
+                    <div class="w-full aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-4 border border-gray-200 flex items-center justify-center relative">
+                        <img :src="doc.gambar_url" :alt="doc.lokasi" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="font-bold text-lg text-gray-900" x-text="doc.tanggal + ' - ' + doc.lokasi"></h3>
+                        <p class="text-gray-500 text-sm" x-text="doc.jenisLayanan"></p>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        {{-- Navigasi Paginasi --}}
+        <div x-show="totalPages > 1" class="mt-16 flex justify-center items-center space-x-2">
+            {{-- Tombol Prev --}}
+            <button @click="if(currentPage > 1) currentPage--" 
+                class="p-2 rounded-md hover:bg-gray-100 disabled:opacity-30" :disabled="currentPage === 1">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            {{-- Nomor Halaman --}}
+            <template x-for="page in totalPages" :key="page">
+                <button @click="currentPage = page" 
+                    :class="currentPage === page ? 'bg-[#008080] text-white' : 'text-gray-600 hover:bg-gray-100'"
+                    class="w-10 h-10 rounded-full font-bold transition-all"
+                    x-text="page">
+                </button>
+            </template>
+
+            {{-- Tombol Next --}}
+            <button @click="if(currentPage < totalPages) currentPage++" 
+                class="p-2 rounded-md hover:bg-gray-100 disabled:opacity-30" :disabled="currentPage === totalPages">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        {{-- Empty State --}}
+        <div x-show="filteredData.length === 0" class="text-center py-20">
+            <p class="text-gray-400 italic">Tidak ada dokumentasi untuk kategori ini.</p>
+        </div>
+
+    </div>
+</section>
 
 
 
@@ -486,20 +487,15 @@
                             <i class="bi bi-geo-alt w-6 h-6"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-900">Alamat Pusat</h3>
-                            <p class="text-slate-500">Perum Bumi Suko Indah D2/81 Sidoarjo-61224</p>
+                            <h3 class="font-bold text-slate-900">Alamat</h3>
+                                @forelse ($dataHubungi['alamat'] as $alamat)
+                                <p class="text-slate-500">{{$alamat}}</p>
+                                @empty
+                                <span></span>
+                                @endforelse
                         </div>
                     </div>
-
-                    <div class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-slate-100 transition-hover hover:shadow-md">
-                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mr-5 shrink-0">
-                            <i class="bi bi-geo-alt w-6 h-6"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-900">Alamat Cabang</h3>
-                            <p class="text-slate-500">Perum Genteng Indah D/12A Karangsari, Banyuwangi</p>
-                        </div>
-                    </div>
+                
 
                     <div class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-slate-100 transition-hover hover:shadow-md">
                         <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mr-5 shrink-0">
@@ -507,7 +503,11 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900">Telepon</h3>
-                            <p class="text-slate-500">+62 81235188282 / +62 081331733891</p>
+                                @forelse ($dataHubungi['no_telepon'] as $no_telepon)
+                                <a class="text-slate-500 hover:text-indigo-600" href="https://wa.me/{{ str_replace([' ', '+', '-'], '', $no_telepon ?? '') }}" >{{$no_telepon}}</a></br>
+                                @empty
+                                <span></span>
+                                @endforelse
                         </div>
                     </div>
 
@@ -517,7 +517,11 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900">Email</h3>
-                            <p class="text-indigo-600 font-medium">tunasjayaclean@gmail.com</p>
+                                @forelse ($dataHubungi['email'] as $email)
+                                <a class="text-slate-500 hover:text-indigo-600 font-medium" href="mailto:{{ $email ?? '' }}">{{$email}}</a></br>
+                                @empty
+                                <span></span>
+                                @endforelse
                         </div>
                     </div>
 
@@ -527,26 +531,34 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900">Jam Kerja</h3>
-                            <p class="text-slate-500">Senin - Sabtu : 08.00 - 16.00 WIB</p>
+                            @if($dataHubungi['senin_jumat'] && $dataHubungi['senin_jumat'] != '00:00-00:00')
+                            <p class="text-slate-500">{{'Senin - Jumat : '.$dataHubungi['senin_jumat']}}</p>
+                            @endif
+                            @if($dataHubungi['sabtu'] && $dataHubungi['sabtu'] != '00:00-00:00')
+                            <p class="text-slate-500">Sabtu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;{{$dataHubungi['sabtu']}}</p>
+                            @endif
+                            @if($dataHubungi['minggu'] && $dataHubungi['minggu'] != '00:00-00:00')
+                            <p class="text-slate-500">Minggu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;{{$dataHubungi['minggu']}}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="" class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100">
+            <section id="kirimPesan" class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100">
                 <h2 class="text-2xl font-bold mb-8 text-slate-900">Kirim Pesan kepada Kami</h2>
-                
-                <form action="#" method="POST" class="space-y-6">
+            
+                <form action="{{route('landingPage.kirimPesan')}}" method="POST" class="space-y-6">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Lengkap</label>
-                            <input type="text" name="nama" placeholder="Contoh: Budi Santoso" 
+                            <input type="text" name="nama_lengkap" placeholder="Contoh: Budi Santoso" required
                                 class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
-                            <input type="email" name="email" placeholder="budi@email.com" 
+                            <input type="email" name="email" placeholder="budi@email.com" required
                                 class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
                         </div>
                     </div>
@@ -556,8 +568,8 @@
                         <div class="relative">
                             <select name="subject" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white appearance-none transition-all">
                                 <option>Pertanyaan Umum</option>
-                                <option>Layanan Energi</option>
-                                <option>Proyek Konstruksi</option>
+                                <option>Layanan</option>
+                                <option>Kerja Sama</option>
                                 <option>Lainnya</option>
                             </select>
                         </div>
@@ -565,13 +577,19 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Pesan</label>
-                        <textarea name="pesan" rows="5" placeholder="Tuliskan pesan Anda di sini..." 
                             class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <button type="submit" class="w-full md:w-auto px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 active:scale-95">
                         Kirim Pesan
                     </button>
+
+                    @if(session('success'))
+                        <script>
+                            alert("{{ session('success') }}");
+                        </script>
+                    @endif
+
                 </form>
             </section>
 
@@ -587,7 +605,7 @@
                 {{-- Kolom 1: Logo & Deskripsi --}}
                 <div class="space-y-6">
                     <div class="bg-white p-1 rounded-sm w-full max-w-[280px] h-16 flex items-center justify-center">
-                        <img src="assets/images/landing_page/logo.png" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
+                        <img src="{{ optional($dataHubungi)->logo ? $dataHubungi->logo : asset('assets/images/landing_page/logo.png') }}" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
                     </div>
 
                     <p class="text-gray-300 text-sm leading-relaxed max-w-xs">
@@ -597,16 +615,16 @@
 
                     {{-- Social Media Icons --}}
                     <div class="flex gap-3">
-                        <a href="https://twitter.com" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                        <a href="{{ $dataHubungi['twitter'] ?? '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ !empty($dataHubungi['twitter']) ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-twitter w-5 h-5 text-white"></i>
                         </a>
-                        <a href="https://facebook.com" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                        <a href="{{ $dataHubungi['facebook'] ?? '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ !empty($dataHubungi['facebook']) ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-facebook w-5 h-5 text-white"></i>
                         </a>
-                        <a href="https://instagram.com" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                        <a href="{{ $dataHubungi['ig'] ?? '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ !empty($dataHubungi['ig']) ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-instagram w-5 h-5 text-white"></i>
                         </a>
-                        <a href="https://linkedin.com" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all">
+                        <a href="{{ $dataHubungi['linkedIn'] ?? '#' }}" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 transition-all {{ !empty($dataHubungi['linkedIn']) ? '' : 'pointer-events-none opacity-50' }}">
                             <i class="bi bi-linkedin w-5 h-5 text-white"></i>
                         </a>
                     </div>
@@ -626,35 +644,50 @@
 
                 {{-- Kolom 3: Our Services --}}
                 <div>
-                    <h4 class="text-lg font-bold mb-6">Our Services</h4>
-                    <ul class="space-y-4 text-gray-300 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">Web Design</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Web Development</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Product Management</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Marketing</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Graphic Design</a></li>
-                    </ul>
-                </div>
+                <h4 class="text-lg font-bold mb-6">Our Services</h4>
+                <ul class="space-y-4 text-gray-300 text-sm">
+                    @forelse($daftarLayananDok as $listLayananDok)
+                    <li>
+                        <a href="#layanan" 
+                        @click="$dispatch('pilih-layanan', { nama: '{{ $listLayananDok }}' })"
+                        class="hover:text-white transition-colors cursor-pointer">
+                            {{ $listLayananDok }}
+                        </a>
+                    </li>
+                    @empty
+                    @endforelse
+                </ul>
+            </div>
 
                 {{-- Kolom 4: Hubungi Kami --}}
                 <div class="space-y-6">
                     <h4 class="text-lg font-bold mb-6">Hubungi Kami</h4>
                     
                     <div class="text-gray-300 text-sm leading-relaxed">
-                        <p>Perum Bumi Suko Indah Blok D2/81</p>
-                        <p>Sidoarjo - 61224</p>
-                        <p>Jawa Timur</p>
-                        <p>Indonesia</p>
+                        @forelse ($dataHubungi['alamat'] as $alamat)
+                        <p>{{$alamat}}</p>
+                        @empty
+                        <span></span>
+                        @endforelse
                     </div>
 
                     <div class="text-sm">
                         <p class="font-bold text-white mb-1">Telepon:</p>
-                        <p class="text-gray-300">081235188282 – Tirta | 081331733891 – Ovin</p>
+
+                        @forelse ($dataHubungi['no_telepon'] as $no_telepon)
+                        <a class="text-gray-300 hover:text-blue-300" href="https://wa.me/{{ str_replace([' ', '+', '-'], '', $no_telepon ?? '') }}" >| {{$no_telepon}} </a>
+                        @empty
+                        <span></span>
+                        @endforelse
                     </div>
 
                     <div class="text-sm">
                         <p class="font-bold text-white mb-1">Email:</p>
-                        <p class="text-gray-300">tunasjayaclean@gmail.com</p>
+                        @forelse ($dataHubungi['email'] as $email)
+                        <a class="text-gray-300 hover:text-blue-300" href="mailto:{{ $email ?? '' }}">{{$email}} </a>
+                        @empty
+                        <span></span>
+                        @endforelse
                     </div>
                 </div>
 
@@ -672,4 +705,34 @@
 
         </div>
     </footer>
+
+    
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const swiper = new Swiper('.portofolioSwiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        speed: 800,
+        
+        autoplay: {
+            delay: 4000,
+            disableOnInteraction: false,
+        },
+
+        breakpoints: {
+            768: { slidesPerView: 2, spaceBetween: 30 },
+            1024: { slidesPerView: 3, spaceBetween: 30 }
+        },
+
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+            renderBullet: function (index, className) {
+                return '<span class="' + className + '"></span>';
+            },
+        },
+    });
+});
+</script>
 </body>

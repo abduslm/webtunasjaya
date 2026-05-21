@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengajuan_izin;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class PengajuanIzinController
 {
@@ -12,7 +13,55 @@ class PengajuanIzinController
      */
     public function index()
     {
-        //
+        // Urutkan berdasarkan tanggal mulai terlama (asc)
+        $data = Pengajuan_izin::with('user.dataKaryawan')
+            ->orderBy('id_pengajuanIzin', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id_pengajuanIzin' => $item->id_pengajuanIzin,
+                    'nama' => $item->user->dataKaryawan->nama_lengkap ?? 'User Dihapus',
+                    'tipe' => $item->jenis_izin,
+                    'tanggalMulai' => Carbon::parse($item->tanggal_mulai)->translatedFormat('d M Y'),
+                    'tanggalSelesai' => Carbon::parse($item->tanggal_selesai)->translatedFormat('d M Y'),
+                    'durasi' => Carbon::parse($item->tanggal_mulai)->diffInDays(Carbon::parse($item->tanggal_selesai)) + 1 . ' Hari',
+                    'alasan' => $item->alasan ?? '-',
+                    'tanggalPengajuan' => $item->created_at->translatedFormat('d M Y'),
+                    'status' => $item->status,
+                    'mediaPendukung' => $item->media_pendukung ? asset('storage/' . $item->media_pendukung) : null,
+                ];
+            });
+
+        return view('admin.absensi.persetujuanCuti', ['cutiRequests' => $data]);
+    }
+
+    public function updateStatus(Request $request, $id_pengajuanIzin)
+    {
+        $request->validate([
+            'status' => 'required|in:disetujui,ditolak'
+        ]);
+
+        $izin = Pengajuan_izin::findOrFail($id_pengajuanIzin);
+        $izin->update(['status' => $request->status]);
+
+        return redirect()->back()->with('success', 'Status Pengajuan Izin berhasil ' .$request->status);
+    }
+
+    public function destroyPeriode(Request $request)
+    {
+        $dateThreshold = match($request->periode) {
+            '3_bulan' => now()->subMonths(3),
+            '6_bulan' => now()->subMonths(6),
+            '1_tahun' => now()->subYear(),
+            '2_tahun' => now()->subYears(2),
+            default => null
+        };
+
+        if (!$dateThreshold) return response()->json(['success' => false], 400);
+
+        Pengajuan_izin::where('created_at', '<', $dateThreshold)->delete();
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -34,7 +83,7 @@ class PengajuanIzinController
     /**
      * Display the specified resource.
      */
-    public function show(Pengajuan_izin $pengajuan_izin)
+    public function show($id)
     {
         //
     }
@@ -42,7 +91,7 @@ class PengajuanIzinController
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Pengajuan_izin $pengajuan_izin)
+    public function edit($id)
     {
         //
     }
@@ -50,7 +99,7 @@ class PengajuanIzinController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Pengajuan_izin $pengajuan_izin)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -58,7 +107,7 @@ class PengajuanIzinController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Pengajuan_izin $pengajuan_izin)
+    public function destroy($id)
     {
         //
     }

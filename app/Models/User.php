@@ -1,15 +1,18 @@
 <?php
 
 namespace App\Models;
-
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // ← TAMBAHKAN INI
+
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable; // ← TAMBAHKAN HasApiTokens
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'email',    
@@ -31,11 +34,10 @@ class User extends Authenticatable
         'role' => 'karyawan',
         'status' => 'non-aktif'
     ];
-
+    // Relasi
     public function pengajuanIzin() {
         return $this->hasMany(Pengajuan_izin::class, 'id_user');
     }
-
     public function absensi() {
         return $this->hasMany(Absensi::class, 'id_user');
     }

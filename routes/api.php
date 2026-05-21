@@ -1,11 +1,16 @@
 <?php
 
+
+
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\AbsensiApiController;
 use App\Http\Controllers\Api\LokasiApiController;
 use App\Http\Controllers\Api\KoreksiAbsenApiController;
 use App\Http\Controllers\Api\PengajuanIzinApiController;
+use App\Http\Controllers\Api\DataKaryawanApiController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\NotificationApiController;
 
 
@@ -14,6 +19,11 @@ use App\Http\Controllers\Api\NotificationApiController;
 // =====================
 Route::post('/login', [UserApiController::class, 'login']);
 Route::post('/register', [UserApiController::class, 'storeUserwithKaryawan']);
+
+Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('forgot-password.show');
+Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp'])->middleware('guest.antispam:otp_request')->name('forgot-password.send-otp');
+Route::post('/forgot-password/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('forgot-password.verify-otp');
+Route::post('/forgot-password/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('forgot-password.reset-password');
 
 
 
@@ -63,3 +73,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/absensi/{id}', [AbsensiApiController::class, 'show']);
 
 });
+

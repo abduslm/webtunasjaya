@@ -22,8 +22,7 @@ class PengajuanIzinApiController
      */
     public function store(Request $request) : JsonResponse
     {
-         $user = $request->user();
-
+        $user = $request->user();
         $validated = $request->validate([
             'jenis_izin' => 'required|string',
             'tanggal_mulai' => 'required|date',

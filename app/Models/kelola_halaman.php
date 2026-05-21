@@ -9,6 +9,7 @@ class kelola_halaman extends Model
 {
     use HasFactory;
 
+    protected $table = 'kelola_halaman';
     protected $primaryKey = 'id_kelolaHalaman';
     protected $fillable = [
         'section', 

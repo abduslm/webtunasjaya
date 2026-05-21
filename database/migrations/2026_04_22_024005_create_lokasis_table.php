@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('lokasis', function (Blueprint $table) {
             $table->id('id_lokasi');
+            $table->string('klien');
             $table->string('alamat');
             $table->string('latitude');
             $table->string('longitude');

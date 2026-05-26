@@ -89,19 +89,13 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <div class="p-4 bg-[#fafbfc] rounded-lg">
-                            <p class="text-sm text-gray-500 mb-1">Tanggal Mulai</p>
-                            <p class="text-gray-900" x-text="cutiList.tanggalMulai"></p>
+                        <div class="p-4 bg-[#fafbfc] rounded-lg col-span-3">
+                            <template x-for="(tgl, j) in cutiList.tanggal" :key="j">
+                                <span class="text-gray-900" x-text="`${tgl} | `"></span>
+                            </template>
                         </div>
-                        <div class="p-4 bg-[#fafbfc] rounded-lg">
-                            <p class="text-sm text-gray-500 mb-1">Tanggal Selesai</p>
-                            <p class="text-gray-900" x-text="cutiList.tanggalSelesai"></p>
-                        </div>
-                        <div class="p-4 bg-[#fafbfc] rounded-lg">
-                            <p class="text-sm text-gray-500 mb-1">Durasi</p>
-                            <p class="text-gray-900" x-text="cutiList.durasi"></p>
-                        </div>
-                        <div class="p-4 bg-[#fafbfc] rounded-lg">
+
+                        <div class="p-4 bg-[#fafbfc] rounded-lg col-start-4">
                             <p class="text-sm text-gray-500 mb-1">Diajukan</p>
                             <p class="text-gray-900" x-text="cutiList.tanggalPengajuan"></p>
                         </div>

@@ -78,7 +78,7 @@ class UserController
             'email' => $validated['email'],
             'password' => $validated['password'],
             'role' => $validated['role'] ?? 'karyawan',
-            'status' => $validated['status'] ?? 'non-aktif',
+            'status' => strtolower($validated['status'] ?? 'non-aktif'),
             'device_id' => $validated['device_id'] ?? null,
         ]);
         return redirect()->back()->with('success', 'User berhasil ditambahkan!');
@@ -125,7 +125,7 @@ class UserController
             'email' => $validated['email'],
             'password' => $validated['password'] ?? $user->password,
             'role' => $validated['role'] ?? $user->role,
-            'status' => $validated['status'] ?? $user->status,
+            'status' => strtolower($validated['status'] ?? $user->status),
             'device_id' => $validated['device_id'] ?? $user->device_id,
         ]);
         

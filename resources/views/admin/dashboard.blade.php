@@ -209,7 +209,12 @@
                     <div>
                         <p class="text-gray-900 font-semibold">{{ optional($izinList->user->dataKaryawan)->nama_lengkap ?? $izinList->user->email }}</p>
                         <p class="text-sm text-gray-500">{{ $izinList->jenis_izin }}</p>
-                        <p class="text-xs text-gray-400 mt-1"><i class="bi bi-calendar-event"></i> Mula: {{ $izinList->tanggal_mulai }}</p>
+                        @php
+                            $tanggalArray = $izinList->tanggal ? collect($izinList->tanggal)->map(fn($tgl) => \Carbon\Carbon::parse($tgl)->translatedFormat('d M Y'))->toArray() : [];
+                        @endphp
+                        @foreach($tanggalArray as $tgl)
+                            <span class="text-xs text-gray-400 mt-1"> {{ $tgl }} | </span>
+                        @endforeach
                     </div>
                     <div class="flex gap-2">
                         <form action="{{ route('admin.persetujuan-izin.updateStatus', $izinList->id_pengajuanIzin) }}" method="POST">

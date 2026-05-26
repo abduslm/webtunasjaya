@@ -12,8 +12,7 @@ class Pengajuan_izin extends Model
     protected $primaryKey = 'id_pengajuanIzin';
     protected $fillable = [
         'jenis_izin',
-        'tanggal_mulai',
-        'tanggal_selesai',
+        'tanggal',
         'media_pendukung',
         'status',
         'id_user'
@@ -21,6 +20,9 @@ class Pengajuan_izin extends Model
     protected $attributes = [
         'status' => 'pending',
         'media_pendukung' => null
+    ];
+    protected $casts = [
+        'tanggal' => 'array',
     ];
     
     public function user() {

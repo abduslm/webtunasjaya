@@ -78,9 +78,9 @@ class KelolaHalamanController extends Controller
             ];
         });
         $daftarLayananDok = $dokumentasi->pluck('lain_jenis')->unique()->values();
+        $daftarLayanan = $layanan->pluck('judul')->unique()->values();
 
-
-        return view('index', compact('dataHubungi','dataBeranda','dataTentang', 'dataLayanan','dataPortofolio', 'dataDokumentasi','daftarLayananDok'));
+        return view('index', compact('dataHubungi','dataBeranda','dataTentang', 'dataLayanan','dataPortofolio', 'dataDokumentasi','daftarLayananDok', 'daftarLayanan'));
     }
 
 

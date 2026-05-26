@@ -71,8 +71,7 @@
                     class="w-full md:w-auto px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0a4d3c]/20 text-sm font-medium">
                     <option value="{{ route('admin.kelola-user.index', ['status' => 'semua', 'search' => request('search')]) }}" {{ request('status') == 'semua' ? 'selected' : '' }}>Semua Status</option>
                     <option value="{{ route('admin.kelola-user.index', ['status' => 'aktif', 'search' => request('search')]) }}" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="{{ route('admin.kelola-user.index', ['status' => 'izin', 'search' => request('search')]) }}" {{ request('status') == 'izin' ? 'selected' : '' }}>Izin</option>
-                    <option value="{{ route('admin.kelola-user.index', ['status' => 'non-Aktif', 'search' => request('search')]) }}" {{ request('status') == 'non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                    <option value="{{ route('admin.kelola-user.index', ['status' => 'non-aktif', 'search' => request('search')]) }}" {{ request('status') == 'non-aktif' ? 'selected' : '' }}>Non-Aktif</option>
                 </select>
 
                 {{-- Tombol Reset --}}
@@ -114,7 +113,6 @@
                             @php
                                 $statusStyle = match($user->status) {
                                     'aktif' => 'bg-[#e8f5f1] text-[#0a4d3c]',
-                                    'izin' => 'bg-amber-50 text-amber-600',
                                     'non-aktif' => 'bg-red-50 text-red-600',
                                     default => 'bg-gray-100 text-gray-600',
                                 };
@@ -222,7 +220,6 @@
                             <select name="status" x-model="editingItem ? editingItem.status : 'aktif'" required
                                     class="w-full px-4 py-2.5 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c]/20 outline-none transition-all">
                                 <option value="aktif">Aktif</option>
-                                <option value="izin">Izin</option>
                                 <option value="non-aktif">Non-Aktif</option>
                             </select>
                         </div>
@@ -232,6 +229,7 @@
                         <label class="block mb-1.5 text-sm font-medium text-gray-600">Device ID</label>
                         <input type="text" name="device_id" x-model="editingItem ? editingItem.device_id : ''"
                             placeholder="DEVICE-XXX"
+                            title="kosongkan jika ingin me-reset device id"
                             class="w-full px-4 py-2.5 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0a4d3c]/20 outline-none transition-all font-mono">
                     </div>
                 </div>

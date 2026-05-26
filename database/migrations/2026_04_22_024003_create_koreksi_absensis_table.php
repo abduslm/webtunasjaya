@@ -21,8 +21,9 @@ return new class extends Migration
             $table->string('alasan');
             $table->string('media_pendukung')->nullable();
             $table->string('status')->default('pending');
+            $table->bigInteger('id_user_opsional')->nullable();
             $table->timestamps();
-            $table->foreignId('id_absensi')->constrained('absensis','id_absensi')->onDelete('cascade');
+            $table->foreignId('id_absensi')->nullable()->constrained('absensis','id_absensi')->onDelete('cascade');
         });
     }
 

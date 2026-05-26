@@ -60,8 +60,8 @@ class ForgotPasswordController extends Controller
         if (!$otpData) {
             return response()->json(['success' => false, 'message' => 'Permintaan OTP tidak ditemukan.'], 400);
         }
-        $kadarLuwarsa = Carbon::parse($otpData->created_at)->addMinutes(60);
-        if (Carbon::now()->isAfter($kadarLuwarsa)) {
+        $exp = Carbon::parse($otpData->created_at)->addMinutes(60);
+        if (Carbon::now()->isAfter($exp)) {
             return response()->json(['success' => false, 'message' => 'Kode OTP sudah kedaluwarsa.'], 400);
         }
         if (!Hash::check($request->otp, $otpData->token)) {
@@ -83,8 +83,8 @@ class ForgotPasswordController extends Controller
         if (!$otpData) {
             return response()->json(['success' => false, 'message' => 'Sesi verifikasi tidak ditemukan.'], 400);
         }
-        $kadarLuwarsa = Carbon::parse($otpData->created_at)->addMinutes(10);
-        if (Carbon::now()->isAfter($kadarLuwarsa) || !Hash::check($request->otp, $otpData->token)) {
+        $exp = Carbon::parse($otpData->created_at)->addMinutes(60);
+        if (Carbon::now()->isAfter($exp) || !Hash::check($request->otp, $otpData->token)) {
             return response()->json(['success' => false, 'message' => 'Sesi verifikasi tidak valid atau habis.'], 400);
         }
         $user = User::where('email', $request->email)->first();

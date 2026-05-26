@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Koreksi_absensi;
 use App\Models\Absensi;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -19,10 +20,13 @@ class KoreksiAbsensiController
             ->orderBy('id_koreksi', 'desc')
             ->get()
             ->map(function ($item) {
+                $namaLengkap = optional(User::with('dataKaryawan')->find($item->id_user_opsional)?->dataKaryawan)->nama_lengkap ?? 'User Dihapus';
                 return [
                     'id' => $item->id_koreksi,
-                    'nama' => $item->absensi->user->dataKaryawan->nama_lengkap ?? 'User Dihapus',
-                    'tanggal' => Carbon::parse($item->absensi->tanggal)->translatedFormat('d M Y'),
+                    'nama' => $item->absensi ? $item->absensi->user->dataKaryawan->nama_lengkap : $namaLengkap,
+                    'tanggal' => $item->absensi
+                        ? Carbon::parse($item->absensi->tanggal)->translatedFormat('d M Y')
+                        : Carbon::parse($item->tanggal)->translatedFormat('d M Y'),
                     'jenisKoreksi' => $item->jenis_koreksi,
                     'checkInSistem' => $item->absensi->absen_masuk ?? '-',
                     'checkOutSistem' => $item->absensi->absen_keluar ?? '-',
@@ -40,35 +44,41 @@ class KoreksiAbsensiController
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:Disetujui,Ditolak'
-        ]);
+    $request->validate([
+        'status' => 'required|in:Disetujui,Ditolak'
+    ]);
 
-        $koreksi = Koreksi_absensi::findOrFail($id);
-        $statusLower = strtolower($request->status);
+    $koreksi = Koreksi_absensi::findOrFail($id);
+    $statusLower = strtolower($request->status);
 
-        if ($statusLower === 'disetujui') {
-            $absensi = Absensi::findOrFail($koreksi->id_absensi);
-            $totalWaktu = null;
+    if ($statusLower === 'disetujui') {
+        $totalWaktu = null;
 
-            if ($koreksi->absen_masuk && $koreksi->absen_keluar) {
-                $masuk = Carbon::parse($koreksi->absen_masuk);
-                $keluar = Carbon::parse($koreksi->absen_keluar);                
-                
-                $totalWaktu = $masuk->diffInMinutes($keluar) / 60;
-            }
-
-            $absensi->update([
-                'absen_masuk'   => $koreksi->absen_masuk,
-                'absen_keluar'  => $koreksi->absen_keluar,
-                'total_waktu' => $totalWaktu,
-            ]);
+        if ($koreksi->absen_masuk && $koreksi->absen_keluar) {
+            $masuk = Carbon::parse($koreksi->absen_masuk);
+            $keluar = Carbon::parse($koreksi->absen_keluar);                
+            $totalWaktu = $masuk->diffInMinutes($keluar) / 60;
         }
 
-        $koreksi->update(['status' => $statusLower]);
-
-        return redirect()->back()->with('success', 'Permintaan koreksi berhasil ' . $request->status);
+        $absensi = Absensi::updateOrCreate(
+            [
+                'id_user' => $koreksi->absensi?->id_user ?? $koreksi->id_user_opsional,
+                'tanggal' => $koreksi->tanggal,
+            ],
+            [
+                'absen_masuk'  => $koreksi->absen_masuk,
+                'absen_keluar' => $koreksi->absen_keluar,
+                'total_waktu'  => $totalWaktu,
+                'status'       => 'hadir'
+            ]
+        );
+        $koreksi->id_absensi = $absensi->id_absensi;
     }
+    $koreksi->status = $statusLower;
+    $koreksi->save();
+
+    return redirect()->back()->with('success', 'Permintaan koreksi berhasil ' . $request->status);
+}
 
     public function destroyPeriode(Request $request)
     {

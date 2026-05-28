@@ -90,6 +90,7 @@
                 <thead>
                     <tr class="bg-gray-50/50 border-b border-gray-200">
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No</th>
+
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
@@ -101,7 +102,7 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($userWithKaryawan as $user)
                     <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="px-6 py-4 text-sm text-gray-500">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{!! DNS2D::getBarcodeHTML(''.$user->id.'' ,'QRCODE', 4, 6) !!}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $user->email }}</td>
                         <td class="px-6 py-4 text-sm text-gray-500">{{ optional($user->dataKaryawan)->nama_lengkap ?? '-' }}</td>
                         <td class="px-6 py-4">
@@ -131,6 +132,7 @@
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                                 <form action="{{ route('admin.kelola-user.destroy', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
+                                    
                                     @csrf @method('DELETE')
                                     <button type="submit" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                                         <i class="bi bi-trash3"></i>

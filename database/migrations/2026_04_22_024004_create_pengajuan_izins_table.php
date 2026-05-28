@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('pengajuan_izins', function (Blueprint $table) {
             $table->id('id_pengajuanIzin');
             $table->string('jenis_izin');
-            $table->date('tanggal_mulai');
-            $table->date('tanggal_selesai');
+            $table->json('tanggal');
             $table->string('media_pendukung')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();

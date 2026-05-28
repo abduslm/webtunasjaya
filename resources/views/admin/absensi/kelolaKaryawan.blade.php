@@ -41,7 +41,8 @@
 
     {{-- Filter dan Pencarian --}}
     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <form method="GET" action="{{ route('admin.kelola-karyawan.index') }}" class="flex flex-col md:flex-row gap-4">
+        <form method="GET" action="{{ route('admin.kelola-karyawan.index') }}">
+            <div class="flex flex-col md:flex-row gap-4">
             <div class="flex-1 relative">
                 <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 {{-- Input Search: Menekan Enter akan otomatis submit form --}}
@@ -56,7 +57,7 @@
                 <option value="Semua">Semua Lokasi</option>
                 @foreach($daftarLokasi as $lokasi)
                     <option value="{{ $lokasi->id_lokasi }}" {{ request('lokasi') == $lokasi->id_lokasi ? 'selected' : '' }}>
-                        {{ $lokasi->klien }} - {{ $lokasi->alamat }}
+                        {{ $lokasi->klien }}
                     </option>
                 @endforeach
             </select>
@@ -67,6 +68,7 @@
                     Reset
                 </a>
             @endif
+            </div>
         </form>
     </div>
 
@@ -314,14 +316,13 @@
                                 <div class="space-y-2">
                                     <label class="text-xs font-bold text-emerald-800 uppercase">Status</label>
                                     <select name="status" x-model="editingItem.status" required class="w-full px-4 py-3 bg-white rounded-xl border border-emerald-200 outline-none">
-                                        <option value="Aktif">Aktif</option>
-                                        <option value="Non-aktif">Non-aktif</option>
-                                        <option value="Izin">Izin</option>
+                                        <option value="aktif">Aktif</option>
+                                        <option value="non-aktif">Non-Aktif</option>
                                     </select>
                                 </div>
                                 <div class="space-y-2">
                                     <label class="text-xs font-bold text-emerald-800 uppercase">Device ID (Opsional)</label>
-                                    <input type="text" name="device_id" x-model="editingItem.device_id" placeholder="ID Perangkat"
+                                    <input type="text" name="device_id" x-model="editingItem.device_id" placeholder="ID Perangkat" title="kosongkan jika ingin me-reset device id"
                                         class="w-full px-4 py-3 bg-white rounded-xl border border-emerald-200 outline-none">
                                 </div>
                             </div>
@@ -353,10 +354,6 @@
                             </div>
                         </div>
                     </template>
-
-
-
-                    </div>
                 </div>
 
                 <div class="p-6 border-t border-gray-100 bg-gray-50 flex gap-3">

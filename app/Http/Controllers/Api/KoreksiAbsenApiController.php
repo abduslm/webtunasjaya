@@ -3,110 +3,161 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Koreksi_absensi;
+use App\Models\Absensi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
-use Intervention\Image\Facades\Image;
+use Carbon\Carbon;
 
-
-class KoreksiAbsenApiController
+class KoreksiAbsenApiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function store(Request $request): JsonResponse
     {
-        //
-    }
+        $user = $request->user();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'jenis_koreksi' => 'required|string',
-            'absen_masuk' => 'nullable|date_format:H:i:s',
-            'absen_keluar' => 'nullable|date_format:H:i:s|after_or_equal:absen_masuk',
-            'total_waktu' => 'nullable|integer|min:0',
-            'tanggal' => 'required|date',
-            'alasan' => 'nullable|string',
-            'media_pendukung' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|string',
-            'id_absensi' => 'required|exists:absensis,id_lokasi',
-        ], [
-            'id_absensi.exists' => 'Absensi yang dipilih tidak valid.',
-            'absen_keluar.after_or_equal' => 'Waktu absen keluar harus sama dengan atau setelah waktu absen masuk.',   
-            'media_pendukung.image' => 'Media pendukung harus berupa file gambar.',
-            'media_pendukung.mimes' => 'Media pendukung harus berupa file dengan format: jpeg, png, jpg, gif.',
-            'media_pendukung.max' => 'Media pendukung tidak boleh lebih dari 2MB.',
-        ]);
+        try {
+            $validated = $request->validate([
+                'jenis_koreksi'  => 'required|string',
+                'tanggal'        => 'required|date',
+                'absen_masuk'    => 'nullable|date_format:H:i:s',
+                'absen_keluar'   => 'nullable|date_format:H:i:s|after_or_equal:absen_masuk',
+                'alasan'         => 'required|string|min:10',
+            ], [
+                'alasan.min'              => 'Alasan minimal 10 karakter.',
+                'absen_keluar.after_or_equal' => 'Waktu keluar harus setelah waktu masuk.',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $e->errors(),
+            ], 422);
+        }
 
-        $imageName = null;
-        if ($request->hasFile('media_pendukung')) {
-            $image = $request->file('media_pendukung');
-            $imageName = $validated['id_absensi'] . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $absensi = Absensi::where('id_user', $user->id)
+            ->where('tanggal', $validated['tanggal'])
+            ->first();
+    
+        if (!$absensi) {
+            $totalWaktu = null;
+            if (!empty($validated['absen_masuk']) && !empty($validated['absen_keluar'])) {
+                $masuk      = Carbon::parse($validated['absen_masuk']);
+                $keluar     = Carbon::parse($validated['absen_keluar']);
+                $totalWaktu = $masuk->diffInMinutes($keluar) / 60;
+            }
 
-            $img = Image::make($image->getRealPath());
-            $img->resize(300, 300, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save(public_path('assets/images/foto_koreksi/' . $imageName), 75); // angka 75 = kualitas JPG
+            $koreksi = Koreksi_absensi::create([
+                'jenis_koreksi'  => $validated['jenis_koreksi'],
+                'absen_masuk'    => $validated['absen_masuk']  ?? null,
+                'absen_keluar'   => $validated['absen_keluar'] ?? null,
+                'total_waktu'    => $totalWaktu,
+                'tanggal'        => $validated['tanggal'],
+                'alasan'         => $validated['alasan'],
+                'media_pendukung'=> null,
+                'status'         => 'pending',
+                'id_absensi'     => null,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengajuan koreksi absen baru berhasil dikirim dan menunggu persetujuan.',
+                'data'    => $koreksi,
+            ], 201);
+        }
+    
+        $existingKoreksi = Koreksi_absensi::where('id_absensi', $absensi->id_absensi)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($existingKoreksi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sudah ada pengajuan koreksi yang sedang menunggu persetujuan untuk tanggal tersebut.',
+            ], 422);
+        }
+
+        $totalWaktu = null;
+        if (!empty($validated['absen_masuk']) && !empty($validated['absen_keluar'])) {
+            $masuk      = Carbon::parse($validated['absen_masuk']);
+            $keluar     = Carbon::parse($validated['absen_keluar']);
+            $totalWaktu = $masuk->diffInMinutes($keluar) / 60;
         }
 
         $koreksi = Koreksi_absensi::create([
-            'jenis_koreksi' => $validated['jenis_koreksi'],
-            'absen_masuk' => $validated['absen_masuk'] ?? null,
-            'absen_keluar' => $validated['absen_keluar'] ?? null,
-            'total_waktu' => $validated['total_waktu'] ?? null,
-            'tanggal' => $validated['tanggal'],
-            'alasan' => $validated['alasan'] ?? null,
-            'media_pendukung' => $imageName,
-            'status' => $validated['status'] ?? 'pending',
-            'id_absensi' => $validated['id_absensi'],
+            'jenis_koreksi'  => $validated['jenis_koreksi'],
+            'absen_masuk'    => $validated['absen_masuk']  ?? null,
+            'absen_keluar'   => $validated['absen_keluar'] ?? null,
+            'total_waktu'    => $totalWaktu,
+            'tanggal'        => $validated['tanggal'],
+            'alasan'         => $validated['alasan'],
+            'media_pendukung'=> null,
+            'status'         => 'pending',
+            'id_absensi'     => $absensi->id_absensi,
         ]);
 
         return response()->json([
-            'message' => 'Data koreksi absen berhasil ditambahkan.',
-            'data' => $koreksi,
+            'success' => true,
+            'message' => 'Pengajuan koreksi absen berhasil dikirim dan menunggu persetujuan.',
+            'data'    => $koreksi,
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+
+    public function show(string $id): JsonResponse
     {
-        $koreksi = Koreksi_absensi::find($id);
+        $koreksi = Koreksi_absensi::with('absensi')->find($id);
+
         if (!$koreksi) {
             return response()->json([
+                'success' => false,
                 'message' => 'Data koreksi absen tidak ditemukan.',
             ], 404);
         }
 
         return response()->json([
+            'success' => true,
             'message' => 'Detail koreksi absen berhasil diambil.',
-            'data' => $koreksi,
+            'data'    => $koreksi,
         ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function showWithUser(string $idUser): JsonResponse
     {
-        //
-    }
+        $koreksi = Koreksi_absensi::where('id_user', $idUser)
+            ->orderBy('tanggal', 'desc')
+            ->get();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $koreksi = Koreksi_absensi::find($id);
         if (!$koreksi) {
             return response()->json([
+                'success' => false,
                 'message' => 'Data koreksi absen tidak ditemukan.',
             ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail koreksi absen berhasil diambil.',
+            'data'    => $koreksi,
+        ], 200);
+    }
+
+    public function destroy(string $id): JsonResponse
+    {
+        $koreksi = Koreksi_absensi::find($id);
+
+        if (!$koreksi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data koreksi absen tidak ditemukan.',
+            ], 404);
+        }
+
+        if ($koreksi->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Koreksi yang sudah diproses tidak dapat dihapus.',
+            ], 422);
         }
 
         if ($koreksi->media_pendukung) {
@@ -115,8 +166,11 @@ class KoreksiAbsenApiController
                 unlink($imagePath);
             }
         }
+
         $koreksi->delete();
+
         return response()->json([
+            'success' => true,
             'message' => 'Data koreksi absen berhasil dihapus.',
         ], 200);
     }

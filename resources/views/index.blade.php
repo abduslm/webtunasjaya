@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300,400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
     <style>
         .sidebar-nav a {
             transition: all 0.2s ease;
@@ -61,7 +62,7 @@
                 <div class="flex items-center gap-1 md:gap-2">
                     <i class="bi bi-envelope-fill w-3 h-3 md:w-4 md:h-4 text-white"></i>
                     @forelse ($dataHubungi['email'] as $email)
-                    <a href="mailto:{{ $email ?? '' }}">| {{$email}} </a>
+                    <a href="mailto:{{ $email ?? '' }}">|{{$email}} </a>
                     @empty
                     <span></span>
                     @endforelse
@@ -69,7 +70,7 @@
                 <div class="flex items-center gap-1 md:gap-2">
                     <i class="bi bi-telephone-fill w-3 h-3 md:w-4 md:h-4 text-white"></i>
                     @forelse ($dataHubungi['no_telepon'] as $no_telepon)
-                    <a href="https://wa.me/{{ str_replace([' ', '+', '-'], '', $no_telepon ?? '') }}" >| {{$no_telepon}} </a>
+                    <a href="https://wa.me/{{ str_replace([' ', '+', '-'], '', $no_telepon ?? '') }}" >|{{$no_telepon}} </a>
                     @empty
                     <span></span>
                     @endforelse
@@ -89,10 +90,10 @@
             </div>
 
             <ul class="hidden md:flex items-center space-x-8 text-gray-600 font-medium">
-                <li><a href="#beranda" class="text-blue-600 border-b-2 border-blue-600 pb-1">Beranda</a></li>
+                <li><a href="#beranda" class="hover:text-blue-600 transition-colors">Beranda</a></li>
                 <li><a href="#tentang-kami" class="hover:text-blue-600 transition-colors">Tentang Kami</a></li>
                 <li><a href="#layanan" class="hover:text-blue-600 transition-colors">Layanan</a></li>
-                <li><a href="#portofolio" class="hover:text-blue-600 transition-colors">Portfolio</a></li>
+                <li><a href="#portofolio" class="hover:text-blue-600 transition-colors">Portofolio</a></li>
                 <li><a href="#hubungi-kami" class="hover:text-blue-600 transition-colors">Hubungi Kami</a></li>
             </ul>
         </div>
@@ -260,7 +261,7 @@
     <div class="max-w-7xl mx-auto">
         <div class="mb-16">
             <h2 class="text-4xl font-bold text-[#0B3C5D] inline-block border-b-4 border-[#0B3C5D] pb-1">Layanan</h2>
-            <p class="mt-4 text-gray-700 text-lg max-w-3xl">Elevate your environment with our curated suite of professional maintenance and aesthetic solutions.</p>
+            <p class="mt-4 text-gray-700 text-lg max-w-3xl">Kami menyediakan beragam layanan profesional yang dirancang untuk mengatasi masalah anda</p>
         </div>
 
         {{-- Grid Card Layanan --}}
@@ -326,7 +327,6 @@
         </template>
     </div>
 </section>
-
 
 
 
@@ -475,7 +475,7 @@
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             
-            <section >
+            <div >
                 <h2 class="text-3xl font-bold mb-4 text-slate-900">Informasi Kontak</h2>
                 <p class="text-slate-500 mb-10 leading-relaxed">
                     Silakan kunjungi kantor kami atau hubungi kami melalui saluran di bawah ini untuk respon yang lebih cepat.
@@ -495,7 +495,7 @@
                                 @endforelse
                         </div>
                     </div>
-                
+                    
 
                     <div class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-slate-100 transition-hover hover:shadow-md">
                         <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mr-5 shrink-0">
@@ -543,9 +543,9 @@
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <section id="kirimPesan" class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100">
+            <div id="kirimPesan" class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-200 border border-slate-100">
                 <h2 class="text-2xl font-bold mb-8 text-slate-900">Kirim Pesan kepada Kami</h2>
             
                 <form action="{{route('landingPage.kirimPesan')}}" method="POST" class="space-y-6">
@@ -577,21 +577,20 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Pesan</label>
+                        <textarea name="pesan" rows="5" placeholder="Tuliskan pesan Anda di sini..." required
                             class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"></textarea>
                     </div>
 
                     <button type="submit" class="w-full md:w-auto px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 active:scale-95">
                         Kirim Pesan
                     </button>
-
                     @if(session('success'))
                         <script>
                             alert("{{ session('success') }}");
                         </script>
                     @endif
-
                 </form>
-            </section>
+            </div>
 
         </div>
 </section>
@@ -636,7 +635,7 @@
                     <ul class="space-y-4 text-gray-300 text-sm">
                         <li><a href="#beranda" class="hover:text-white transition-colors">Beranda</a></li>
                         <li><a href="#tentang-kami" class="hover:text-white transition-colors">Tentang Kami</a></li>
-                        <li><a href="#jasa-produk" class="hover:text-white transition-colors">Jasa & Produk</a></li>
+                        <li><a href="#layanan" class="hover:text-white transition-colors">Layanan</a></li>
                         <li><a href="#portofolio" class="hover:text-white transition-colors">Portofolio</a></li>
                         <li><a href="#hubungi-kami" class="hover:text-white transition-colors">Hubungi Kami</a></li>
                     </ul>
@@ -646,12 +645,12 @@
                 <div>
                 <h4 class="text-lg font-bold mb-6">Our Services</h4>
                 <ul class="space-y-4 text-gray-300 text-sm">
-                    @forelse($daftarLayananDok as $listLayananDok)
+                    @forelse($daftarLayanan as $listLayanan)
                     <li>
                         <a href="#layanan" 
-                        @click="$dispatch('pilih-layanan', { nama: '{{ $listLayananDok }}' })"
+                        @click="$dispatch('pilih-layanan', { nama: '{{ $listLayanan }}' })"
                         class="hover:text-white transition-colors cursor-pointer">
-                            {{ $listLayananDok }}
+                            {{ $listLayanan }}
                         </a>
                     </li>
                     @empty
@@ -673,7 +672,6 @@
 
                     <div class="text-sm">
                         <p class="font-bold text-white mb-1">Telepon:</p>
-
                         @forelse ($dataHubungi['no_telepon'] as $no_telepon)
                         <a class="text-gray-300 hover:text-blue-300" href="https://wa.me/{{ str_replace([' ', '+', '-'], '', $no_telepon ?? '') }}" >| {{$no_telepon}} </a>
                         @empty
@@ -734,5 +732,27 @@
         },
     });
 });
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll("ul li a");
+        const observer = new IntersectionObserver(
+            (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                navLinks.forEach((link) => {
+                    link.classList.remove("text-blue-600", "border-b-2", "border-blue-600");
+                    if (link.getAttribute("href").substring(1) === entry.target.id) {
+                    link.classList.add("text-blue-600", "border-b-2", "border-blue-600");
+                    }
+                });
+                }
+            });
+            },
+            { threshold: 0.3 }
+        );
+    sections.forEach((section) => observer.observe(section));
+    });
 </script>
 </body>

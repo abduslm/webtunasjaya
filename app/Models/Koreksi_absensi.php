@@ -19,7 +19,8 @@ class Koreksi_absensi extends Model
         'alasan', 
         'media_pendukung', 
         'status', 
-        'id_absensi'
+        'id_absensi',
+        'id_user_opsional'
     ];
     protected $attributes = [
         'status' => 'pending',

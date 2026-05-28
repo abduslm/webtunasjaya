@@ -98,7 +98,7 @@ class AbsensiController
         $validated = $request->validate([
             'absen_masuk' => 'required|date_format:H:i:s',
             'absen_keluar' => 'required|date_format:H:i:s|after:absen_masuk',
-            'total_waktu' => 'required|integer',
+            'total_waktu' => 'required',
             'tanggal' => 'required|date',
             'status' => 'nullable|string',
             'id_user' => 'required|integer|exists:users,id',

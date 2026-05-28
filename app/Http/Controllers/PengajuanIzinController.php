@@ -22,9 +22,11 @@ class PengajuanIzinController
                     'id_pengajuanIzin' => $item->id_pengajuanIzin,
                     'nama' => $item->user->dataKaryawan->nama_lengkap ?? 'User Dihapus',
                     'tipe' => $item->jenis_izin,
-                    'tanggalMulai' => Carbon::parse($item->tanggal_mulai)->translatedFormat('d M Y'),
-                    'tanggalSelesai' => Carbon::parse($item->tanggal_selesai)->translatedFormat('d M Y'),
-                    'durasi' => Carbon::parse($item->tanggal_mulai)->diffInDays(Carbon::parse($item->tanggal_selesai)) + 1 . ' Hari',
+                    'tanggal' => $item->tanggal
+                        ? collect($item->tanggal)
+                            ->map(fn($tgl) => Carbon::parse($tgl)->translatedFormat('d M Y'))
+                            ->toArray()
+                        : [],
                     'alasan' => $item->alasan ?? '-',
                     'tanggalPengajuan' => $item->created_at->translatedFormat('d M Y'),
                     'status' => $item->status,

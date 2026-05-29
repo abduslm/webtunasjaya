@@ -18,6 +18,7 @@ use App\Http\Middleware\loginLimit;
 use App\Http\Middleware\logLogin;
 use App\Http\Middleware\loginLokasi;
 use App\Http\Controllers\DataKaryawanController;
+use App\Http\Controllers\DatabarangController;
 use App\Models\Profil_perusahaan;
 
 
@@ -104,6 +105,8 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->group(function ()
     Route::get('/koreksi-absensi', [KoreksiAbsensiController::class, 'index'])->name('admin.koreksi-absensi.index');
     Route::put('/koreksi-absensi/status/{id}', [KoreksiAbsensiController::class, 'updateStatus'])->name('admin.koreksi-absensi.updateStatus');
     Route::post('/koreksi-absensi/destroy-periode', [KoreksiAbsensiController::class, 'destroyPeriode'])->name('admin.koreksi-absensi.destroyPeriode');
+
+    Route::get('/data-barang', [DatabarangController::class, 'index'])->name('admin.data-barang.index');
 
 });
 

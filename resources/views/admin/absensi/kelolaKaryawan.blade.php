@@ -23,7 +23,7 @@
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-        </div>
+        </div> 
     @endif
 
     {{-- Header --}}
@@ -78,6 +78,7 @@
             <table class="w-full text-left">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">No</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Info Kontak</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User Terkait</th>
@@ -224,6 +225,8 @@
                     </div>
 
                     {{-- Grid Input --}}
+
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="text-sm font-medium text-gray-700">Nama Lengkap</label>

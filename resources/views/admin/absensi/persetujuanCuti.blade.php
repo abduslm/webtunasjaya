@@ -88,19 +88,18 @@
                         <span x-show="cutiList.status !== 'pending' && cutiList.status !== 'disetujui' && cutiList.status !== 'ditolak'" class="px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-700" x-text="cutiList.status"></span>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <div class="p-4 bg-[#fafbfc] rounded-lg col-span-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-[#fafbfc] p-4 rounded-lg">
+                        <div class="flex-1">
                             <template x-for="(tgl, j) in cutiList.tanggal" :key="j">
                                 <span class="text-gray-900" x-text="`${tgl} | `"></span>
                             </template>
                         </div>
 
-                        <div class="p-4 bg-[#fafbfc] rounded-lg col-start-4">
+                        <div class="text-left sm:text-right shrink-0">
                             <p class="text-sm text-gray-500 mb-1">Diajukan</p>
                             <p class="text-gray-900" x-text="cutiList.tanggalPengajuan"></p>
                         </div>
                     </div>
-
                     <div class="mb-6">
                         <p class="text-sm text-gray-500 mb-2">Alasan:</p>
                         <p class="text-gray-900 bg-[#fafbfc] p-4 rounded-lg" x-text="cutiList.alasan"></p>
@@ -133,10 +132,16 @@
                                 </form>
                             </div>
                         </template>
-                        <button x-show="cutiList.mediaPendukung" @click="lihatMedia(cutiList.id_pengajuanIzin)" class="flex items-center gap-2 px-6 py-3 bg-[#e0f2fe] text-[#0369a1] rounded-lg hover:bg-[#bae6fd] transition-colors">
+                        <a x-show="cutiList.mediaPendukung" :href="cutiList.mediaPendukung" target="_blank" 
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-[#e0f2fe] text-[#0369a1] rounded-lg hover:bg-[#bae6fd] transition-colors">
                             <i class="bi bi-image"></i>
                             Lihat Media Pendukung
-                        </button>
+                        </a>
+                        <a x-show="cutiList.mediaPendukung" :href="cutiList.mediaPendukung" download
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
+                            <i class="bi bi-download"></i>
+                            Download Media
+                        </a>
                     </div>
                 </div>
             </div>
@@ -187,34 +192,6 @@
             </div>
         </div>
     </div>
-
-    {{-- Modal Media Pendukung --}}
-    <div x-show="showMediaModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" style="display: none;" x-cloak>
-        <div class="bg-white rounded-xl max-w-2xl w-full p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-gray-900 font-semibold text-lg">Media Pendukung</h3>
-                <button @click="showMediaModal = false" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-
-            <div class="bg-[#fafbfc] rounded-lg p-8 mb-4 flex items-center justify-center min-h-[300px]">
-                <div class="text-center">
-                    <i class="bi bi-image text-gray-400 text-6xl mb-3 block"></i>
-                    <p class="text-gray-500">Preview media pendukung (Surat dokter / dokumen lainnya)</p>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <button class="flex-1 px-4 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
-                    <i class="bi bi-download"></i> Download
-                </button>
-                <button @click="showMediaModal = false" class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                    Tutup
-                </button>
-            </div>
-        </div>
-    </div>
 </div>
 
 @endsection
@@ -249,11 +226,6 @@
                     filtered = filtered.filter(r => r.status.toLowerCase() === this.filterStatus.toLowerCase());
                 }
                 return filtered;
-            },
-
-            lihatMedia(url) {
-                this.selectedMediaUrl = url;
-                this.showMediaModal = true;
             },
 
             hapusPeriode(periode) {

@@ -67,11 +67,16 @@ class UserApiController extends Controller
 
             $token = $authUser->createToken('auth_token')->plainTextToken;
 
+            $user = $authUser->load('dataKaryawan.lokasi');
+            if ($user->dataKaryawan && $user->dataKaryawan->foto) {
+                $user->dataKaryawan->foto = asset('storage/' . $user->dataKaryawan->foto);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Login berhasil.',
                 'token'   => $token,
-                'user'    => $authUser->load('dataKaryawan.lokasi'),
+                'user'    => $user,
             ], 200);
         }
 
@@ -126,7 +131,7 @@ class UserApiController extends Controller
             'jenis_kelamin' => $karyawan->jenis_kelamin ?? null,
             'alamat'        => $karyawan->alamat        ?? null,
             'no_hp'         => $karyawan->no_hp         ?? null,
-            'foto_profile'  => $karyawan->foto          ?? null,
+            'foto_profile'  => $karyawan->foto ? asset('storage/' . $karyawan->foto) : null,
             'lokasi'        => $karyawan->lokasi        ?? null,
         ];
 
@@ -176,15 +181,22 @@ class UserApiController extends Controller
 
         $userUpdateData = ['email' => $validated['email']];
         if (!empty($validated['password'])) {
-            $userUpdateData['password'] = Hash::make($validated['password']);
+            $userUpdateData['password'] = $validated['password'];
         }
         $user->update($userUpdateData);
 
         $fotoNama = $user->dataKaryawan->foto ?? null;
         if ($request->hasFile('foto')) {
+            if ($user->dataKaryawan && $user->dataKaryawan->foto) {
+                $oldFilePath = public_path('storage/' . $user->dataKaryawan->foto);
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
+            }
             $file     = $request->file('foto');
             $fotoNama = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('storage/foto_profil'), $fotoNama);
+            $fotoNama = 'foto_profil/' . $fotoNama;
         }
 
         $karyawan = $user->dataKaryawan;
@@ -210,7 +222,7 @@ class UserApiController extends Controller
                 'jenis_kelamin' => $karyawan->jenis_kelamin ?? null,
                 'alamat'        => $karyawan->alamat        ?? null,
                 'no_hp'         => $karyawan->no_hp         ?? null,
-                'foto_profile'  => $fotoNama,
+                'foto_profile'  => $karyawan->foto ? asset('storage/' . $karyawan->foto) : null,
             ],
         ], 200);
     }
@@ -239,11 +251,19 @@ class UserApiController extends Controller
 
         $user = User::create([
             'email'     => $validated['email'],
-            'password'  => Hash::make($validated['password']),
+            'password'  => $validated['password'],
             'role'      => 'karyawan',
             'status'    => 'non-aktif',
             'device_id' => $validated['device_id'] ?? null,
         ]);
+
+        $fotoNama = $user->dataKaryawan->foto ?? null;
+        if ($request->hasFile('foto')) {
+            $file     = $request->file('foto');
+            $fotoNama = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('storage/foto_profil'), $fotoNama);
+            $fotoNama = 'foto_profil/' . $fotoNama;
+        }
 
         $karyawan = $user->dataKaryawan()->create([
             'nama_lengkap'  => $validated['nama_lengkap'],
@@ -251,7 +271,7 @@ class UserApiController extends Controller
             'jenis_kelamin' => $validated['jenis_kelamin'],
             'alamat'        => $validated['alamat'],
             'no_hp'         => $validated['no_hp'],
-            'foto'          => null,
+            'foto'          => $fotoNama,
             'id_lokasi'     => null,
             'id_user'       => $user->id,
         ]);

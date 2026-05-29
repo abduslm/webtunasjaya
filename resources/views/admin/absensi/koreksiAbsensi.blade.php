@@ -161,9 +161,16 @@
                             </div>
                         </template>
                         
-                        <button x-show="request.mediaPendukung" @click="lihatMedia(request.mediaPendukung)" class="flex items-center gap-2 px-6 py-3 bg-[#e0f2fe] text-[#0369a1] rounded-lg hover:bg-[#bae6fd] transition-colors">
-                            <i class="bi bi-image"></i> Lihat Media Pendukung
-                        </button>
+                        <a x-show="request.mediaPendukung" :href="request.mediaPendukung" target="_blank" 
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-[#e0f2fe] text-[#0369a1] rounded-lg hover:bg-[#bae6fd] transition-colors">
+                            <i class="bi bi-image"></i>
+                            Lihat Media Pendukung
+                        </a>
+                        <a x-show="request.mediaPendukung" :href="request.mediaPendukung" download
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
+                            <i class="bi bi-download"></i>
+                            Download Media
+                        </a>
                     </div>
                 </div>
             </div>
@@ -214,34 +221,6 @@
             </div>
         </div>
     </div>
-
-    {{-- Modal Media Pendukung --}}
-    <div x-show="showMediaModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" style="display: none;" x-cloak>
-        <div class="bg-white rounded-xl max-w-2xl w-full p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-gray-900 font-semibold text-lg">Media Pendukung Koreksi</h3>
-                <button @click="showMediaModal = false" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-
-            <div class="bg-[#fafbfc] rounded-lg p-8 mb-4 flex items-center justify-center min-h-[300px]">
-                <div class="text-center">
-                    <i class="bi bi-image text-gray-400 text-6xl mb-3 block"></i>
-                    <p class="text-gray-500">Preview media pendukung (Foto/dokumen bukti kehadiran)</p>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <button class="flex-1 px-4 py-3 bg-[#0a4d3c] text-white rounded-lg hover:bg-[#0a4d3c]/90 transition-colors">
-                    <i class="bi bi-download"></i> Download
-                </button>
-                <button @click="showMediaModal = false" class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                    Tutup
-                </button>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 
@@ -283,11 +262,6 @@
                     if (jam > 0) hasil += `${jam} Jam `;
                     if (menit > 0) hasil += `${menit} Menit`;
                 return hasil.trim();
-            },
-
-            lihatMedia(url) {
-                this.selectedMediaUrl = url;
-                this.showMediaModal = true;
             },
 
             hapusPeriode(periode) {

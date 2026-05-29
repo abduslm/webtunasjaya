@@ -99,7 +99,7 @@ class DataKaryawanController
         ]);
 
         if ($request->hasFile('foto')) {
-            $validatedData['foto'] = $this->uploadAndCompress($request, 'foto', $validatedData['foto'], 'pp');
+            $validatedData['foto'] = $this->uploadAndCompress($request, 'foto', $validatedData['foto'], 'foto_profil');
         } else {
             $validatedData['foto'] = null;
         }
@@ -161,7 +161,7 @@ class DataKaryawanController
         $data_karyawan = Data_karyawan::findOrFail($id_karyawan);
         
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $this->uploadAndCompress($request, 'foto', $data_karyawan->foto, 'pp');
+            $validated['foto'] = $this->uploadAndCompress($request, 'foto', $data_karyawan->foto, 'foto_profil');
         } else {
             $validated['foto'] = $data_karyawan->foto;
         }
@@ -186,6 +186,12 @@ class DataKaryawanController
     public function destroy($id_karyawan)
     {
         $data_karyawan = Data_karyawan::findOrFail($id_karyawan);
+        if ($data_karyawan->foto) {
+            $path = public_path('storage/' . $data_karyawan->foto);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
         $data_karyawan->delete();
         return redirect()->back()->with('success', 'Data karyawan berhasil dihapus');
     }
@@ -220,7 +226,7 @@ class DataKaryawanController
 
         
         if ($request->hasFile('foto')) {
-            $validatedData['foto'] = $this->uploadAndCompress($request, 'foto', $validatedData['foto'], 'pp');
+            $validatedData['foto'] = $this->uploadAndCompress($request, 'foto', $validatedData['foto'], 'foto_profil');
         } else {
             $validatedData['foto'] = null;
         }
@@ -271,7 +277,7 @@ class DataKaryawanController
         
         
         if ($request->hasFile('foto')) {
-            $validatedData['foto'] = $this->uploadAndCompress($request, 'foto', $data_karyawan->foto, 'pp');
+            $validatedData['foto'] = $this->uploadAndCompress($request, 'foto', $data_karyawan->foto, 'foto_profil');
         } else {
             $validatedData['foto'] = $data_karyawan->foto;
         }

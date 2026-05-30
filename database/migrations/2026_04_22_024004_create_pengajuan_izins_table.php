@@ -17,6 +17,7 @@ return new class extends Migration
             $table->json('tanggal');
             $table->string('media_pendukung')->nullable();
             $table->string('status')->default('pending');
+            $table->text('alasan')->nullable();
             $table->timestamps();
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
         });

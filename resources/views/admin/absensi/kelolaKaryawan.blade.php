@@ -89,6 +89,7 @@
                 <tbody class="divide-y divide-gray-200">
                     @forelse($karyawanList as $karyawan)
                     <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ $karyawanList->firstItem() + $loop->index }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-[#0a4d3c] font-bold border border-gray-200">

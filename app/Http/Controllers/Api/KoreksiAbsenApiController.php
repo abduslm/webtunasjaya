@@ -116,7 +116,7 @@ class KoreksiAbsenApiController extends Controller
     {
         $koreksi = Koreksi_absensi::with('absensi')->find($id);
 
-        if ($koreksi->isEmpty()) {
+        if (!$koreksi) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data koreksi absen tidak ditemukan.',
@@ -133,7 +133,10 @@ class KoreksiAbsenApiController extends Controller
     public function showWithUser(Request $request): JsonResponse
     {
         $user = $request->user();
-        $query = Koreksi_absensi::where('id_user', $user->id)
+        $query = Koreksi_absensi::with('absensi')
+            ->whereHas('absensi', function ($q) use ($user) {
+                $q->where('id_user', $user->id);
+            })
             ->orderBy('tanggal', 'desc');
 
         if ($request->has('status') && $request->status !== 'semua') {
@@ -141,17 +144,35 @@ class KoreksiAbsenApiController extends Controller
         }
         $koreksi = $query->get();
 
-        if ($koreksi->isEmpty()) {
+        if (!$koreksi) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data koreksi absen tidak ditemukan.',
             ], 404);
         }
 
+        $data = $koreksi->map(function ($k) {
+            return [
+                'id' => $k->id_koreksi,
+                'tanggal' => $k->absensi
+                    ? Carbon::parse($k->absensi->tanggal)->translatedFormat('d M Y')
+                    : Carbon::parse($k->tanggal)->translatedFormat('d M Y'),
+                'jenisKoreksi' => $k->jenis_koreksi,
+                'checkInSistem' => $k->absensi->absen_masuk ?? '--:--',
+                'checkOutSistem' => $k->absensi->absen_keluar ?? '--:--',
+                'checkInUsulan' => $k->absen_masuk ?? '--:--',
+                'checkOutUsulan' => $k->absen_keluar ?? '--:--',
+                'alasan' => $k->alasan ?? '-',
+                'tanggalPengajuan' => $k->created_at->translatedFormat('d M Y'),
+                'status' => strtoupper($k->status),
+                'mediaPendukung' => $k->media_pendukung ? asset('storage/' . $k->media_pendukung) : null,
+            ];
+        });
+
         return response()->json([
             'success' => true,
             'message' => 'Detail koreksi absen berhasil diambil.',
-            'data'    => $koreksi,
+            'data'    => $data,
         ], 200);
     }
 

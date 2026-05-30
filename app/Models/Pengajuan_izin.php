@@ -15,6 +15,7 @@ class Pengajuan_izin extends Model
         'tanggal',
         'media_pendukung',
         'status',
+        'alasan',
         'id_user'
     ];
     protected $attributes = [

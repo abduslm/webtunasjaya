@@ -19,6 +19,7 @@ use App\Http\Middleware\logLogin;
 use App\Http\Middleware\loginLokasi;
 use App\Http\Controllers\DataKaryawanController;
 use App\Http\Controllers\DatabarangController;
+use App\Http\Controllers\DaftarbarangController;
 use App\Models\Profil_perusahaan;
 
 
@@ -107,6 +108,8 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->group(function ()
     Route::post('/koreksi-absensi/destroy-periode', [KoreksiAbsensiController::class, 'destroyPeriode'])->name('admin.koreksi-absensi.destroyPeriode');
 
     Route::get('/data-barang', [DatabarangController::class, 'index'])->name('admin.data-barang.index');
+
+    Route::get('/daftar-barang', [DaftarbarangController::class, 'index'])->name('admin.daftar-barang.index');
 
 });
 

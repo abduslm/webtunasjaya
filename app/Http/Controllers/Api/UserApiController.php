@@ -8,8 +8,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 
 class UserApiController extends Controller
@@ -276,11 +279,75 @@ class UserApiController extends Controller
             'id_user'       => $user->id,
         ]);
 
+        $token = Str::random(64);
+    
+        DB::table('account_activation_tokens')->where('email', $user->email)->delete();
+        DB::table('account_activation_tokens')->insert([
+            'email' => $user->email,
+            'token' => $token,
+            'created_at' => Carbon::now()
+        ]);
+
+        $linkAktivasi = url("/api/auth/activate?token=$token&email=" . urlencode($user->email));
+        try {
+            Mail::send([], [], function ($message) use ($user, $linkAktivasi) {
+                $message->to($user->email)
+                    ->subject('Aktivasi Akun Karyawan - PT Tunas Jaya Bersinar Cemerlang')
+                    ->html("
+                        <h3>Halo, " . $user->dataKaryawan->nama_lengkap . "!</h3>
+                        <p>Terima kasih telah melakukan registrasi. Selesaikan pendaftaran Anda dengan mengklik tautan di bawah ini:</p>
+                        <p><a href='$linkAktivasi' style='background:#1E293B;color:white;padding:8px 16px;text-decoration:none;border-radius:4px;display:inline-block;'>Aktifkan Akun Saya</a></p>
+                        <p style='color:grey;font-size:12px;'>Tautan ini berlaku selama 7 hari.</p>
+                    ");
+            });
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal mengirimkan email verifikasi akun. Silahkan hubungi admin untuk mengaktifkan akun secara manual'], 500);
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Registrasi berhasil. Akun Anda menunggu aktivasi dari admin.',
+            'message' => 'Registrasi berhasil. Silakan cek email Anda untuk mengaktifkan akun.',
             'data'    => compact('user', 'karyawan'),
         ], 201);
+    }
+
+    public function activateUser(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+        ]);
+
+        $pencocokan = DB::table('account_activation_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$pencocokan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tautan aktivasi salah, tidak valid, atau sudah kadaluwarsa.'
+            ], 400);
+        }
+        if (Carbon::parse($pencocokan->created_at)->addDay(7)->isPast()) {
+            DB::table('account_activation_tokens')->where('email', $request->email)->delete();
+    
+            return response()->json([
+                'success' => false, 
+                'message' => 'Tautan aktivasi sudah kedaluwarsa (lewat dari 7 hari). Silakan hubungi admin atau daftar ulang.'
+            ], 400);
+        }
+
+
+        User::where('email', $request->email)->update([
+            'status' => 'aktif'
+        ]);
+        DB::table('account_activation_tokens')->where('email', $request->email)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akun Anda telah aktif sepenuhnya! Silakan masuk kembali lewat aplikasi mobile.',
+        ], 200);
     }
 
 

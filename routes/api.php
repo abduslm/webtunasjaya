@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 // =====================
 Route::post('/login', [UserApiController::class, 'loginMobile']);
 Route::post('/register', [UserApiController::class, 'storeUserwithKaryawan']);
+Route::get('/auth/activate', [UserApiController::class, 'activateUser']);
 
 Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('forgot-password.show');
 Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp'])->middleware('guest.antispam:otp_request')->name('forgot-password.send-otp');

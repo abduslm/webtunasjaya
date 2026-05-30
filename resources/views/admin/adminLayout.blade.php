@@ -106,9 +106,13 @@
                 <i class="bi bi-clock"></i>
                 <span>Koreksi Absensi</span>
             </a>
-             <a href="{{ route('admin.data-barang.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.koreksi-absensi.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+             <a href="{{ route('admin.data-barang.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.data-barang.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                 <i class="bi bi-clock"></i>
                 <span>data barang</span>
+            </a>
+            <a href="{{ route('admin.daftar-barang.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.daftar-barang.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i class="bi bi-clock"></i>
+                <span>daftar barang</span>
             </a>
             <!-- Logout -->
             <div class="pt-4 border-t border-gray-200 sticky bottom-0 bg-white">

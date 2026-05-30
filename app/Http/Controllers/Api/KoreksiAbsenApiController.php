@@ -22,11 +22,14 @@ class KoreksiAbsenApiController extends Controller
                 'jenis_koreksi'  => 'required|string',
                 'tanggal'        => 'required|date',
                 'absen_masuk'    => 'nullable|date_format:H:i:s',
-                'absen_keluar'   => 'nullable|date_format:H:i:s|after_or_equal:absen_masuk',
+                'absen_keluar'   => 'nullable|date_format:H:i:s',
+                'media_pendukung'=> 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
                 'alasan'         => 'required|string|min:10',
             ], [
                 'alasan.min'              => 'Alasan minimal 10 karakter.',
                 'absen_keluar.after_or_equal' => 'Waktu keluar harus setelah waktu masuk.',
+                'media_pendukung.mimes'   => 'Media pendukung harus berupa file dengan format jpg, jpeg, png, atau pdf.',
+                'media_pendukung.max'     => 'Ukuran media pendukung maksimal 5 MB.',
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -38,6 +41,11 @@ class KoreksiAbsenApiController extends Controller
         $absensi = Absensi::where('id_user', $user->id)
             ->where('tanggal', $validated['tanggal'])
             ->first();
+        
+        $pathMedia = null;
+        if ($request->hasFile('media_pendukung')) {
+            $pathMedia = $request->file('media_pendukung')->store('media_koreksiAbsen', 'public');
+        }
     
         if (!$absensi) {
             $totalWaktu = null;
@@ -54,7 +62,7 @@ class KoreksiAbsenApiController extends Controller
                 'total_waktu'    => $totalWaktu,
                 'tanggal'        => $validated['tanggal'],
                 'alasan'         => $validated['alasan'],
-                'media_pendukung'=> null,
+                'media_pendukung'=> $pathMedia,
                 'status'         => 'pending',
                 'id_absensi'     => null,
             ]);
@@ -91,7 +99,7 @@ class KoreksiAbsenApiController extends Controller
             'total_waktu'    => $totalWaktu,
             'tanggal'        => $validated['tanggal'],
             'alasan'         => $validated['alasan'],
-            'media_pendukung'=> null,
+            'media_pendukung'=> $pathMedia,
             'status'         => 'pending',
             'id_absensi'     => $absensi->id_absensi,
         ]);
@@ -108,7 +116,7 @@ class KoreksiAbsenApiController extends Controller
     {
         $koreksi = Koreksi_absensi::with('absensi')->find($id);
 
-        if (!$koreksi) {
+        if ($koreksi->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data koreksi absen tidak ditemukan.',
@@ -122,13 +130,18 @@ class KoreksiAbsenApiController extends Controller
         ], 200);
     }
 
-    public function showWithUser(string $idUser): JsonResponse
+    public function showWithUser(Request $request): JsonResponse
     {
-        $koreksi = Koreksi_absensi::where('id_user', $idUser)
-            ->orderBy('tanggal', 'desc')
-            ->get();
+        $user = $request->user();
+        $query = Koreksi_absensi::where('id_user', $user->id)
+            ->orderBy('tanggal', 'desc');
 
-        if (!$koreksi) {
+        if ($request->has('status') && $request->status !== 'semua') {
+            $query->where('status', $request->status);
+        }
+        $koreksi = $query->get();
+
+        if ($koreksi->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data koreksi absen tidak ditemukan.',
@@ -161,7 +174,7 @@ class KoreksiAbsenApiController extends Controller
         }
 
         if ($koreksi->media_pendukung) {
-            $imagePath = public_path('assets/images/foto_koreksi/' . $koreksi->media_pendukung);
+            $imagePath = public_path($koreksi->media_pendukung);
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }

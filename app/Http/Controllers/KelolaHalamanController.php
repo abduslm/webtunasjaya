@@ -254,6 +254,19 @@ class KelolaHalamanController extends Controller
         ]);
         $incomingIds = collect($request->layanan)->pluck('id')->filter()->toArray();
 
+        $layananYangAkanDihapus = kelola_halaman::where('section', 'Layanan')
+            ->whereNotIn('id_kelolaHalaman', $incomingIds)
+            ->get();
+
+        foreach ($layananYangAkanDihapus as $item) {
+            if ($item->gambar) {
+                $path = public_path('storage/' . $item->gambar);
+                if (file_exists($path)) {
+                    unlink($path);
+                }
+            }
+        }
+
         kelola_halaman::where('section', 'Layanan')
             ->whereNotIn('id_kelolaHalaman', $incomingIds)
             ->delete();
@@ -350,6 +363,19 @@ class KelolaHalamanController extends Controller
         ]);
 
         $incomingIds = collect($request->list)->pluck('id')->filter()->toArray();
+
+        $portofolioYangAkanDihapus = kelola_halaman::where('section', 'Portofolio')
+            ->whereNotIn('id_kelolaHalaman', $incomingIds)
+            ->get();
+
+        foreach ($portofolioYangAkanDihapus as $item) {
+            if ($item->gambar) {
+                $path = public_path('storage/' . $item->gambar);
+                if (file_exists($path)) {
+                    unlink($path);
+                }
+            }
+        }
 
         // 1. Hapus data yang tidak ada di list kiriman
         kelola_halaman::where('section', 'Portofolio')
@@ -456,6 +482,19 @@ class KelolaHalamanController extends Controller
         $request->validate(['list' => 'required|array']);
 
         $incomingIds = collect($request->list)->pluck('id')->filter()->toArray();
+
+        $dokYangAkanDihapus = kelola_halaman::where('section', 'Dokumentasi')
+            ->whereNotIn('id_kelolaHalaman', $incomingIds)
+            ->get();
+
+        foreach ($dokYangAkanDihapus as $item) {
+            if ($item->gambar) {
+                $path = public_path('storage/' . $item->gambar);
+                if (file_exists($path)) {
+                    unlink($path);
+                }
+            }
+        }
 
         kelola_halaman::where('section', 'Dokumentasi')
             ->whereNotIn('id_kelolaHalaman', $incomingIds)

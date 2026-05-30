@@ -58,6 +58,8 @@
                         <option value="hadir">Hadir</option>
                         <option value="izin-sakit">Izin-Sakit</option>
                         <option value="izin-cuti">Izin-Cuti</option>
+                        <option value="izin-lainnya">Izin-Lainnya</option>
+                        <option value="koreksi">Koreksi</option>
                     </select>
                 </div>
 
@@ -107,8 +109,10 @@
                             @php
                                 $statusClasses = [
                                     'hadir' => 'bg-green-50 text-green-700 border-green-100',
-                                    'izin-sakit' => 'bg-blue-50 text-blue-700 border-blue-100',
-                                    'izin-cuti' => 'bg-orange-50 text-orange-700 border-orange-100',
+                                    'Izin-Sakit' => 'bg-blue-50 text-blue-700 border-blue-100',
+                                    'Izin-Cuti' => 'bg-blue-50 text-blue-500 border-orange-100',
+                                    'Izin-Lainnya' => 'bg-blue-50 text-blue-300 border-purple-100',
+                                    'koreksi' => 'bg-orange-50 text-orange-700 border-yellow-100',
                                 ];
                                 $class = $statusClasses[$item->status] ?? 'bg-gray-50 text-gray-700 border-gray-100';
                             @endphp

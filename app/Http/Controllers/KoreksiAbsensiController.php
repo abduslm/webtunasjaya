@@ -69,7 +69,7 @@ class KoreksiAbsensiController
                 'absen_masuk'  => $koreksi->absen_masuk,
                 'absen_keluar' => $koreksi->absen_keluar,
                 'total_waktu'  => $totalWaktu,
-                'status'       => 'hadir'
+                'status'       => 'koreksi',
             ]
         );
         $koreksi->id_absensi = $absensi->id_absensi;
@@ -91,6 +91,18 @@ class KoreksiAbsensiController
         };
 
         if (!$dateThreshold) return response()->json(['success' => false], 400);
+
+        $filesToDelete = Koreksi_absensi::where('created_at', '<', $dateThreshold)
+            ->whereNotNull('media_pendukung')
+            ->pluck('media_pendukung')
+            ->toArray();
+
+        foreach ($filesToDelete as $filePath) {
+            $path = public_path('storage/' . $filePath);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
 
         Koreksi_absensi::where('created_at', '<', $dateThreshold)->delete();
 

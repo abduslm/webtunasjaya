@@ -14,16 +14,18 @@ class PengajuanIzinApiController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
-        \Log::info('Request data:', $request->all());
         try {
             $validated = $request->validate([
                 'jenis_izin'       => 'required|string',
                 'tanggal'          => 'required|array',
                 'alasan'           => 'required|string|min:5',
+                'media_pendukung'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
                 'id_user'          => 'required|exists:users,id',
             ], [
                 'id_user.exists'   => 'User yang dipilih tidak valid.',
                 'alasan.min'       => 'Alasan minimal 5 karakter.',
+                'media_pendukung.mimes' => 'Media pendukung harus berupa file dengan format jpg, jpeg, png, atau pdf.',
+                'media_pendukung.max'   => 'Ukuran media pendukung maksimal 5 MB.',
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -39,10 +41,16 @@ class PengajuanIzinApiController extends Controller
             ], 403);
         }
 
+        $pathMedia = null;
+        if ($request->hasFile('media_pendukung')) {
+            $pathMedia = $request->file('media_pendukung')->store('media_izin', 'public');
+        }
+
         $izin = Pengajuan_izin::create([
             'jenis_izin'      => $validated['jenis_izin'],
             'tanggal'         => $validated['tanggal'],
-            'media_pendukung' => null,
+            'alasan'          => $validated['alasan'],
+            'media_pendukung' => $pathMedia,
             'status'          => 'pending',
             'id_user'         => $validated['id_user'],
         ]);
@@ -73,11 +81,16 @@ class PengajuanIzinApiController extends Controller
         ], 200);
     }
 
-    public function showWithUser(string $idUser): JsonResponse
+    public function showWithUser(Request $request): JsonResponse
     {
-        $izin = Pengajuan_izin::where('id_user', $idUser)
-            ->orderBy('tanggal_mulai', 'desc')
-            ->get();
+        $user = $request->user();
+        $query = Pengajuan_izin::where('id_user', $user->id)
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('status') && $request->status !== 'semua') {
+            $query->where('status', $request->status);
+        }
+        $izin = $query->get();
 
         if (!$izin) {
             return response()->json([
@@ -112,7 +125,7 @@ class PengajuanIzinApiController extends Controller
         }
 
         if ($izin->media_pendukung) {
-            $imagePath = public_path('assets/images/foto_izin/' . $izin->media_pendukung);
+            $imagePath = public_path('storage/' . $izin->media_pendukung);
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }

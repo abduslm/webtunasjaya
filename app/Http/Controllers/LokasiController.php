@@ -143,6 +143,12 @@ class LokasiController
     public function destroy($id_lokasi)
     {
         $lokasi =Lokasi::findOrFail($id_lokasi);
+        if ($lokasi->gambar) {
+            $path = public_path('storage/' . $lokasi->gambar);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
         $lokasi->delete();
         return redirect()->back()->with('success', 'Lokasi berhasil dihapus');
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengajuan_izin;
+use App\Models\Absensi;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -46,6 +47,27 @@ class PengajuanIzinController
         $izin = Pengajuan_izin::findOrFail($id_pengajuanIzin);
         $izin->update(['status' => $request->status]);
 
+        if ($request->status === 'disetujui') {
+        $daftarTanggal = is_array($izin->tanggal) ? $izin->tanggal : json_decode($izin->tanggal, true);
+
+        if (!empty($daftarTanggal)) {
+            foreach ($daftarTanggal as $tgl) {
+                Absensi::updateOrCreate(
+                    [
+                        'id_user' => $izin->id_user,
+                        'tanggal' => $tgl,
+                    ],
+                    [
+                        'status'       => $izin->jenis_izin,
+                        'absen_masuk'  => null,            
+                        'absen_keluar' => null,         
+                        'total_waktu'  => null,
+                    ]
+                );
+            }
+        }
+    }
+
         return redirect()->back()->with('success', 'Status Pengajuan Izin berhasil ' .$request->status);
     }
 
@@ -60,6 +82,18 @@ class PengajuanIzinController
         };
 
         if (!$dateThreshold) return response()->json(['success' => false], 400);
+
+        $filesToDelete = Pengajuan_izin::where('created_at', '<', $dateThreshold)
+            ->whereNotNull('media_pendukung')
+            ->pluck('media_pendukung')
+            ->toArray();
+
+        foreach ($filesToDelete as $filePath) {
+            $path = public_path('storage/' . $filePath);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
 
         Pengajuan_izin::where('created_at', '<', $dateThreshold)->delete();
 

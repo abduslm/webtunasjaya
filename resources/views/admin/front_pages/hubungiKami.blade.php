@@ -25,7 +25,6 @@
         </div>
     @endif
 
->>>>>>> branch2
     <div class="mb-8">
         <h2 class="text-2xl text-gray-900 mb-1">Kelola Hubungi Kami</h2>
         <p class="text-gray-500">Atur informasi kontak perusahaan</p>

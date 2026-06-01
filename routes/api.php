@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 // =====================
 Route::post('/login', [UserApiController::class, 'loginMobile']);
 Route::post('/register', [UserApiController::class, 'storeUserwithKaryawan']);
+Route::get('/auth/activate', [UserApiController::class, 'activateUser']);
 
 Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('forgot-password.show');
 Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp'])->middleware('guest.antispam:otp_request')->name('forgot-password.send-otp');
@@ -38,12 +39,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::post('/pengajuan-izin', [PengajuanIzinApiController::class, 'store']);
+    Route::get('/pengajuan-izin/history', [PengajuanIzinApiController::class, 'showWithUser']);
     Route::get('/pengajuan-izin/{id}', [PengajuanIzinApiController::class, 'show']);
-    Route::get('/pengajuan-izin/user/{idUser}', [PengajuanIzinApiCOntroller::class, 'showWithUser']);
+    Route::delete('/pengajuan-izin/destroy/{id}', [PengajuanIzinApiController::class, 'destroy']);
     
     Route::post('/koreksi-absen', [KoreksiAbsenApiController::class, 'store']);
+    Route::get('/koreksi-absen/history', [KoreksiAbsenApiController::class, 'showWithUser']);
     Route::get('/koreksi-absen/{id}', [KoreksiAbsenApiController::class, 'show']);
-    Route::get('/koreksi-absen/user/{idUser}', [KoreksiAbsenApiController::class, 'showWithUser']);
+    Route::delete('/koreksi-absen/destroy/{id}', [KoreksiAbsenApiController::class, 'destroy']);
 
     Route::post('/user-resetpassword', [UserApiController::class, 'resetPassword']);
 });

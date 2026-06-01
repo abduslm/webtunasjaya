@@ -7,6 +7,8 @@ use App\Models\Pengajuan_izin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PengajuanIzinApiController extends Controller
 {
@@ -99,10 +101,25 @@ class PengajuanIzinApiController extends Controller
             ], 404);
         }
 
+        $data = $izin->map(function ($i) {
+            $tanggalArray = is_string($i->tanggal) ? json_decode($i->tanggal, true) : $i->tanggal;
+            return [
+                'id_pengajuanIzin' => $i->id_pengajuanIzin,
+                'jenis' => $i->jenis_izin,
+                'alasan' => $i->alasan ?? '-',
+                'status' => strtoupper($i->status),
+                'tanggal' => $tanggalArray 
+                    ? collect($tanggalArray)->map(fn($tgl) => Carbon::parse($tgl)->translatedFormat('d M Y'))->toArray()
+                    : [],
+                'tanggalPengajuan' => Carbon::parse($i->created_at)->translatedFormat('d M Y'),
+                'mediaPendukung' => $i->media_pendukung ? asset('storage/' . $i->media_pendukung) : null,
+            ];
+        });
+
         return response()->json([
             'success' => true,
             'message' => 'Detail pengajuan izin berhasil diambil.',
-            'data'    => $izin,
+            'data'    => $data,
         ], 200);
     }
 

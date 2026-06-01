@@ -89,7 +89,6 @@
                 <thead>
                     <tr class="bg-gray-50/50 border-b border-gray-200">
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No</th>
-
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
@@ -101,7 +100,7 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($userWithKaryawan as $user)
                     <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="px-6 py-4 text-sm text-gray-500">{!! DNS2D::getBarcodeHTML(''.$user->id.'' ,'QRCODE', 4, 6) !!}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ $userWithKaryawan->firstItem() + $loop->index }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $user->email }}</td>
                         <td class="px-6 py-4 text-sm text-gray-500">{{ optional($user->dataKaryawan)->nama_lengkap ?? '-' }}</td>
                         <td class="px-6 py-4">

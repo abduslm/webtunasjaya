@@ -10,28 +10,37 @@
         'Wednesday' => 'Rab', 'Thursday' => 'Kam', 'Friday' => 'Jum', 'Saturday' => 'Sab'
     ];
 
-    // Ambil ID Lokasi dari URL khusus untuk grafik & list terbaru
+    // --- TAMBAHAN FILTER WAKTU ---
     $filter_lokasi = request('lokasi_id');
+    $filter_hari = request('filter_hari', 7); // Default 7 hari jika tidak ada input
+
+    // Hitung range hari untuk looping
+    if($filter_hari == 'bulan_ini') {
+        $jml_hari = (int)date('d'); // Total hari yang sudah lewat di bulan ini
+    } else {
+        $jml_hari = (int)$filter_hari;
+    }
 
     // AMBIL DATA LOKASI UNTUK DROPDOWN
     $list_lokasi = \App\Models\Lokasi::all();
 
-    // TOTAL KARYAWAN GLOBAL (Untuk Info Card Atas)
+    // TOTAL KARYAWAN GLOBAL
     $max_karyawan = \App\Models\User::where('role', 'karyawan')->count() ?: 1;
 
-    // TOTAL HADIR HARI INI GLOBAL (Tidak Terpengaruh Filter)
+    // TOTAL HADIR HARI INI GLOBAL
     $hadir_hari_ini = \App\Models\Absensi::where('tanggal', $hari_ini)->count('id_absensi');
 
-   // --- 2. LOGIKA GRAFIK 7 HARI (TERPENGARUH FILTER) ---
+   // --- 2. LOGIKA GRAFIK (DISESUAIKAN DENGAN FILTER HARI) ---
     $stats = [];
-    for ($i = 6; $i >= 0; $i--) {
+    // Perulangan mundur berdasarkan $jml_hari
+    for ($i = ($jml_hari - 1); $i >= 0; $i--) {
         $tglTarget = date('Y-m-d', strtotime("-$i days"));
         $namaHariInggris = date('l', strtotime($tglTarget));
         $namaHariIndo = $daysIndo[$namaHariInggris];
 
         $query_stat = \App\Models\Absensi::where('tanggal', $tglTarget);
         
-        // Terapkan filter lokasi ke grafik menggunakan whereHas bertingkat sesuai struktur Model
+ 
         if ($filter_lokasi) {
             $query_stat->whereHas('user.dataKaryawan', function($q) use ($filter_lokasi) {
                 $q->where('id_lokasi', $filter_lokasi);
@@ -47,10 +56,9 @@
         ];
     }
 
-    // --- 3. DATA LIST TERBARU (TERPENGARUH FILTER) ---
+    // --- 3. DATA LIST TERBARU ---
     $absensiTerbaruQuery = \App\Models\Absensi::with('user.dataKaryawan');
-    
-    // PERBAIKAN DI SINI: Menggunakan whereHas agar mengecek id_lokasi di tabel data_karyawans
+  
     if ($filter_lokasi) {
         $absensiTerbaruQuery->whereHas('user.dataKaryawan', function($q) use ($filter_lokasi) {
             $q->where('id_lokasi', $filter_lokasi);
@@ -61,31 +69,32 @@
     // --- 4. DATA GLOBAL TAMBAHAN ---
     $lokasi_aktif = \App\Models\Lokasi::count() ?: 0;
     $izinPending = \App\Models\Pengajuan_izin::where('status', 'pending')->count() ?: 0;
-
+  
     $izinPendingList = \App\Models\Pengajuan_izin::with('user.dataKaryawan')
         ->where('status', 'pending')
         ->orderBy('created_at', 'desc')
         ->limit(4)
         ->get();
 
-    // Format Data untuk JavaScript Chart.js
+    // Format Data untuk JavaScript
     $chartLabels = collect($stats)->map(function($stat) {
         $shortDate = date('d/m', strtotime($stat['tanggal'])); 
         return $stat['day'] . ' (' . $shortDate . ')';
     })->toArray();
-
-    $chartData = collect($stats)->pluck('count')->toArray();
+ 
+   $chartData = collect($stats)->pluck('count')->toArray();
 @endphp
 
 <div class="p-8">
-    {{-- Header Dashboard (Tanpa Filter) --}}
-    <div class="mb-8">
+ 
+<div class="mb-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-1">Dashboard</h2>
         <p class="text-gray-500">Sistem Administrasi Cleaning Service</p>
     </div>
 
-    {{-- Stats Cards (Menampilkan Data Total Perusahaan secara Riil) --}}
+    {{-- Stats Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {{-- Total Karyawan --}}
         <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-lg bg-[#e8f5f1] flex items-center justify-center">
@@ -97,7 +106,7 @@
                 </div>
             </div>
         </div>
-
+        {{-- Lokasi Aktif --}}
         <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-lg bg-[#e8f5f1] flex items-center justify-center">
@@ -109,7 +118,7 @@
                 </div>
             </div>
         </div>
-
+        {{-- Hadir Hari Ini --}}
         <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-lg bg-[#fff4e6] flex items-center justify-center">
@@ -121,7 +130,7 @@
                 </div>
             </div>
         </div>
-
+        {{-- Pengajuan Izin --}}
         <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-lg bg-[#fef2f2] flex items-center justify-center">
@@ -135,19 +144,27 @@
         </div>
     </div>
 
-    {{-- SECTION UTAMA GRAFIK (Filter Dipindahkan ke Sini) --}}
+    {{-- SECTION UTAMA GRAFIK --}}
     <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm mb-8">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4 border-b border-gray-50 pb-4">
             <div>
-                <h3 class="text-lg font-bold text-gray-900">Statistik Absensi Mingguan</h3>
-                <p class="text-xs text-gray-400 mt-0.5">Menampilkan perbandingan tren kehadiran 7 hari terakhir</p>
+                <h3 class="text-lg font-bold text-gray-900">Statistik Absensi</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Tren kehadiran berdasarkan periode yang dipilih</p>
             </div>
             
-            {{-- COMPONENT FILTER LOKASI --}}
+  
             <div class="flex items-center gap-2 self-start sm:self-auto">
-                <form action="" method="GET" id="filterForm" class="flex items-center gap-2">
-                    <select name="lokasi_id" id="lokasi_id" 
-                        onchange="this.form.submit()"
+                <form action="" method="GET" id="filterForm" class="flex flex-wrap items-center gap-2">
+                    {{-- TAMBAHAN: FILTER WAKTU --}}
+                    <select name="filter_hari" onchange="this.form.submit()"
+                        class="bg-gray-50 border border-gray-200 text-gray-800 text-xs rounded-lg focus:ring-[#0a4d3c] focus:border-[#0a4d3c] block p-2 font-medium shadow-inner outline-none">
+                        <option value="7" {{ $filter_hari == 7 ? 'selected' : '' }}>7 Hari Terakhir</option>
+                        <option value="30" {{ $filter_hari == 30 ? 'selected' : '' }}>30 Hari Terakhir</option>
+                        <option value="bulan_ini" {{ $filter_hari == 'bulan_ini' ? 'selected' : '' }}>Bulan Ini</option>
+                    </select>
+
+                    {{-- FILTER LOKASI --}}
+                    <select name="lokasi_id" id="lokasi_id" onchange="this.form.submit()"
                         class="bg-gray-50 border border-gray-200 text-gray-800 text-xs rounded-lg focus:ring-[#0a4d3c] focus:border-[#0a4d3c] block p-2 font-medium shadow-inner outline-none">
                         <option value="">Semua Lokasi Kerja</option>
                         @foreach($list_lokasi as $lok)
@@ -156,14 +173,15 @@
                             </option>
                         @endforeach
                     </select>
-                    @if($filter_lokasi)
+
+                    @if($filter_lokasi || $filter_hari != 7)
                         <a href="{{ url()->current() }}" class="text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-2 rounded-lg font-semibold transition border border-red-100">Reset</a>
                     @endif
                 </form>
             </div>
         </div>
         
-        {{-- Area Canvas --}}
+ 
         <div class="relative w-full h-72">
             <canvas id="absensiChart"></canvas>
         </div>
@@ -171,12 +189,12 @@
 
     {{-- Bagian List Log & Approval --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {{-- List Absensi (Ikut Terfilter sesuai Lokasi Pilihan di Atas) --}}
+        {{-- List Absensi --}}
         <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-bold text-gray-900">Absensi Terbaru</h3>
                 @if($filter_lokasi)
-                    <span class="text-[10px] uppercase tracking-wider bg-teal-50 text-[#0a4d3c] font-bold px-2.5 py-1 rounded border border-teal-100">Terfilter</span>
+                    <span class="text-[10px] uppercase bg-teal-50 text-[#0a4d3c] font-bold px-2.5 py-1 rounded border border-teal-100">Terfilter</span>
                 @endif
             </div>
             <div class="space-y-2">
@@ -195,7 +213,7 @@
                     </span>
                 </div>
                 @empty
-                <p class="text-sm text-gray-400 py-4 italic">Belum ada data absensi untuk lokasi ini.</p>
+                <p class="text-sm text-gray-400 py-4 italic text-center">Belum ada data untuk periode/lokasi ini.</p>
                 @endforelse
             </div>
         </div>
@@ -225,7 +243,7 @@
                     </div>
                 </div>
                 @empty
-                <p class="text-sm text-gray-400 py-4 italic">Belum ada data pengajuan pending.</p>
+                <p class="text-sm text-gray-400 py-4 italic text-center">Belum ada data pengajuan pending.</p>
                 @endforelse
             </div>
         </div>
@@ -249,7 +267,8 @@
                     data: dataValues,
                     backgroundColor: '#0a4d3c',
                     borderRadius: 6,
-                    barThickness: 35,
+                    // Ketebalan batang otomatis menyesuaikan jika data banyak (30 hari)
+                    barThickness: labels.length > 10 ? 'flex' : 35, 
                 }]
             },
             options: {
@@ -259,10 +278,18 @@
                     legend: { display: false },
                 },
                 scales: {
-                    x: { grid: { display: false } },
+                    x: { 
+                        grid: { display: false },
+                        ticks: {
+                            autoSkip: true,
+                            maxRotation: 45,
+                            minRotation: 0,
+                            font: { size: 10 }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
-                        // Rentang tinggi grafik menyesuaikan konteks data agar seimbang secara visual
+  
                         max: {{ $filter_lokasi ? 'Math.max(...dataValues) + 2' : $max_karyawan }}, 
                         ticks: { stepSize: 1 }
                     }

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use App\Models\User;
 
 class KoreksiAbsenApiController extends Controller
 {
@@ -25,6 +26,7 @@ class KoreksiAbsenApiController extends Controller
                 'absen_keluar'   => 'nullable|date_format:H:i:s',
                 'media_pendukung'=> 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
                 'alasan'         => 'required|string|min:10',
+                'id_user_opsional' => 'nullable|exists:users,id',
             ], [
                 'alasan.min'              => 'Alasan minimal 10 karakter.',
                 'absen_keluar.after_or_equal' => 'Waktu keluar harus setelah waktu masuk.',
@@ -64,6 +66,7 @@ class KoreksiAbsenApiController extends Controller
                 'alasan'         => $validated['alasan'],
                 'media_pendukung'=> $pathMedia,
                 'status'         => 'pending',
+                'id_user_opsional' => $validated['id_user_opsional'] ?? $user->id,
                 'id_absensi'     => null,
             ]);
 
@@ -101,6 +104,7 @@ class KoreksiAbsenApiController extends Controller
             'alasan'         => $validated['alasan'],
             'media_pendukung'=> $pathMedia,
             'status'         => 'pending',
+            'id_user_opsional' => $validated['id_user_opsional'] ?? $user->id,
             'id_absensi'     => $absensi->id_absensi,
         ]);
 
@@ -134,9 +138,7 @@ class KoreksiAbsenApiController extends Controller
     {
         $user = $request->user();
         $query = Koreksi_absensi::with('absensi')
-            ->whereHas('absensi', function ($q) use ($user) {
-                $q->where('id_user', $user->id);
-            })
+            ->where('id_user_opsional', $user->id)
             ->orderBy('tanggal', 'desc');
 
         if ($request->has('status') && $request->status !== 'semua') {
@@ -158,8 +160,8 @@ class KoreksiAbsenApiController extends Controller
                     ? Carbon::parse($k->absensi->tanggal)->translatedFormat('d M Y')
                     : Carbon::parse($k->tanggal)->translatedFormat('d M Y'),
                 'jenisKoreksi' => $k->jenis_koreksi,
-                'checkInSistem' => $k->absensi->absen_masuk ?? '--:--',
-                'checkOutSistem' => $k->absensi->absen_keluar ?? '--:--',
+                'checkInSistem' => $k->absensi?->absen_masuk ?? '--:--',
+                'checkOutSistem' => $k->absensi?->absen_keluar ?? '--:--',
                 'checkInUsulan' => $k->absen_masuk ?? '--:--',
                 'checkOutUsulan' => $k->absen_keluar ?? '--:--',
                 'alasan' => $k->alasan ?? '-',

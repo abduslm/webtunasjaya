@@ -85,7 +85,7 @@
             
             <div class="flex items-center">
                 <div class="w-48 h-12 flex items-center">
-                    <img src="{{ optional($dataHubungi)->logo ? $dataHubungi->logo : asset('assets/images/landing_page/logo.png') }}" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
+                    <img src="{{ $dataHubungi['logo'] }}" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
                     </div>
             </div>
 
@@ -604,7 +604,7 @@
                 {{-- Kolom 1: Logo & Deskripsi --}}
                 <div class="space-y-6">
                     <div class="bg-white p-1 rounded-sm w-full max-w-[280px] h-16 flex items-center justify-center">
-                        <img src="{{ optional($dataHubungi)->logo ? $dataHubungi->logo : asset('assets/images/landing_page/logo.png') }}" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
+                        <img src="{{ $dataHubungi['logo'] }}" alt="Logo Tunas Jaya" class="w-auto h-full object-contain">
                     </div>
 
                     <p class="text-gray-300 text-sm leading-relaxed max-w-xs">

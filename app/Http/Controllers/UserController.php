@@ -126,7 +126,7 @@ class UserController
             'password' => $validated['password'] ?? $user->password,
             'role' => $validated['role'] ?? $user->role,
             'status' => strtolower($validated['status'] ?? $user->status),
-            'device_id' => $validated['device_id'] ?? $user->device_id,
+            'device_id' => $validated['device_id'],
         ]);
         
         return redirect()->back()->with('success', 'User berhasil diperbarui');

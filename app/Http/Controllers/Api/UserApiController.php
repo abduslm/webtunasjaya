@@ -289,12 +289,13 @@ class UserApiController extends Controller
         ]);
 
         $linkAktivasi = url("/api/auth/activate?token=$token&email=" . urlencode($user->email));
+        $namaLengkap = $validated['nama_lengkap'];
         try {
-            Mail::send([], [], function ($message) use ($user, $linkAktivasi) {
+            Mail::send([], [], function ($message) use ($user, $linkAktivasi, $namaLengkap) {
                 $message->to($user->email)
                     ->subject('Aktivasi Akun Karyawan - PT Tunas Jaya Bersinar Cemerlang')
                     ->html("
-                        <h3>Halo, " . $user->dataKaryawan->nama_lengkap . "!</h3>
+                        <h3>Halo, " . $namaLengkap . "!</h3>
                         <p>Terima kasih telah melakukan registrasi. Selesaikan pendaftaran Anda dengan mengklik tautan di bawah ini:</p>
                         <p><a href='$linkAktivasi' style='background:#1E293B;color:white;padding:8px 16px;text-decoration:none;border-radius:4px;display:inline-block;'>Aktifkan Akun Saya</a></p>
                         <p style='color:grey;font-size:12px;'>Tautan ini berlaku selama 7 hari.</p>
@@ -311,12 +312,14 @@ class UserApiController extends Controller
         ], 201);
     }
 
-    public function activateUser(Request $request): JsonResponse
+    public function activateUser(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'token' => 'required|string',
-        ]);
+        if (!$request->has('email') || !$request->has('token')) {
+            return view('admin.absensi.activasiAkun', [
+                'success' => false,
+                'message' => 'Parameter tautan aktivasi tidak lengkap atau tidak valid.'
+            ]);
+        }
 
         $pencocokan = DB::table('account_activation_tokens')
             ->where('email', $request->email)
@@ -324,32 +327,29 @@ class UserApiController extends Controller
             ->first();
 
         if (!$pencocokan) {
-            return response()->json([
+            return view('admin.absensi.activasiAkun', [
                 'success' => false,
-                'message' => 'Tautan aktivasi salah, tidak valid, atau sudah kadaluwarsa.'
-            ], 400);
+                'message' => 'Tautan aktivasi salah, tidak valid, atau mungkin akun Anda sudah aktif sebelumnya.'
+            ]);
         }
-        if (Carbon::parse($pencocokan->created_at)->addDay(7)->isPast()) {
+        if (Carbon::parse($pencocokan->created_at)->addDays(7)->isPast()) {
             DB::table('account_activation_tokens')->where('email', $request->email)->delete();
-    
-            return response()->json([
-                'success' => false, 
-                'message' => 'Tautan aktivasi sudah kedaluwarsa (lewat dari 7 hari). Silakan hubungi admin atau daftar ulang.'
-            ], 400);
+            
+            return view('admin.absensi.activasiAkun', [
+                'success' => false,
+                'message' => 'Tautan aktivasi sudah kedaluwarsa (melebihi batas waktu 7 hari). Silakan hubungi admin untuk Aktivasi Manual.'
+            ]);
         }
-
-
         User::where('email', $request->email)->update([
             'status' => 'aktif'
         ]);
         DB::table('account_activation_tokens')->where('email', $request->email)->delete();
 
-        return response()->json([
+        return view('admin.absensi.activasiAkun', [
             'success' => true,
-            'message' => 'Akun Anda telah aktif sepenuhnya! Silakan masuk kembali lewat aplikasi mobile.',
-        ], 200);
+            'message' => 'Akun Anda telah diaktifkan sepenuhnya! Anda sekarang sudah bisa masuk dan menggunakan aplikasi absensi mobile.'
+        ]);
     }
-
 
     public function resetPassword(Request $request)
     {

@@ -6,6 +6,7 @@
     .pagination svg { width: 1.5rem; height: 1.5rem; display: inline; }
     .pagination nav div:first-child { display: none; } 
     @media (min-width: 640px) { .pagination nav div:first-child { display: flex; } }
+    [x-cloak] { display: none !important; }
 </style>
 @endpush
 
@@ -33,27 +34,38 @@
     {{-- Filter Card --}}
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
         <div class="p-5">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {{-- Responsive Grid: 1 col on mobile, 2 on tablet, 5 on desktop --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                
                 {{-- Search --}}
                 <div class="relative">
                     <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="text" x-model="search" @keyup.enter="applyFilters"
                         placeholder="Cari nama karyawan..."
-                        class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent outline-none transition-all">
+                        class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent outline-none transition-all text-sm">
                 </div>
 
-                {{-- Tanggal --}}
+                {{-- Tanggal Mulai --}}
                 <div class="relative">
-                    <i class="bi bi-calendar-event absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="date" x-model="tanggal" @change="applyFilters"
-                        class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase absolute left-11 top-1">Dari</label>
+                    <i class="bi bi-calendar-range absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="date" x-model="tanggal_mulai" @change="applyFilters"
+                        class="w-full pl-11 pr-4 pt-5 pb-1.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none text-sm">
+                </div>
+
+                {{-- Tanggal Selesai --}}
+                <div class="relative">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase absolute left-11 top-1">Sampai</label>
+                    <i class="bi bi-calendar-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="date" x-model="tanggal_selesai" @change="applyFilters"
+                        class="w-full pl-11 pr-4 pt-5 pb-1.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none text-sm">
                 </div>
 
                 {{-- Status --}}
                 <div class="relative">
                     <i class="bi bi-filter-circle absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <select x-model="status" @change="applyFilters"
-                        class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] appearance-none outline-none">
+                        class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] appearance-none outline-none text-sm">
                         <option value="semua">Semua Status</option>
                         <option value="hadir">Hadir</option>
                         <option value="izin-sakit">Izin-Sakit</option>
@@ -65,8 +77,8 @@
 
                 {{-- Reset Button --}}
                 <button @click="resetFilters" 
-                    class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium">
-                    Reset Filter
+                    class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm">
+                    <i class="bi bi-arrow-counterclockwise mr-1"></i> Reset Filter
                 </button>
             </div>
         </div>
@@ -99,7 +111,7 @@
                         <td class="px-6 py-4 text-sm">
                             <div class="flex flex-col">
                                 <span class="text-gray-600 font-medium">In: {{ $item->absen_masuk ?? '--:--' }}</span>
-                                <span class="text-gray-400 text-small">Out: {{ $item->absen_keluar ?? '--:--' }}</span>
+                                <span class="text-gray-400 text-xs">Out: {{ $item->absen_keluar ?? '--:--' }}</span>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">
@@ -141,8 +153,8 @@
     </div>
 
     {{-- Modal Hapus Data --}}
-    <div x-show="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" style="display: none;" x-cloak>
-        <div class="bg-white rounded-xl max-w-md w-full p-6">
+    <div x-show="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" x-cloak>
+        <div class="bg-white rounded-xl max-w-md w-full p-6" @click.away="showDeleteModal = false">
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                     <i class="bi bi-trash3 text-red-600 text-2xl"></i>
@@ -187,17 +199,25 @@
     function absensiManager() {
         return {
             search: '{{ request('search') }}',
-            tanggal: '{{ request('tanggal', \Carbon\Carbon::today()->toDateString()) }}',
-            status: '{{ request('status', 'Semua') }}',
+            tanggal_mulai: '{{ request('tanggal_mulai') }}',
+            tanggal_selesai: '{{ request('tanggal_selesai') }}',
+            status: '{{ request('status', 'semua') }}',
             showDeleteModal: false,
 
             applyFilters() {
                 const url = new URL(window.location.href);
                 
+                // Search Filter
                 this.search ? url.searchParams.set('search', this.search) : url.searchParams.delete('search');
-                this.tanggal ? url.searchParams.set('tanggal', this.tanggal) : url.searchParams.delete('tanggal');
-                this.status !== 'Semua' ? url.searchParams.set('status', this.status) : url.searchParams.delete('status');
+                
+                // Date Range Filter
+                this.tanggal_mulai ? url.searchParams.set('tanggal_mulai', this.tanggal_mulai) : url.searchParams.delete('tanggal_mulai');
+                this.tanggal_selesai ? url.searchParams.set('tanggal_selesai', this.tanggal_selesai) : url.searchParams.delete('tanggal_selesai');
+                
+                // Status Filter
+                this.status !== 'semua' ? url.searchParams.set('status', this.status) : url.searchParams.delete('status');
     
+                // Reset page to 1 when filtering
                 url.searchParams.delete('page');
                 
                 window.location.href = url.toString();
@@ -211,6 +231,7 @@
                 const currentParams = new URLSearchParams(window.location.search).toString();
                 window.location.href = `{{ route('admin.daftar-absensi.index') }}/export?${currentParams}`;
             },
+
             hapusPeriode(periode) {
                 const label = periode.replace('_', ' ');
                 if (confirm(`Apakah Anda yakin ingin menghapus data absensi yang sudah lebih dari ${label}? Data yang sudah dihapus tidak dapat dikembalikan.`)) {

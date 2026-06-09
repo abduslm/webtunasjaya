@@ -10,6 +10,9 @@ use App\Http\Controllers\ProfilPerusahaanController;
 use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\KoreksiAbsensiController;
 use App\Http\Controllers\PesanController;
+use App\Http\Controllers\DataKaryawanController;
+use App\Http\Controllers\DaftarbarangController;
+use App\Http\Controllers\AktivitasinventarisController;
 
 use App\Http\Middleware\role;
 use App\Http\Middleware\isAdmin;
@@ -17,9 +20,6 @@ use App\Http\Middleware\LogRequests;
 use App\Http\Middleware\loginLimit;
 use App\Http\Middleware\logLogin;
 use App\Http\Middleware\loginLokasi;
-use App\Http\Controllers\DataKaryawanController;
-use App\Http\Controllers\DatabarangController;
-use App\Http\Controllers\DaftarbarangController;
 use App\Models\Profil_perusahaan;
 
 
@@ -75,41 +75,51 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->g
 
 
 
-Route::middleware(['auth','role:admin,spv'])->prefix('admin')->group(function () {
-    Route::get('/kelola-karyawan', [DataKaryawanController::class, 'index'])->name('admin.kelola-karyawan.index');
-    Route::post('/kelola-karyawan/store', [DataKaryawanController::class, 'store'])->name('admin.kelola-karyawan.store');
-    Route::post('/kelola-karyawan/withUser/store', [DataKaryawanController::class, 'createKaryawanWithUser'])->name('admin.kelola-karyawan.createWithUser');
-    Route::get('/kelola-karyawan/{id_karyawan}', [DataKaryawanController::class, 'show'])->name('admin.kelola-karyawan.show');
-    Route::put('/kelola-karyawan/{id_karyawan}', [DataKaryawanController::class, 'update'])->name('admin.kelola-karyawan.update');
-    Route::put('/kelola-karyawan/{id_karyawan}/updateWithUser', [DataKaryawanController::class, 'updateKaryawanWithUser'])->name('admin.kelola-karyawan.updateWithUser');
-    Route::delete('/kelola-karyawan/{id_karyawan}', [DataKaryawanController::class, 'destroy'])->name('admin.kelola-karyawan.destroy');
+Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/kelola-karyawan', [DataKaryawanController::class, 'index'])->name('kelola-karyawan.index');
+    Route::post('/kelola-karyawan/store', [DataKaryawanController::class, 'store'])->name('kelola-karyawan.store');
+    Route::post('/kelola-karyawan/withUser/store', [DataKaryawanController::class, 'createKaryawanWithUser'])->name('kelola-karyawan.createWithUser');
+    Route::get('/kelola-karyawan/{id_karyawan}', [DataKaryawanController::class, 'show'])->name('kelola-karyawan.show');
+    Route::put('/kelola-karyawan/{id_karyawan}', [DataKaryawanController::class, 'update'])->name('kelola-karyawan.update');
+    Route::put('/kelola-karyawan/{id_karyawan}/updateWithUser', [DataKaryawanController::class, 'updateKaryawanWithUser'])->name('kelola-karyawan.updateWithUser');
+    Route::delete('/kelola-karyawan/{id_karyawan}', [DataKaryawanController::class, 'destroy'])->name('kelola-karyawan.destroy');
 
-    Route::get('/kelola-user', [UserController::class, 'indexWithRequest'])->name('admin.kelola-user.index');
-    Route::post('/kelola-user/store', [UserController::class, 'store'])->name('admin.kelola-user.store');
-    Route::get('/kelola-user/{user}', [UserController::class, 'show'])->name('admin.kelola-user.show');
-    Route::put('/kelola-user/{user}', [UserController::class, 'update'])->name('admin.kelola-user.update');
-    Route::delete('/kelola-user/{user}', [UserController::class, 'destroy'])->name('admin.kelola-user.destroy'); 
+    Route::get('/kelola-user', [UserController::class, 'indexWithRequest'])->name('kelola-user.index');
+    Route::post('/kelola-user/store', [UserController::class, 'store'])->name('kelola-user.store');
+    Route::get('/kelola-user/{user}', [UserController::class, 'show'])->name('kelola-user.show');
+    Route::put('/kelola-user/{user}', [UserController::class, 'update'])->name('kelola-user.update');
+    Route::delete('/kelola-user/{user}', [UserController::class, 'destroy'])->name('kelola-user.destroy'); 
 
-    Route::get('/kelola-lokasi', [LokasiController::class, 'index'])->name('admin.kelola-lokasi.index');
-    Route::post('/kelola-lokasi/store', [LokasiController::class, 'store'])->name('admin.kelola-lokasi.store');
-    Route::put('/kelola-lokasi/{id}', [LokasiController::class, 'update'])->name('admin.kelola-lokasi.update');
-    Route::delete('/kelola-lokasi/{id}', [LokasiController::class, 'destroy'])->name('admin.kelola-lokasi.destroy'); 
+    Route::get('/kelola-lokasi', [LokasiController::class, 'index'])->name('kelola-lokasi.index');
+    Route::post('/kelola-lokasi/store', [LokasiController::class, 'store'])->name('kelola-lokasi.store');
+    Route::put('/kelola-lokasi/{id}', [LokasiController::class, 'update'])->name('kelola-lokasi.update');
+    Route::delete('/kelola-lokasi/{id}', [LokasiController::class, 'destroy'])->name('kelola-lokasi.destroy'); 
 
-    Route::get('/daftar-absensi', [AbsensiController::class, 'index'])->name('admin.daftar-absensi.index');
-    Route::post('/daftar-absensi/destroy-period', [AbsensiController::class, 'destroyPeriode'])->name('admin.daftar-absensi.destroyPeriod');
+    Route::get('/daftar-absensi', [AbsensiController::class, 'index'])->name('daftar-absensi.index');
+    Route::post('/daftar-absensi/destroy-period', [AbsensiController::class, 'destroyPeriode'])->name('daftar-absensi.destroyPeriod');
     Route::get('/daftar-absensi/export', [AbsensiController::class, 'export'])->name('daftar-absensi.export');
 
-    Route::get('/persetujuan-izin', [PengajuanIzinController::class, 'index'])->name('admin.persetujuan-izin.index');
-    Route::put('/persetujuan-izin/status/{id}', [PengajuanIzinController::class, 'updateStatus'])->name('admin.persetujuan-izin.updateStatus');
-    Route::post('/persetujuan-izin/destroyPeriode', [PengajuanIzinController::class, 'destroyPeriode'])->name('admin.persetujuan-izin.destroyPeriode');
+    Route::get('/persetujuan-izin', [PengajuanIzinController::class, 'index'])->name('persetujuan-izin.index');
+    Route::put('/persetujuan-izin/status/{id}', [PengajuanIzinController::class, 'updateStatus'])->name('persetujuan-izin.updateStatus');
+    Route::post('/persetujuan-izin/destroyPeriode', [PengajuanIzinController::class, 'destroyPeriode'])->name('persetujuan-izin.destroyPeriode');
 
-    Route::get('/koreksi-absensi', [KoreksiAbsensiController::class, 'index'])->name('admin.koreksi-absensi.index');
-    Route::put('/koreksi-absensi/status/{id}', [KoreksiAbsensiController::class, 'updateStatus'])->name('admin.koreksi-absensi.updateStatus');
-    Route::post('/koreksi-absensi/destroy-periode', [KoreksiAbsensiController::class, 'destroyPeriode'])->name('admin.koreksi-absensi.destroyPeriode');
+    Route::get('/koreksi-absensi', [KoreksiAbsensiController::class, 'index'])->name('koreksi-absensi.index');
+    Route::put('/koreksi-absensi/status/{id}', [KoreksiAbsensiController::class, 'updateStatus'])->name('koreksi-absensi.updateStatus');
+    Route::post('/koreksi-absensi/destroy-periode', [KoreksiAbsensiController::class, 'destroyPeriode'])->name('koreksi-absensi.destroyPeriode');
 
-    Route::get('/data-barang', [DatabarangController::class, 'index'])->name('admin.data-barang.index');
+    //Route::get('/data-barang', [DatabarangController::class, 'index'])->name('admin.data-barang.index');
 
-    Route::get('/daftar-barang', [DaftarbarangController::class, 'index'])->name('admin.daftar-barang.index');
+    //Route::get('/daftar-barang', [DaftarbarangController::class, 'index'])->name('admin.daftar-barang.index');
+
+    Route::get('barang', [DaftarbarangController::class, 'index'])->name('barang.index');
+    Route::post('barang', [DaftarbarangController::class, 'store'])->name('barang.store');
+    Route::put('barang/{barang}', [DaftarbarangController::class, 'update'])->name('barang.update');
+    Route::delete('barang/{barang}', [DaftarbarangController::class, 'destroy'])->name('barang.destroy');
+
+    Route::get('aktivitas', [AktivitasinventarisController::class, 'index'])->name('aktivitas.index');
+    Route::post('aktivitas', [AktivitasinventarisController::class, 'store'])->name('aktivitas.store');
+    Route::put('aktivitas/{aktivitas}', [AktivitasinventarisController::class, 'update'])->name('aktivitas.update');
+    Route::delete('aktivitas/{aktivitas}', [AktivitasinventarisController::class, 'destroy'])->name('aktivitas.destroy');
 
 });
 

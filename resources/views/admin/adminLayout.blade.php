@@ -8,6 +8,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @stack('styles')
     
     <style>
@@ -106,13 +110,16 @@
                 <i class="bi bi-clock"></i>
                 <span>Koreksi Absensi</span>
             </a>
-             <a href="{{ route('admin.data-barang.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.data-barang.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <div class="mt-6 mb-2 px-4 text-xs text-gray-400 uppercase tracking-wider font-medium">
+                Inventaris Barang
+            </div>
+            <a href="{{ route('admin.barang.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.barang.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                 <i class="bi bi-clock"></i>
-                <span>data barang</span>
+                <span>Daftar Barang</span>
             </a>
-            <a href="{{ route('admin.daftar-barang.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.daftar-barang.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="{{ route('admin.aktivitas.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.aktivitas.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                 <i class="bi bi-clock"></i>
-                <span>daftar barang</span>
+                <span>Log Keluar/Masuk Barang</span>
             </a>
             <!-- Logout -->
             <div class="pt-4 border-t border-gray-200 sticky bottom-0 bg-white">

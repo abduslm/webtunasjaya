@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DaftarBarang extends Model
 {
@@ -22,4 +23,9 @@ class DaftarBarang extends Model
         'stok',
         'satuan',
     ];
+
+    public function aktivitas(): HasMany
+    {
+        return $this->hasMany(Aktivitas_Inventaris::class, 'id_barang', 'id_barang');
+    }
 }

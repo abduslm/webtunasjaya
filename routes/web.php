@@ -120,6 +120,7 @@ Route::middleware(['auth','role:admin,spv'])->prefix('admin')->name('admin.')->g
     Route::post('aktivitas', [AktivitasinventarisController::class, 'store'])->name('aktivitas.store');
     Route::put('aktivitas/{aktivitas}', [AktivitasinventarisController::class, 'update'])->name('aktivitas.update');
     Route::delete('aktivitas/{aktivitas}', [AktivitasinventarisController::class, 'destroy'])->name('aktivitas.destroy');
+    Route::get('aktivitas/export', [AktivitasinventarisController::class, 'export'])->name('aktivitas.export');
 
 });
 

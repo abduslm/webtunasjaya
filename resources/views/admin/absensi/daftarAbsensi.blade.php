@@ -7,79 +7,103 @@
     .pagination nav div:first-child { display: none; } 
     @media (min-width: 640px) { .pagination nav div:first-child { display: flex; } }
     [x-cloak] { display: none !important; }
+    
+    /* Penyesuaian kustom agar UI Form terlihat premium */
+    .filter-input-wrapper {
+        position: relative;
+        display: flex;
+        flex-col: column;
+    }
+    .filter-label-custom {
+        font-size: 10px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        tracking-style: widest;
+        margin-bottom: 6px;
+    }
 </style>
 @endpush
 
 @section('content')
-<div x-data="absensiManager()" class="p-8">
+<div x-data="absensiManager()" class="p-6 md:p-8 max-w-7xl mx-auto">
+    
     {{-- Header --}}
-    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl text-gray-900 font-bold mb-1">Daftar Absensi</h2>
             <p class="text-gray-500 text-sm">Mengelola riwayat kehadiran {{ $absensi->total() }} record secara efisien</p>
         </div>
         
-        <div class="flex gap-3">
-            <button @click="exportData" class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+        <div class="flex gap-3 w-full sm:w-auto">
+            <button @click="exportData" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm text-sm font-medium">
                 <i class="bi bi-download"></i>
                 <span>Export Excel</span>
             </button>
-            <button @click="showDeleteModal = true" class="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm">
+            <button @click="showDeleteModal = true" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm text-sm font-medium">
                 <i class="bi bi-trash3"></i>
                 <span>Hapus Data</span>
             </button>
         </div>
     </div>
 
-    {{-- Filter Card --}}
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6">
-        <div class="p-5">
-            {{-- Responsive Grid: 1 col on mobile, 2 on tablet, 5 on desktop --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
+        <div class="p-5 bg-white space-y-5">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
                 
-                {{-- Search --}}
-                <div class="relative">
-                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" x-model="search" @keyup.enter="applyFilters"
-                        placeholder="Cari nama karyawan..."
-                        class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] focus:border-transparent outline-none transition-all text-sm">
+                <div class="flex flex-col lg:col-span-8">
+                    <label class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Nama Karyawan</label>
+                    <div class="relative">
+                        <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" x-model="search" @keyup.enter="applyFilters"
+                            placeholder="Cari nama karyawan..."
+                            class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] focus:bg-white focus:border-transparent outline-none transition-all text-sm text-gray-700">
+                    </div>
                 </div>
 
-                {{-- Tanggal Mulai --}}
-                <div class="relative">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase absolute left-11 top-1">Dari</label>
-                    <i class="bi bi-calendar-range absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="date" x-model="tanggal_mulai" @change="applyFilters"
-                        class="w-full pl-11 pr-4 pt-5 pb-1.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none text-sm">
+                <div class="flex flex-col lg:col-span-4">
+                    <label class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Status Absensi</label>
+                    <div class="relative">
+                        <i class="bi bi-filter-circle absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <select x-model="status" @change="applyFilters"
+                            class="w-full pl-11 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] focus:bg-white appearance-none outline-none text-sm text-gray-700 cursor-pointer">
+                            <option value="semua">Semua Status</option>
+                            <option value="hadir">Hadir</option>
+                            <option value="izin-sakit">Izin-Sakit</option>
+                            <option value="izin-cuti">Izin-Cuti</option>
+                            <option value="izin-lainnya">Izin-Lainnya</option>
+                            <option value="koreksi">Koreksi</option>
+                        </select>
+                        <i class="bi bi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-5 items-end">
+                <div class="flex flex-col sm:col-span-5">
+                    <label class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Mulai Tanggal</label>
+                    <div class="relative">
+                        <i class="bi bi-calendar-range absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="date" x-model="tanggal_mulai" @change="applyFilters"
+                            class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] focus:bg-white outline-none text-sm text-gray-700">
+                    </div>
+                </div>
+                <div class="flex flex-col sm:col-span-5">
+                    <label class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Sampai Tanggal</label>
+                    <div class="relative">
+                        <i class="bi bi-calendar-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="date" x-model="tanggal_selesai" @change="applyFilters"
+                            class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] focus:bg-white outline-none text-sm text-gray-700">
+                    </div>
                 </div>
 
-                {{-- Tanggal Selesai --}}
-                <div class="relative">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase absolute left-11 top-1">Sampai</label>
-                    <i class="bi bi-calendar-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="date" x-model="tanggal_selesai" @change="applyFilters"
-                        class="w-full pl-11 pr-4 pt-5 pb-1.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] outline-none text-sm">
+                <div class="sm:col-span-2 flex flex-col justify-end">
+                    <button @click="resetFilters" type="button"
+                        class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium text-sm border border-gray-200 shadow-sm">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <span class="sm:hidden lg:inline">Reset Filter</span>
+                    </button>
                 </div>
-
-                {{-- Status --}}
-                <div class="relative">
-                    <i class="bi bi-filter-circle absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <select x-model="status" @change="applyFilters"
-                        class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0a4d3c] appearance-none outline-none text-sm">
-                        <option value="semua">Semua Status</option>
-                        <option value="hadir">Hadir</option>
-                        <option value="izin-sakit">Izin-Sakit</option>
-                        <option value="izin-cuti">Izin-Cuti</option>
-                        <option value="izin-lainnya">Izin-Lainnya</option>
-                        <option value="koreksi">Koreksi</option>
-                    </select>
-                </div>
-
-                {{-- Reset Button --}}
-                <button @click="resetFilters" 
-                    class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm">
-                    <i class="bi bi-arrow-counterclockwise mr-1"></i> Reset Filter
-                </button>
             </div>
         </div>
     </div>
@@ -210,20 +234,21 @@
                 // Search Filter
                 this.search ? url.searchParams.set('search', this.search) : url.searchParams.delete('search');
                 
-                // Date Range Filter
+                // Date Range Filter (Sinkronisasi Parameter Nama Baru)
                 this.tanggal_mulai ? url.searchParams.set('tanggal_mulai', this.tanggal_mulai) : url.searchParams.delete('tanggal_mulai');
                 this.tanggal_selesai ? url.searchParams.set('tanggal_selesai', this.tanggal_selesai) : url.searchParams.delete('tanggal_selesai');
                 
                 // Status Filter
                 this.status !== 'semua' ? url.searchParams.set('status', this.status) : url.searchParams.delete('status');
     
-                // Reset page to 1 when filtering
+                // Reset page to 1 ketika melakukan filter baru
                 url.searchParams.delete('page');
                 
                 window.location.href = url.toString();
             },
 
             resetFilters() {
+                // Mengembalikan halaman ke index bersih tanpa parameter query string URL
                 window.location.href = '{{ route("admin.daftar-absensi.index") }}';
             },
 

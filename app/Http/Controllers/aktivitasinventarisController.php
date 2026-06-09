@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Aktivitas_Inventaris;
 use App\Models\DaftarBarang;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AktivitasInventarisExport;
 
 
 class AktivitasinventarisController extends Controller
@@ -86,6 +89,12 @@ class AktivitasinventarisController extends Controller
         $log->delete();
 
         return redirect()->back()->with('success', 'Log transaksi berhasil dihapus, stok barang otomatis dikembalikan.');
+    }
+
+    public function export(Request $request) 
+    {
+        $namaFile = 'Laporan_Aktivitas_Inventaris_' . Carbon::now()->format('Y-m-d_His') . '.xlsx';
+        return Excel::download(new AktivitasInventarisExport($request), $namaFile);
     }
 
 }

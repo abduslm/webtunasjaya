@@ -19,27 +19,27 @@ class AbsensiController
     {
         $query = Absensi::with('user.dataKaryawan');
 
-        // Filter Nama (Search)
-        if ($request->has('search') && $request->search != '') {
+        if ($request->filled('search')) {
             $query->whereHas('user.dataKaryawan', function($q) use ($request) {
                 $q->where('nama_lengkap', 'like', '%' . $request->search . '%');
             });
         }
 
-        $filterTanggal = $request->get('tanggal', Carbon::today()->toDateString());
-        $query->whereDate('tanggal', $filterTanggal);
-
-        // Filter Tanggal
-        if ($request->has('tanggal') && $request->tanggal != '') {
-            $query->whereDate('tanggal', $request->tanggal);
+        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
+            $query->whereBetween('tanggal', [$request->tanggal_mulai, $request->tanggal_selesai]);
+        } elseif ($request->filled('tanggal_mulai')) {
+            $query->where('tanggal', '>=', $request->tanggal_mulai);
+        } elseif ($request->filled('tanggal_selesai')) {
+            $query->where('tanggal', '<=', $request->tanggal_selesai);
+        } else {
+            $query->whereMonth('tanggal', Carbon::now()->month)
+                ->whereYear('tanggal', Carbon::now()->year);
         }
 
-        // Filter Status
-        if ($request->has('status') && $request->status != 'Semua') {
+        if ($request->filled('status') && $request->status !== 'semua') {
             $query->where('status', $request->status);
         }
 
-        // Ambil data dengan paginasi (misal 15 data per halaman)
         $absensi = $query->latest('tanggal')->paginate(25)->withQueryString();
 
         return view('admin.absensi.daftarAbsensi', compact('absensi'));

@@ -114,11 +114,11 @@
                 Inventaris Barang
             </div>
             <a href="{{ route('admin.barang.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.barang.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-clock"></i>
+                <i class="bi bi-box"></i>
                 <span>Daftar Barang</span>
             </a>
             <a href="{{ route('admin.aktivitas.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors {{ request()->routeIs('admin.aktivitas.index') ? 'bg-[#e8f5f1] text-[#0a4d3c]' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                <i class="bi bi-clock"></i>
+                <i class="bi bi-arrow-left-right"></i>
                 <span>Log Keluar/Masuk Barang</span>
             </a>
             <!-- Logout -->

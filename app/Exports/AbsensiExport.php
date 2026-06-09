@@ -24,35 +24,40 @@ class AbsensiExport implements FromQuery, WithMapping, WithHeadings, ShouldAutoS
     {
         $query = Absensi::with('user.dataKaryawan');
 
-        // Filter Nama (Search)
-        if ($this->request->has('search') && $this->request->search != '') {
-            $query->whereHas('user.dataKaryawan', function($q) use ($search) {
+        // 1. Filter Nama (Search) - Perbaikan use statement
+        if ($this->request->filled('search')) {
+            $query->whereHas('user.dataKaryawan', function($q) {
                 $q->where('nama_lengkap', 'like', '%' . $this->request->search . '%');
             });
         }
 
-        $filterTanggal = $this->request->get('tanggal', Carbon::today()->toDateString());
-        $query->whereDate('tanggal', $filterTanggal);
-
-        // Filter Tanggal
-        if ($this->request->has('tanggal') && $this->request->tanggal != '') {
-            $query->whereDate('tanggal', $this->request->tanggal);
+        // 2. Filter Rentang Tanggal (Date Range) - Sinkron dengan Controller Index
+        if ($this->request->filled('tanggal_mulai') && $this->request->filled('tanggal_selesai')) {
+            $query->whereBetween('tanggal', [$this->request->tanggal_mulai, $this->request->tanggal_selesai]);
+        } elseif ($this->request->filled('tanggal_mulai')) {
+            $query->where('tanggal', '>=', $this->request->tanggal_mulai);
+        } elseif ($this->request->filled('tanggal_selesai')) {
+            $query->where('tanggal', '<=', $this->request->tanggal_selesai);
+        } else {
+            // Jika kosong, default export data bulan ini berjalan
+            $query->whereMonth('tanggal', Carbon::now()->month)
+                    ->whereYear('tanggal', Carbon::now()->year);
         }
 
-        // Filter Status
-        if ($this->request->has('status') && $this->request->status != 'Semua') {
+        // 3. Filter Status (Menyesuaikan value 'semua' dari AlpineJS)
+        if ($this->request->filled('status') && $this->request->status !== 'semua') {
             $query->where('status', $this->request->status);
         }
 
         return $query->latest('tanggal');
-        
     }
 
     // Menentukan isi kolom Excel
     public function map($absensi): array
     {
         return [
-            $absensi->tanggal,
+            // Memformat bentuk tanggal di excel agar rapi (Contoh: 10 Jun 2026)
+            Carbon::parse($absensi->tanggal)->translatedFormat('d M Y'),
             $absensi->user->dataKaryawan->nama_lengkap ?? 'User Dihapus',
             $absensi->absen_masuk ?? '--:--',
             $absensi->absen_keluar ?? '--:--',
